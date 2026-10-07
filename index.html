@@ -1,4 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0D0E11">
+<meta name="description" content="Pick an artist, fill out a song-vs-song bracket, then compare everyone's picks.">
 <title>Track Bracket</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D0E11'/%3E%3Cg fill='none' stroke='%23F2F0EA' stroke-width='2.4' stroke-linecap='square'%3E%3Cpath d='M5 7h6v8h5M5 23h6v-8'/%3E%3Cpath d='M27 7h-6v8h-5M27 23h-6v-8'/%3E%3C/g%3E%3Crect x='13' y='12.5' width='6' height='5' fill='%23C6F432'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -351,8 +359,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .cmp{display:grid;gap:28px}
 .vote{display:grid;gap:16px}
 .vote-bar{display:flex;flex-wrap:wrap;gap:4px}
-.vote-seg{flex:var(--f) 1 150px;min-height:92px;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);min-width:0}
-.vote-seg b{font:900 30px/.9 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.vote-seg{flex:var(--f) 1 170px;min-height:92px;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);min-width:0}
+.vote-seg b{font:900 30px/.9 var(--display);text-transform:uppercase;overflow-wrap:break-word;hyphens:auto}
 .vote-seg span{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700}
 .vote-seg span em{font-style:normal;font-family:var(--mono);white-space:nowrap}
 .vote-seg.wait{background:none;color:var(--muted);box-shadow:none;border:2px dashed var(--line-2)}
@@ -406,13 +414,45 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .tracks .ln a:hover{color:var(--ink);border-color:var(--muted)}
 .copy-out{width:100%;min-height:120px;font:12px/1.5 var(--mono);margin:-8px 0 24px}
 
+/* sign in */
+.signin{padding-block:56px 40px;display:flex;flex-wrap:wrap;gap:40px 56px;align-items:center}
+.signin-copy{flex:999 1 480px;min-width:0}
+.signin-copy .hero-h{margin-bottom:20px}
+.signin-card{flex:1 1 340px;min-width:0;display:grid;gap:14px;padding:24px}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+.or::before,.or::after{content:"";flex:1;border-top:1px solid var(--line)}
+.inline-form{display:flex;gap:8px}
+.inline-form input{flex:1}
+
+/* account menu */
+.me{position:relative}
+.me-btn{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;min-height:44px;color:var(--muted);font:500 14px var(--body);cursor:pointer;min-width:0}
+.me-btn:hover{color:var(--ink)}
+.menu{position:absolute;right:0;top:calc(100% + 6px);width:min(280px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;z-index:20;box-shadow:0 16px 40px rgba(0,0,0,.35);color:var(--ink)}
+.menu .hint{font-size:13px}
+
+/* ask Claude */
+.ask{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:12px;max-width:760px}
+.ask > li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.ask .no{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:600 14px var(--mono)}
+.ask b{display:block;font-weight:600;font-size:16px;margin-top:4px}
+.ask .hint{margin:4px 0 12px}
+.ask .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.ask textarea{width:100%;font:12px/1.5 var(--mono);resize:vertical}
+.prompt-out{min-height:140px;margin-top:12px}
+.reply{display:grid;gap:10px}
+.reply textarea{min-height:150px}
+.reply .btn{justify-self:start}
+
 .toast{position:fixed;left:50%;bottom:calc(20px + var(--tabbar) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:10;max-width:calc(100vw - 32px)}
 .loading{color:var(--muted);padding-block:40px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-
+</head>
+<body>
 <div id="app"><div class="wrap"><p class="loading">Loading brackets…</p></div></div>
 
+<script src="config.js"></script>
 <script>
 (() => {
 'use strict';
@@ -432,6 +472,8 @@ const S = {
   view: 'home', bid: null, tab: 'play', viewing: null, playK: null, peek: {},
   form: { artist: '', size: 32, paste: '', showPaste: false },
   draft: null, gen: null, confirm: null, copyText: null, toast: null,
+  backend: null,                 // 'firebase' | 'artifact' | null (this device only)
+  authState: null, authErr: null, meMenu: false, fb: null, unsubs: [],
 };
 
 /* ---------- small helpers ---------- */
@@ -659,8 +701,17 @@ function draftFromPaste(text, artist, size) {
   return tidyAlbums(d);
 }
 
+function askClaude(artist, size) {
+  S.gen = { status: 'manual', artist, size, prompt: genPrompt(artist, size), reply: '', show: false, err: null };
+  S.draft = null; S.view = 'draft'; render(); window.scrollTo(0, 0);
+}
+function parseReply(text) {
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a < 0 || b < a) throw { code: 'bad_reply' };
+  try { return JSON.parse(text.slice(a, b + 1)); } catch { throw { code: 'bad_reply' }; }
+}
 async function generate(artist, size, fresh) {
-  if (!S.sample) return;
+  if (!S.sample) return askClaude(artist, size);
   const ctl = new AbortController();
   S.gen = { status: 'thinking', artist, size, ctl, found: 0 };
   S.draft = null; S.view = 'draft'; render();
@@ -693,6 +744,7 @@ function genError(code) {
     invalid_json: 'The lineup came back incomplete. Try again.',
     refused: 'Claude couldn’t build a lineup for that name. Try a different artist.',
     session_expired: 'Your session expired. Sign in again, then retry.',
+    bad_reply: 'That doesn’t look like the lineup. Copy Claude’s whole reply, including the { and } brackets, and paste it again.',
   })[code] || 'Something went wrong while building the lineup. Try again.';
 }
 
@@ -713,7 +765,7 @@ function draftToDoc(d) {
 /* ---------- people ---------- */
 function avatar(uid, cls = '') {
   if (uid === '__me' || (uid && uid === S.me.id)) {
-    return S.me.avatarUrl ? `<img class="av ${cls}" src="${esc(S.me.avatarUrl)}" alt="">` : `<span class="av ${cls}">Y</span>`;
+    return S.me.avatarUrl ? `<img class="av ${cls}" src="${esc(S.me.avatarUrl)}" alt="">` : `<span class="av ${cls}">${esc((S.me.name || 'You')[0].toUpperCase())}</span>`;
   }
   if (uid) S.ids.add(uid);
   const p = S.prof[uid];
@@ -784,6 +836,10 @@ function listenLinks(artist, t) {
 function shell() {
   S.ids = new Set();
   let main = '', wide = false;
+  if (S.backend === 'firebase' && S.authState !== 'in') {
+    main = S.authState === 'out' ? signInView() : `<p class="loading">Signing you in…</p>`;
+    return `<div class="wrap">${topBar()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+  }
   if (S.view === 'draft') main = draftView();
   else if (S.view === 'bracket' && S.brackets.get(S.bid)) { main = bracketView(); wide = S.tab === 'bracket'; }
   else { S.view = 'home'; main = homeView(); }
@@ -793,12 +849,36 @@ function shell() {
 const MARK = `<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M2 4h6v8h5M2 20h6v-8"/><path d="M24 4h-6v8h-5M24 20h-6v-8"/></g><rect x="10" y="9.5" width="6" height="5" fill="var(--accent)"/></svg>`;
 function topBar() {
   let who = '';
-  if (S.mode === 'shared' && S.me.id) who = `${avatar(S.me.id)}<span>${esc(S.me.name || 'Signed in')}</span>`;
-  else if (S.mode !== 'connecting') who = `<span>Picks save on this device</span>`;
+  if (S.backend === 'firebase' && S.me.id) {
+    who = `<button class="me-btn" data-act="me-menu" aria-expanded="${S.meMenu}" aria-haspopup="true">${avatar(S.me.id)}<span>${esc(S.me.name || 'You')}</span></button>${S.meMenu ? accountMenu() : ''}`;
+  } else if (S.mode === 'shared' && S.me.id) who = `${avatar(S.me.id)}<span>${esc(S.me.name || 'Signed in')}</span>`;
+  else if (S.mode === 'local') who = `<span>Picks save on this device</span>`;
   return `<header class="top"><button class="brand" data-act="home" aria-label="Track Bracket home">${MARK}Track Bracket</button><div class="me">${who}</div></header>`;
 }
+function accountMenu() {
+  return `<div class="menu" role="dialog" aria-label="Your account">
+    <form id="rename-form" autocomplete="off"><label class="field-l" for="my-name">Your name</label>
+      <div class="inline-form"><input type="text" id="my-name" maxlength="40" value="${esc(S.me.name)}"><button class="btn sm" type="submit">Save</button></div></form>
+    <p class="hint">${S.me.anon ? 'You joined with just a name, so this account lives in this browser.' : 'Signed in with Google.'}</p>
+    <button class="btn sm" data-act="sign-out">Sign out</button></div>`;
+}
+function signInView() {
+  return `<section class="signin">
+    <div class="signin-copy"><p class="eyebrow">Track Bracket</p><h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
+      <p class="hint">Pick an artist, fill out a song-vs-song bracket, then compare everyone’s picks.</p></div>
+    <div class="card-box signin-card">
+      <h2 class="h3">Join in</h2>
+      <p class="hint">Sign in so your picks are saved and your friends can see them.</p>
+      <button class="btn lg" data-act="sign-in-google">Continue with Google</button>
+      <div class="or">or</div>
+      <form id="guest-form" autocomplete="off"><label class="field-l" for="guest-name">Join with just your name</label>
+        <div class="inline-form"><input type="text" id="guest-name" maxlength="40" placeholder="What friends call you"><button class="btn primary" type="submit">Join</button></div></form>
+      <p class="hint" style="font-size:13px">A name-only account works in this browser only. Use Google to play on more than one device.</p>
+      ${S.authErr ? `<p class="err" role="alert">${esc(S.authErr)}</p>` : ''}
+    </div></section>`;
+}
 function notices() {
-  if (S.mode === 'local') return `<div class="notice"><b>Sharing is off in this view.</b> Brackets and picks are kept in this browser only. Open the page from claude.ai while signed in to share them with friends.</div>`;
+  if (S.mode === 'local') return `<div class="notice"><b>Sharing is off.</b> This copy isn’t connected to a database, so brackets and picks stay in this browser. The README explains how to connect one.</div>`;
   if (S.mode === 'shared' && (S.writeBlocked || !S.canWrite)) return `<div class="notice"><b>You can look but not save.</b> Your picks are kept on this device. Ask whoever made this page to invite you with edit access so friends can see your bracket.</div>`;
   return '';
 }
@@ -811,11 +891,11 @@ function bracketStatus(id, b) {
 }
 function homeView() {
   const all = [...S.brackets.entries()].sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-  const canGen = !!S.sample;
+  const canGen = true;
   const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
   const f = S.form;
   const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}"><b>${n}</b><small>${n - 1} matches</small></button>`).join('')}</div>`;
-  const pasteMode = f.showPaste || !canGen;
+  const pasteMode = f.showPaste;
   const hero = `<section class="hero">
     <div class="hero-main">
       <p class="eyebrow">New bracket</p>
@@ -828,7 +908,7 @@ function homeView() {
       </form>
       <div class="hero-foot">
         <p class="hint">${canGen
-          ? (pasteMode ? 'Paste one song per line, optionally followed by “ - Album”.' : 'Claude picks songs across their albums. You can swap any of them before it goes live.')
+          ? (pasteMode ? 'Paste one song per line, optionally followed by “ - Album”.' : S.sample ? 'Claude picks songs across their albums. You can swap any of them before it goes live.' : 'Claude picks songs across their albums: you copy a prompt into Claude and paste its reply back. You can swap any song before it goes live.')
           : 'Paste one song per line, optionally followed by “ - Album”. 16, 32 or 64 songs.'}</p>
         ${canGen ? `<button class="linkbtn" type="button" data-act="toggle-paste">${f.showPaste ? 'Let Claude pick the songs' : 'Paste my own list instead'}</button>` : ''}
       </div>
@@ -892,6 +972,20 @@ function draftView() {
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="gen-live"><span class="pulse"></span><span id="gen-live">Thinking about their catalog…</span></p>
       <p class="hint">This usually takes 20 to 60 seconds.</p></section>`;
+  if (g && g.status === 'manual') return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}Back</button>${draftStepper()}</div>
+    <section class="draft-head"><p class="eyebrow">Get the lineup from Claude</p><h1 class="artist-h">${esc(g.artist)}</h1>
+      <p class="hint">Claude picks and ranks ${g.size} songs. It takes three quick steps and works with a free Claude account.</p></section>
+    <ol class="ask">
+      <li><span class="no">1</span><div><b>Copy the prompt</b><p class="hint">It asks for ${g.size} songs and 8 alternates, in a format this page can read.</p>
+        <div class="row"><button class="btn primary" data-act="copy-prompt">${ic('copy', 'sm')}Copy prompt</button><button class="linkbtn" data-act="show-prompt" aria-expanded="${g.show}">${g.show ? 'Hide' : 'Show'} the prompt</button></div>
+        ${g.show ? `<label class="sr" for="prompt-out">Prompt</label><textarea class="prompt-out" id="prompt-out" readonly>${esc(g.prompt)}</textarea>` : ''}</div></li>
+      <li><span class="no">2</span><div><b>Send it to Claude</b><p class="hint">Start a new chat, paste the prompt and send it.</p>
+        <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude${ic('arrow', 'sm')}</a></div></li>
+      <li><span class="no">3</span><div><b>Paste Claude’s reply here</b><p class="hint">Copy the whole reply. Anything around the { } is ignored.</p>
+        <form id="reply-form" class="reply"><label class="sr" for="reply">Claude’s reply</label><textarea id="reply" placeholder='{"artist": "…", "albums": […], "songs": […]}'>${esc(g.reply)}</textarea>
+          ${g.err ? `<p class="err" role="alert">${esc(g.err)}</p>` : ''}<button class="btn primary lg" type="submit">Use this lineup</button></form></div></li>
+    </ol>
+    <p class="hint">Rather type the songs yourself? <button class="linkbtn" data-act="manual-paste">Paste my own list</button></p>`;
   if (g && g.status === 'error') return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}Back</button>${draftStepper()}</div><section class="gen">
       <p class="eyebrow">Building the lineup</p>
       <h1 class="artist-h">${esc(g.artist)}</h1>
@@ -933,7 +1027,7 @@ function draftView() {
         </fieldset>
         ${S.createErr ? `<p class="err">${esc(S.createErr)}</p>` : ''}
         <button class="btn primary lg" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>
-        ${d.source === 'claude' && S.sample ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
+        ${d.source === 'claude' ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
       </div>
       <div class="side-card">
         <span class="h3">Alternates</span>
@@ -1158,7 +1252,7 @@ function compareTab(b) {
   const n = b.size, ppl = participants(S.bid);
   const mine = ppl.find(p => p.me);
   const isRevealed = revealed(S.bid);
-  const invite = `<button class="btn sm" data-act="invite" aria-expanded="${!!S.invite}">${ic('invite', 'sm')}Invite friends</button>`;
+  const invite = `<button class="btn sm" data-act="invite"${S.backend === 'artifact' ? ` aria-expanded="${!!S.invite}"` : ''}>${ic('invite', 'sm')}${S.backend === 'artifact' ? 'Invite friends' : 'Copy invite link'}</button>`;
   const inviteBox = S.invite ? `<div class="notice invite" style="margin:0"><b>Share this page from the claude.ai Share menu.</b><span>Give friends edit access so their picks are saved where everyone can see them. They’ll find this bracket on the home screen.</span></div>` : '';
   if (!ppl.length) return `<section class="cmp"><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div></section>`;
 
@@ -1258,7 +1352,16 @@ function render() {
 window.addEventListener('resize', () => { clearTimeout(fitTree.t); fitTree.t = setTimeout(fitTree, 100); });
 
 /* ---------- events ---------- */
-function openBracket(id) { S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
+function setHash(h) { if (S.backend === 'artifact') return; try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch {} }
+function openLinkedBracket() {
+  if (S.linkChecked || !S.loadedB) return false;
+  S.linkChecked = true;
+  const m = location.hash.match(/^#b=([\w-]+)$/);
+  if (m && S.brackets.has(m[1])) { openBracket(m[1]); return true; }
+  return false;
+}
+const inviteUrl = bid => location.href.split('#')[0] + '#b=' + bid;
+function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
 function playStep(dir) {
   const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
   const idx = ks.indexOf(cur);
@@ -1276,10 +1379,26 @@ async function shareChampion() {
 }
 
 document.addEventListener('click', async e => {
+  if (S.meMenu && !e.target.closest('.me')) { S.meMenu = false; render(); }
   const t = e.target.closest('[data-act]'); if (!t) return;
   const act = t.dataset.act, d = S.draft;
   switch (act) {
-    case 'home': S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
+    case 'me-menu': S.meMenu = !S.meMenu; render(); if (S.meMenu) document.getElementById('my-name')?.focus(); break;
+    case 'sign-out': S.meMenu = false; await S.fb?.signOut(); break;
+    case 'sign-in-google': {
+      S.authErr = null;
+      try { await S.fb.google(); } catch (err) { S.authErr = authError(err); render(); }
+      break;
+    }
+    case 'copy-prompt': {
+      const g = S.gen;
+      try { await navigator.clipboard.writeText(g.prompt); toast('Prompt copied. Paste it into Claude.'); }
+      catch { g.show = true; render(); const el = document.getElementById('prompt-out'); if (el) { el.focus(); el.select(); } }
+      break;
+    }
+    case 'show-prompt': S.gen.show = !S.gen.show; render(); break;
+    case 'manual-paste': S.gen = null; S.view = 'home'; S.form.showPaste = true; render(); document.getElementById('paste')?.focus(); break;
+    case 'home': setHash(''); S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
     case 'size': S.form.size = +t.dataset.n; render(); break;
     case 'filter': S.filter = t.dataset.v; render(); break;
     case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
@@ -1295,7 +1414,13 @@ document.addEventListener('click', async e => {
     case 'view': S.viewing = t.dataset.uid; S.tab = 'bracket'; render(); window.scrollTo(0, 0); break;
     case 'view-mine': S.viewing = null; render(); break;
     case 'zoom': S.zoom = t.dataset.v; render(); break;
-    case 'invite': S.invite = !S.invite; render(); break;
+    case 'invite': {
+      if (S.backend === 'artifact') { S.invite = !S.invite; render(); break; }
+      const url = inviteUrl(S.bid);
+      try { await navigator.clipboard.writeText(url); toast('Invite link copied. Send it to your friends.'); }
+      catch { toast(url); }
+      break;
+    }
     case 'peek': S.peek[S.bid] = true; render(); break;
     case 'reset': S.confirm = 'reset'; render(); break;
     case 'delete': S.confirm = 'delete'; render(); break;
@@ -1331,7 +1456,7 @@ document.addEventListener('click', async e => {
       t.disabled = true; S.createErr = null;
       try { const id = await createBracket(draftToDoc(d)); S.draft = null; openBracket(id); }
       catch (err) {
-        S.createErr = err?.code === 'invalid_argument' ? 'You don’t have permission to add brackets here. Ask the page owner for edit access.'
+        S.createErr = ['invalid_argument', 'not_granted'].includes(err?.code) ? 'You don’t have permission to add brackets here. Ask the page owner for edit access.'
           : err?.code === 'quota_exceeded' ? 'This page is out of storage. Delete an old bracket and try again.'
           : 'Couldn’t save the bracket. Check your connection and try again.';
         render();
@@ -1371,13 +1496,13 @@ document.addEventListener('dragend', () => {
   document.querySelectorAll('.lu.dragging,.lu.over').forEach(x => x.classList.remove('dragging', 'over'));
 });
 
-document.addEventListener('submit', e => {
+document.addEventListener('submit', async e => {
   e.preventDefault();
   if (e.target.id === 'new-form') {
     const f = S.form;
     const artist = (document.getElementById('artist')?.value || '').trim();
     f.artist = artist;
-    const pasteMode = f.showPaste || !S.sample;
+    const pasteMode = f.showPaste;
     if (pasteMode) {
       const text = document.getElementById('paste')?.value || f.paste;
       if (!text.trim()) { document.getElementById('paste')?.focus(); return; }
@@ -1386,6 +1511,22 @@ document.addEventListener('submit', e => {
       if (!artist) { document.getElementById('artist')?.focus(); return; }
       generate(artist, f.size, false); window.scrollTo(0, 0);
     }
+  } else if (e.target.id === 'reply-form') {
+    const g = S.gen, text = document.getElementById('reply')?.value || '';
+    g.reply = text;
+    if (!text.trim()) { document.getElementById('reply')?.focus(); return; }
+    try { S.draft = draftFromClaude(parseReply(text), g.artist, g.size); S.gen = null; render(); window.scrollTo(0, 0); }
+    catch (err) { g.err = genError(err?.code); render(); }
+  } else if (e.target.id === 'guest-form') {
+    const name = (document.getElementById('guest-name')?.value || '').trim().slice(0, 40);
+    if (!name) { document.getElementById('guest-name')?.focus(); return; }
+    S.pendingName = name; S.authErr = null;
+    try { await S.fb.guest(); } catch (err) { S.pendingName = null; S.authErr = authError(err); render(); }
+  } else if (e.target.id === 'rename-form') {
+    const name = (document.getElementById('my-name')?.value || '').trim().slice(0, 40);
+    if (!name || !S.fb) return;
+    try { await S.fb.db.doc('users/' + S.me.id).set({ name, avatarUrl: S.me.avatarUrl || '' }); S.me.name = name; S.meMenu = false; toast('Name saved'); }
+    catch { toast('Couldn’t save your name. Try again.'); }
   } else if (e.target.id === 'add-song') {
     const d = S.draft, t = document.getElementById('add-title').value.trim();
     if (!t) return;
@@ -1399,6 +1540,7 @@ document.addEventListener('submit', e => {
 document.addEventListener('input', e => {
   if (e.target.id === 'artist') S.form.artist = e.target.value;
   if (e.target.id === 'paste') S.form.paste = e.target.value;
+  if (e.target.id === 'reply' && S.gen) S.gen.reply = e.target.value;
 });
 
 document.addEventListener('keydown', e => {
@@ -1420,12 +1562,113 @@ function goLocal() {
   const all = lsGet(LS_BRACKETS, {});
   S.brackets = new Map(Object.entries(all));
   S.loadedB = true;
-  render();
+  if (!openLinkedBracket()) render();
 }
+
+const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
+// Wraps Firebase in the same small db shape the claude.ai artifact runtime has, so the rest of the app doesn't care which one it talks to.
+async function loadFirebase(cfg) {
+  const [A, Au, F] = await Promise.all(['app', 'auth', 'firestore'].map(m => import(FIREBASE_SDK + `firebase-${m}.js`)));
+  const app = A.initializeApp(cfg.firebase);
+  const auth = Au.getAuth(app), fs = F.getFirestore(app);
+  if (cfg.emulators) {
+    Au.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+    F.connectFirestoreEmulator(fs, '127.0.0.1', 8080);
+  }
+  const codes = { 'permission-denied': 'not_granted', 'resource-exhausted': 'quota_exceeded', 'invalid-argument': 'invalid_argument' };
+  const wrap = p => p.catch(e => { throw { code: codes[e?.code] || e?.code || 'error', message: e?.message }; });
+  const snap = s => ({ docs: s.docs.map(d => ({ id: d.id, data: () => d.data() })) });
+  const db = {
+    collection: name => ({
+      onSnapshot: (cb, err) => F.onSnapshot(F.collection(fs, name), s => cb(snap(s)), err),
+      add: data => wrap(F.addDoc(F.collection(fs, name), data)).then(r => ({ id: r.id })),
+    }),
+    doc: path => {
+      const r = F.doc(fs, path);
+      return {
+        get: () => wrap(F.getDoc(r)).then(d => ({ exists: d.exists(), data: () => d.data() })),
+        set: data => wrap(F.setDoc(r, data)),
+        update: data => wrap(F.setDoc(r, data, { merge: true })), // deep-merges maps, so saving one bracket's picks keeps the others
+        delete: () => wrap(F.deleteDoc(r)),
+      };
+    },
+  };
+  return {
+    db,
+    onAuth: fn => Au.onAuthStateChanged(auth, fn),
+    google: async () => {
+      const p = new Au.GoogleAuthProvider();
+      try { await Au.signInWithPopup(auth, p); }
+      catch (e) {
+        if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e?.code)) await Au.signInWithRedirect(auth, p);
+        else throw e;
+      }
+    },
+    guest: () => Au.signInAnonymously(auth),
+    signOut: () => Au.signOut(auth),
+  };
+}
+function authError(e) {
+  const c = e?.code || '';
+  if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return null;
+  if (c === 'auth/operation-not-allowed' || c === 'auth/admin-restricted-operation') return 'That way of signing in isn’t turned on for this site yet.';
+  if (c === 'auth/unauthorized-domain') return 'This web address isn’t on the site’s sign-in allow list yet.';
+  if (c === 'auth/network-request-failed') return 'Couldn’t reach the sign-in service. Check your connection and try again.';
+  return 'Couldn’t sign you in. Try again.';
+}
+function stopListening() { S.unsubs.forEach(u => { try { u(); } catch {} }); S.unsubs = []; }
+async function bootFirebase(cfg) {
+  S.backend = 'firebase'; S.authState = 'loading'; render();
+  let fb;
+  try { fb = await loadFirebase(cfg); }
+  catch { S.backend = null; S.authState = null; goLocal(); toast('Couldn’t reach the database, so picks stay on this device.'); return; }
+  S.fb = fb;
+  fb.onAuth(async u => {
+    stopListening();
+    S.brackets = new Map(); S.picks = new Map(); S.prof = {}; S.mine = {}; S.edited = new Set(); S.loadedB = false;
+    myDocKnown = null;
+    if (!u) {
+      Object.assign(S, { authState: 'out', mode: 'connecting', db: null, me: { id: null, name: '', avatarUrl: '', isOwner: false }, view: 'home', bid: null, meMenu: false });
+      render(); return;
+    }
+    Object.assign(S, { authState: 'in', mode: 'shared', db: fb.db, canWrite: true, writeBlocked: false, authErr: null });
+    S.me = { id: u.uid, name: S.pendingName || u.displayName || '', avatarUrl: u.photoURL || '', isOwner: false, anon: u.isAnonymous };
+    const pending = S.pendingName; S.pendingName = null;
+    S.unsubs.push(fb.db.collection('users').onSnapshot(snap => {
+      for (const d of snap.docs) { const p = d.data(); S.prof[d.id] = { name: p.name || '', avatarUrl: p.avatarUrl || '' }; }
+      const mine = S.prof[u.uid];
+      if (mine) { S.me.name = mine.name || S.me.name; S.me.avatarUrl = mine.avatarUrl || S.me.avatarUrl; }
+      render();
+    }, () => {}));
+    S.unsubs.push(fb.db.collection('brackets').onSnapshot(snap => {
+      S.brackets = new Map(snap.docs.map(d => [d.id, d.data()]));
+      S.loadedB = true;
+      if (S.view === 'bracket' && !S.brackets.has(S.bid)) { S.view = 'home'; S.bid = null; setHash(''); }
+      if (!openLinkedBracket()) render();
+    }, () => { S.loadedB = true; render(); }));
+    S.unsubs.push(fb.db.collection('picks').onSnapshot(snap => {
+      S.picks = new Map(snap.docs.map(d => [d.id, d.data()]));
+      if (S.picks.has(u.uid)) myDocKnown = true;
+      render();
+    }, () => {}));
+    render();
+    // keep this person's name and photo where friends can see them
+    try {
+      const ref = fb.db.doc('users/' + u.uid), cur = await ref.get(), had = cur.exists ? cur.data() : {};
+      const name = (pending || had.name || u.displayName || 'Guest').trim().slice(0, 40);
+      const avatarUrl = u.photoURL || had.avatarUrl || '';
+      if (name !== had.name || avatarUrl !== (had.avatarUrl || '')) await ref.set({ name, avatarUrl });
+    } catch {}
+  });
+}
+
 async function boot() {
   render();
+  const cfg = window.TB_CONFIG || {};
+  if (cfg.firebase) return bootFirebase(cfg);
   const c = window.claude;
   if (!c || typeof c.use !== 'function') return goLocal();
+  S.backend = 'artifact';
   const [db, user, sample] = await Promise.all([c.use('db'), c.use('user'), c.use('sample')]);
   S.sample = sample; S.user = user;
   if (user) {
@@ -1441,7 +1684,7 @@ async function boot() {
   db.collection('brackets').onSnapshot(snap => {
     S.brackets = new Map(snap.docs.map(d => [d.id, d.data()]));
     S.loadedB = true;
-    render();
+    if (!openLinkedBracket()) render();
   }, () => { S.loadedB = true; render(); });
   db.collection('picks').onSnapshot(snap => {
     S.picks = new Map(snap.docs.map(d => [d.id, d.data()]));
@@ -1453,3 +1696,5 @@ async function boot() {
 boot();
 })();
 </script>
+</body>
+</html>

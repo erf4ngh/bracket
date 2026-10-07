@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// Everyone signed in (Google or name-only) can see all brackets, picks and names.
+// People can only change their own picks and name, and only delete brackets they made.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+
+    match /brackets/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.artist is string
+        && request.resource.data.artist.size() > 0
+        && request.resource.data.artist.size() <= 100
+        && request.resource.data.size in [16, 32, 64]
+        && request.resource.data.songs is list
+        && request.resource.data.songs.size() == request.resource.data.size
+        && request.resource.data.albums is list
+        && request.resource.data.albums.size() <= 64;
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // picks/<userId> = { b: { <bracketId>: { w: [...], done, updatedAt } } }
+    match /picks/{uid} {
+      allow read: if signedIn();
+      allow write: if isMe(uid) && request.resource.data.keys().hasOnly(['b']);
+      allow delete: if isMe(uid);
+    }
+
+    // users/<userId> = { name, avatarUrl }
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if isMe(uid)
+        && request.resource.data.keys().hasOnly(['name', 'avatarUrl'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.avatarUrl is string
+        && request.resource.data.avatarUrl.size() <= 1000;
+    }
+  }
+}
