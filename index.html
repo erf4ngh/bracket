@@ -1,0 +1,1055 @@
+<title>Track Bracket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one centered column (max 1180px); the bracket is a two-sided tournament tree that scrolls sideways inside its own frame */
+:root{
+  --bg:#E8EBF0; --surface:#FFFFFF; --surface-2:#F2F4F7; --ink:#101217; --muted:#596070; --line:#D0D5DD;
+  --accent:#E3165B; --accent-ink:#FFFFFF; --good:#1D8F4E; --warn:#A8651A; --connector:#A3AAB6;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D0E11; --surface:#16181D; --surface-2:#1E2128; --ink:#EEF0F4; --muted:#9AA1AD; --line:#2B2F37;
+    --accent:#FF3D7E; --accent-ink:#16050C; --good:#3CCB7F; --warn:#E3A93B; --connector:#4A505C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D0E11; --surface:#16181D; --surface-2:#1E2128; --ink:#EEF0F4; --muted:#9AA1AD; --line:#2B2F37;
+  --accent:#FF3D7E; --accent-ink:#16050C; --good:#3CCB7F; --warn:#E3A93B; --connector:#4A505C; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer;font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.04em}
+.brand svg{width:26px;height:26px;flex:none}
+.me{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
+.me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{width:24px;height:24px;border-radius:50%;flex:none;object-fit:cover;background:var(--surface-2);display:inline-grid;place-items:center;font:600 11px var(--body);color:var(--muted)}
+.avs{display:flex}
+.avs .av{box-shadow:0 0 0 2px var(--surface);margin-left:-6px}
+.avs .av:first-child{margin-left:0}
+
+/* shared bits */
+.eyebrow{font:600 12px/1 var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 10px}
+.hint{color:var(--muted);font-size:14px;margin:0;max-width:62ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.danger{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sm{padding:6px 10px;font-size:13px}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn:hover{color:var(--ink)}
+.back{background:none;border:0;padding:0;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;margin-bottom:14px}
+.back:hover{color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:9px 13px;font:600 14px var(--mono);cursor:pointer;color:var(--muted)}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg.words button{font-family:var(--body)}
+.notice{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--muted);margin-bottom:20px}
+.notice b{color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px 4px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap}
+.sw{width:12px;height:12px;border-radius:3px;background:var(--al);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 18%,transparent);flex:none}
+input[type=text],textarea,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+input[type=text]:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+
+/* home */
+.hero{padding-block:8px 36px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.hero-h{font:900 clamp(44px,8vw,92px)/.88 var(--display);text-transform:uppercase;letter-spacing:.005em;margin:0 0 22px;text-wrap:balance;max-width:14ch}
+.hero-h em{font-style:normal;color:var(--accent)}
+.new-form{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin-bottom:12px}
+.new-form input[type=text]{flex:1 1 260px;font-size:18px;padding:12px 14px}
+.paste{display:grid;gap:8px;margin-top:14px;max-width:640px}
+.paste textarea{min-height:150px;font:13px/1.5 var(--mono);resize:vertical}
+.hero-foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
+.sec-h{font:800 26px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;padding:0;cursor:pointer}
+.card:hover{border-color:var(--muted)}
+.strip{display:flex;height:10px}
+.strip i{flex:var(--f);background:var(--al)}
+.card-body{padding:14px 16px 16px;display:grid;gap:4px}
+.card-h{font:800 30px/1 var(--display);text-transform:uppercase;margin:4px 0 0;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:13px;margin:0}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;min-height:24px}
+.status{font-size:13px;font-weight:600}
+.status.done{color:var(--good)}
+.status.todo{color:var(--muted)}
+.empty-state{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--muted);text-align:center}
+
+/* bracket page header */
+.bk-head{margin-bottom:6px}
+.artist-h{font:900 clamp(40px,7vw,78px)/.9 var(--display);text-transform:uppercase;margin:0 0 10px;overflow-wrap:anywhere}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 18px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.save{font-size:12px;color:var(--muted)}
+
+/* pick (head to head) */
+.play-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:10px}
+.round-name{font:800 28px/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.mono{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.progress{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:22px;box-shadow:inset 0 0 0 1px var(--line)}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.duel{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+.vs{align-self:center;font:900 30px/1 var(--display);color:var(--muted)}
+.duel-card{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent);transition:opacity .2s,transform .15s}
+.duel-card.lost{opacity:.4}
+.duel-card.won{box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--accent)}
+.duel-pick{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:none;border:0;color:inherit;padding:22px 22px 18px;cursor:pointer;min-height:220px}
+.duel-pick:hover .duel-cta{background:var(--al-ink);color:var(--al)}
+.duel-seed{font:600 13px var(--mono);opacity:.8}
+.duel-title{font:900 clamp(32px,4.6vw,56px)/.92 var(--display);text-transform:uppercase;overflow-wrap:anywhere;flex:1}
+.duel-album{font-size:14px;font-weight:500;opacity:.85}
+.duel-cta{margin-top:6px;font-size:13px;font-weight:700;border:2px solid currentColor;border-radius:99px;padding:5px 12px;transition:background .15s,color .15s}
+.duel-card.won .duel-cta{background:var(--al-ink);color:var(--al)}
+.listen{display:flex;gap:6px;padding:0 22px 18px}
+.listen a{font-size:12px;font-weight:700;text-decoration:none;border-radius:6px;padding:5px 9px;background:color-mix(in srgb,var(--al-ink) 16%,transparent)}
+.listen a:hover{background:color-mix(in srgb,var(--al-ink) 28%,transparent)}
+.play-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}
+.kbd{font-size:13px;color:var(--muted)}
+@media (max-width:640px){
+  .duel{grid-template-columns:1fr;gap:10px}
+  .vs{justify-self:center;font-size:22px}
+  .duel-pick{min-height:150px}
+  .kbd{display:none}
+}
+.champ{text-align:center;padding-block:20px 8px}
+.champ-title{font:900 clamp(56px,11vw,128px)/.85 var(--display);text-transform:uppercase;margin:6px 0 10px;overflow-wrap:anywhere}
+.champ-title span{background:var(--al);color:var(--al-ink);padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.champ .row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
+.route{list-style:none;padding:0;margin:22px auto 0;display:grid;gap:6px;max-width:440px;text-align:left}
+.route li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.route li span:first-child{color:var(--muted)}
+.route li span:last-child{text-align:right;min-width:0}
+
+/* bracket tree */
+.bk-frame{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.bk{--colw:150px;--gap:28px;display:flex;align-items:stretch;min-width:max-content;height:max(380px,calc(var(--rows) * 66px));padding:16px 8px}
+.bk.big{--colw:138px;--gap:22px}
+.side{display:flex}
+.side.R{flex-direction:row-reverse}
+.col{display:flex;flex-direction:column;width:var(--colw);margin-inline:calc(var(--gap) / 2)}
+.pair{flex:1;display:flex;flex-direction:column;position:relative}
+.m{flex:1;display:flex;align-items:center;position:relative}
+.mb{width:100%;display:flex;flex-direction:column;gap:2px;position:relative;z-index:1}
+.m::after,.m.in::before{content:"";position:absolute;top:calc(50% - 1px);width:calc(var(--gap) / 2);border-top:2px solid var(--connector)}
+.L .m::after{left:100%}
+.R .m::after{right:100%}
+.L .m.in::before{right:100%}
+.R .m.in::before{left:100%}
+.pair:not(.solo)::after{content:"";position:absolute;top:25%;bottom:25%;border-left:2px solid var(--connector)}
+.L .pair:not(.solo)::after{left:calc(100% + var(--gap) / 2 - 1px)}
+.R .pair:not(.solo)::after{right:calc(100% + var(--gap) / 2 - 1px)}
+.center{width:210px;margin-inline:calc(var(--gap) / 2);position:relative;display:flex;flex-direction:column;justify-content:center}
+.center .m{flex:none}
+.center .m::before{content:"";position:absolute;top:calc(50% - 1px);right:100%;width:calc(var(--gap) / 2);border-top:2px solid var(--connector)}
+.center .m::after{left:100%}
+.plate{position:absolute;left:-40px;right:-40px;bottom:calc(50% + 46px);text-align:center;display:grid;gap:6px;justify-items:center}
+.plate-l{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.plate-t{font:900 32px/.95 var(--display);text-transform:uppercase;padding:6px 12px;border-radius:6px;background:var(--ink);color:var(--bg);max-width:100%;overflow-wrap:anywhere}
+.plate-t.set{background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent)}
+.final-l{position:absolute;top:calc(50% + 34px);left:0;right:0;text-align:center;font:600 11px var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.slot{display:flex;align-items:center;gap:6px;height:24px;width:100%;padding:0 8px;border:0;border-radius:4px;background:var(--al);color:var(--al-ink);font:600 12px/1 var(--body);text-align:left;cursor:pointer;min-width:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent);transition:opacity .15s}
+.slot:disabled{cursor:default;color:var(--al-ink)}
+.slot .sd{font:500 10px var(--mono);opacity:.7;flex:none;min-width:14px}
+.slot .st{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot.lost{opacity:.26}
+.slot.won{box-shadow:inset 0 0 0 2px var(--al-ink),0 0 0 1px var(--al);font-weight:700}
+.slot.empty{background:transparent;box-shadow:inset 0 0 0 1px var(--line);cursor:default}
+.center .slot{height:30px;font-size:13px}
+.viewing{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.viewing .who{display:flex;align-items:center;gap:8px;font-weight:600}
+
+/* compare */
+.cmp{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px}
+@media (max-width:860px){.cmp{grid-template-columns:minmax(0,1fr)}}
+.panel-h{font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 12px}
+.ppl{display:grid;gap:8px;margin-bottom:28px}
+.person{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.person .av{width:32px;height:32px;font-size:13px}
+.person .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person .sub{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;min-width:0}
+.person .sub b{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{height:4px;border-radius:9px;background:var(--surface-2);overflow:hidden;margin-top:6px;max-width:220px}
+.mini i{display:block;height:100%;background:var(--accent)}
+.stand{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.stand li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.stand .rk{font:600 12px var(--mono);color:var(--muted);text-align:right}
+.bar{position:relative;height:26px;border-radius:5px;overflow:hidden;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;min-width:0}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--al);opacity:.9}
+.bar span{position:relative;padding:0 8px;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);mix-blend-mode:normal}
+.bar span.on{color:var(--al-ink)}
+.stand .pts{font:600 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.splits{display:grid;gap:8px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.split .sd{display:grid;gap:4px;min-width:0}
+.split .sd.r{text-align:right;justify-items:end}
+.split .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.split .score{font:600 16px var(--mono);font-variant-numeric:tabular-nums}
+.hidden-box{border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--muted);display:grid;gap:12px;justify-items:start}
+
+/* listen */
+.listen-top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.album-grp{margin-bottom:22px}
+.album-h{display:flex;align-items:center;gap:10px;font:800 20px/1 var(--display);text-transform:uppercase;margin:0 0 8px}
+.album-h .sw{width:16px;height:16px}
+.tracks{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.tracks li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.tracks .ln{display:flex;gap:6px}
+.tracks .ln a{font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--muted)}
+.tracks .ln a:hover{color:var(--ink);border-color:var(--muted)}
+.copy-out{width:100%;min-height:120px;font:12px/1.5 var(--mono);margin-top:8px}
+
+/* draft */
+.draft-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 8px}
+.count{font:600 14px var(--mono);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
+.count.off{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.count.ok{color:var(--good)}
+.lineup{list-style:none;margin:18px 0 26px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px}
+.lu{display:grid;grid-template-columns:28px auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 8px 7px 10px}
+.lu .rk{font:600 12px var(--mono);color:var(--muted);text-align:right}
+.lu .tt{min-width:0}
+.lu .tt b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu .tt small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu .acts{display:flex;gap:2px}
+.icon{width:28px;height:28px;border:0;border-radius:6px;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
+.icon:hover{background:var(--surface-2);color:var(--ink)}
+.icon:disabled{opacity:.3;cursor:default;background:none}
+.bench{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 22px}
+.bench button{cursor:pointer}
+.bench button:hover{border-color:var(--muted)}
+.add-song{display:flex;flex-wrap:wrap;gap:8px;max-width:720px}
+.add-song input{flex:2 1 220px}
+.add-song select{flex:1 1 160px}
+.gen{padding-block:30px;display:grid;gap:14px;justify-items:start}
+.gen-live{font:600 15px var(--mono);color:var(--muted)}
+.pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:8px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+.err{color:var(--accent);font-weight:600;margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;font-size:14px;z-index:10}
+.loading{color:var(--muted);padding-block:40px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app"><div class="wrap"><p class="loading">Loading brackets…</p></div></div>
+
+<script>
+(() => {
+'use strict';
+
+const PALETTE = ['#E5383B','#2F54EB','#E33FA8','#23A55A','#E0C33A','#1F2026','#F2751A','#13A4A8','#8B55E8','#9A6B45','#6E7C8C','#B8124F'];
+const SIZES = [16, 32, 64];
+const LS_PICKS = 'tb.v1.picks', LS_BRACKETS = 'tb.v1.brackets';
+
+const S = {
+  mode: 'connecting',            // 'shared' | 'local'
+  db: null, user: null, sample: null,
+  me: { id: null, name: '', avatarUrl: '', isOwner: false },
+  canWrite: true, writeBlocked: false, saveState: '',
+  brackets: new Map(), picks: new Map(), loadedB: false,
+  mine: {}, edited: new Set(),
+  prof: {}, ids: new Set(),
+  view: 'home', bid: null, tab: 'play', viewing: null, playK: null, peek: {},
+  form: { artist: '', size: 32, paste: '', showPaste: false },
+  draft: null, gen: null, confirm: null, copyText: null, toast: null,
+};
+
+/* ---------- small helpers ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+function inkFor(hex) {
+  const h = String(hex || '#888').replace('#', '');
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4));
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.36 ? '#111216' : '#FFFFFF';
+}
+const alStyle = color => `--al:${esc(color)};--al-ink:${inkFor(color)}`;
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function toast(msg) { S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; render(); }, 1800); }
+const spotifyUrl = (artist, t) => 'https://open.spotify.com/search/' + encodeURIComponent(`${t} ${artist}`);
+const ytUrl = (artist, t) => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(`${artist} ${t}`);
+const appleUrl = (artist, t) => 'https://music.apple.com/us/search?term=' + encodeURIComponent(`${artist} ${t}`);
+
+/* ---------- bracket math ----------
+   Matches are numbered round by round: round r has n/2^(r+1) matches,
+   match (r, i) is fed by matches (r-1, 2i) and (r-1, 2i+1). Picks are an
+   array of length n-1 holding the winning slot index, or null. */
+const nRounds = n => Math.round(Math.log2(n));
+const off = (n, r) => { let o = 0; for (let k = 0; k < r; k++) o += n >> (k + 1); return o; };
+const mCount = (n, r) => n >> (r + 1);
+function entrants(n, w, r, i) {
+  if (r === 0) return [2 * i, 2 * i + 1];
+  const o = off(n, r - 1);
+  return [w[o + 2 * i] ?? null, w[o + 2 * i + 1] ?? null];
+}
+function normalize(n, w) {
+  const out = Array.from({ length: n - 1 }, (_, k) => (w && Number.isInteger(w[k]) && w[k] >= 0 && w[k] < n) ? w[k] : null);
+  for (let r = 0; r < nRounds(n); r++) {
+    const o = off(n, r);
+    for (let i = 0; i < mCount(n, r); i++) {
+      const [a, b] = entrants(n, out, r, i);
+      const v = out[o + i];
+      if (v !== null && (a === null || b === null || (v !== a && v !== b))) out[o + i] = null;
+    }
+  }
+  return out;
+}
+function locate(n, k) { let r = 0; while (k >= off(n, r + 1)) r++; return [r, k - off(n, r)]; }
+function roundName(n, r) {
+  const left = n >> r;
+  return left === 2 ? 'Final' : left === 4 ? 'Semifinals' : left === 8 ? 'Quarterfinals' : 'Round of ' + left;
+}
+function seedOrder(n) { let o = [1]; while (o.length < n) { const m = o.length * 2; o = o.flatMap(s => [s, m + 1 - s]); } return o; }
+const picked = w => w.filter(x => x !== null).length;
+const isDone = w => w.length > 0 && w.every(x => x !== null);
+function playable(n, w) {
+  const ks = [];
+  for (let k = 0; k < n - 1; k++) { const [r, i] = locate(n, k); const [a, b] = entrants(n, w, r, i); if (a !== null && b !== null) ks.push(k); }
+  return ks;
+}
+
+/* ---------- picks ---------- */
+function remotePicks(uid, bid) { return S.picks.get(uid)?.b?.[bid]?.w; }
+function getMine(bid) {
+  const b = S.brackets.get(bid); if (!b) return [];
+  if (S.edited.has(bid)) return S.mine[bid];
+  const remote = S.me.id ? remotePicks(S.me.id, bid) : null;
+  const local = lsGet(LS_PICKS, {})[bid];
+  return normalize(b.size, remote || local || []);
+}
+function picksOf(uid, bid) {
+  const b = S.brackets.get(bid);
+  if (uid === S.me.id || uid === '__me') return getMine(bid);
+  return normalize(b.size, remotePicks(uid, bid) || []);
+}
+function setMine(bid, w) {
+  S.mine[bid] = w; S.edited.add(bid);
+  const all = lsGet(LS_PICKS, {}); all[bid] = w; lsSet(LS_PICKS, all);
+  queueSave(bid);
+}
+
+const dirty = new Set(); let saveTimer = null, chain = Promise.resolve(), myDocKnown = null, retries = 0;
+function queueSave(bid) {
+  if (S.mode !== 'shared' || !S.me.id || S.writeBlocked) return;
+  dirty.add(bid); S.saveState = 'saving';
+  clearTimeout(saveTimer); saveTimer = setTimeout(flush, 700);
+}
+function flush() {
+  chain = chain.then(async () => {
+    if (!dirty.size) return;
+    const ids = [...dirty]; dirty.clear();
+    const patch = {};
+    for (const bid of ids) { const w = S.mine[bid]; if (w) patch[bid] = { w, done: isDone(w), updatedAt: Date.now() }; }
+    const ref = S.db.doc('picks/' + S.me.id);
+    try {
+      if (myDocKnown === null) myDocKnown = S.picks.has(S.me.id) || (await ref.get()).exists;
+      if (myDocKnown) await ref.update({ b: patch });
+      else { await ref.set({ b: patch }); myDocKnown = true; }
+      S.saveState = dirty.size ? 'saving' : 'saved'; retries = 0;
+    } catch (e) {
+      const code = e && e.code;
+      if (['invalid_argument', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed', 'quota_exceeded'].includes(code)) {
+        S.writeBlocked = true; S.saveState = '';
+      } else if (retries < 3) {
+        retries++; ids.forEach(id => dirty.add(id)); S.saveState = 'retry';
+        setTimeout(flush, 2500 * retries);
+      } else { S.saveState = 'failed'; }
+    }
+    updateSaveLabel();
+  });
+}
+function saveLabel() {
+  if (S.mode !== 'shared' || !S.me.id || S.writeBlocked) return 'Saved on this device';
+  return { saving: 'Saving…', saved: 'Saved', retry: 'Reconnecting…', failed: 'Not saved. Check your connection.' }[S.saveState] || '';
+}
+function updateSaveLabel() { const el = document.getElementById('save-label'); if (el) el.textContent = saveLabel(); else render(); }
+
+function doPick(k, s) {
+  if (S.viewing) return;
+  const b = S.brackets.get(S.bid); if (!b) return;
+  const w = getMine(S.bid).slice();
+  if (w[k] === s) return;
+  w[k] = s;
+  const next = normalize(b.size, w);
+  setMine(S.bid, next);
+  if (S.tab === 'play') {
+    const ks = playable(b.size, next);
+    S.playK = ks.find(x => x > k && next[x] === null) ?? ks.find(x => next[x] === null) ?? null;
+  }
+  render();
+}
+
+/* ---------- brackets ---------- */
+async function createBracket(doc) {
+  if (S.mode === 'shared') {
+    const ref = await S.db.collection('brackets').add(doc);
+    S.brackets.set(ref.id, doc);
+    return ref.id;
+  }
+  const id = 'b' + Date.now().toString(36);
+  const all = lsGet(LS_BRACKETS, {}); all[id] = doc; lsSet(LS_BRACKETS, all);
+  S.brackets.set(id, doc);
+  return id;
+}
+async function deleteBracket(id) {
+  if (S.mode === 'shared') await S.db.doc('brackets/' + id).delete();
+  else { const all = lsGet(LS_BRACKETS, {}); delete all[id]; lsSet(LS_BRACKETS, all); }
+  S.brackets.delete(id);
+}
+const canManage = b => S.mode === 'local' || S.me.isOwner || (b.createdBy && b.createdBy === S.me.id);
+const albumOf = (b, s) => b.albums[b.songs[s].a] || { name: 'Unknown', color: '#6E7C8C' };
+
+/* ---------- lineup generation ---------- */
+function genPrompt(artist, size) {
+  return `Build a ${size}-song tournament bracket lineup for the music artist "${artist}". A group of friends will vote song against song until one track wins.
+
+Pick exactly ${size} songs where ${artist} is the lead or credited main artist. Choose the songs fans would actually argue about: the biggest hits, fan favorites and standout album cuts, spread across their studio albums, mixtapes, EPs and notable singles so every era is represented. No duplicates, remixes, live versions, skits or interludes.
+
+Rank the songs 1 to ${size} by how strong a contender each one is (1 = the favorite to win). Also suggest 8 more songs as alternates, ranked the same way.
+
+Reply with only JSON in this shape:
+{"artist":"Canonical Artist Name","albums":[{"name":"Album Title","year":2018}],"songs":[{"title":"Song Title","album":"Album Title","year":2018}],"alternates":[{"title":"Song Title","album":"Album Title","year":2018}]}
+
+Every song's "album" must exactly match a name in "albums". Put non-album singles and features under an album named "Singles". List albums in release order. If you do not recognize the artist, reply {"error":"unknown artist"}.`;
+}
+
+function newDraft(artist, size, source) {
+  return { artist, size, albums: [], songs: [], bench: [], seeding: 'seeded', source };
+}
+function addAlbum(d, name, year) {
+  name = String(name || '').trim() || 'Singles';
+  let i = d.albums.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+  const y = Number(year) > 1900 && Number(year) < 2100 ? Math.round(Number(year)) : null;
+  if (i < 0) { i = d.albums.length; d.albums.push({ name, year: y }); }
+  else if (d.albums[i].year == null && y) d.albums[i].year = y;
+  return i;
+}
+function tidyAlbums(d) {
+  // order albums by year (Singles last), drop unused ones, and give each a color
+  const used = new Set([...d.songs, ...d.bench].map(s => s.a));
+  const keep = d.albums.map((a, i) => ({ ...a, old: i })).filter(a => used.has(a.old));
+  keep.sort((x, y) => {
+    const xs = /^singles/i.test(x.name), ys = /^singles/i.test(y.name);
+    if (xs !== ys) return xs ? 1 : -1;
+    return (x.year ?? 9999) - (y.year ?? 9999);
+  });
+  const map = new Map(keep.map((a, i) => [a.old, i]));
+  d.albums = keep.map((a, i) => ({ name: a.name, year: a.year, color: a.color || PALETTE[i % PALETTE.length] }));
+  d.songs.forEach(s => s.a = map.get(s.a));
+  d.bench.forEach(s => s.a = map.get(s.a));
+  return d;
+}
+function draftFromClaude(data, artistInput, size) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) || data.error) throw { code: 'unknown_artist' };
+  const d = newDraft(String(data.artist || artistInput).trim() || artistInput, size, 'claude');
+  (Array.isArray(data.albums) ? data.albums : []).forEach(a => a && addAlbum(d, a.name ?? a.title, a.year));
+  const seen = new Set();
+  const toSong = s => {
+    const t = String(s?.title ?? '').trim(); if (!t) return null;
+    const key = t.toLowerCase(); if (seen.has(key)) return null; seen.add(key);
+    return { t, a: addAlbum(d, s.album, s.year) };
+  };
+  d.songs = (Array.isArray(data.songs) ? data.songs : []).map(toSong).filter(Boolean);
+  d.bench = (Array.isArray(data.alternates) ? data.alternates : []).map(toSong).filter(Boolean);
+  while (d.songs.length > size) d.bench.unshift(d.songs.pop());
+  if (!d.songs.length) throw { code: 'unknown_artist' };
+  return tidyAlbums(d);
+}
+function draftFromPaste(text, artist, size) {
+  const lines = text.split(/\r?\n/).map(l => l.replace(/^\s*\d+[.)]\s*/, '').trim()).filter(Boolean);
+  if (SIZES.includes(lines.length)) size = lines.length;
+  const d = newDraft(artist || 'My bracket', size, 'manual');
+  const seen = new Set();
+  for (const line of lines) {
+    const [t, album] = line.split(/\s+[-–—|]\s+|\t/).map(x => x.trim());
+    if (!t || seen.has(t.toLowerCase())) continue;
+    seen.add(t.toLowerCase());
+    d.songs.push({ t, a: addAlbum(d, album || 'Singles') });
+  }
+  while (d.songs.length > size) d.bench.unshift(d.songs.pop());
+  return tidyAlbums(d);
+}
+
+async function generate(artist, size, fresh) {
+  if (!S.sample) return;
+  const ctl = new AbortController();
+  S.gen = { status: 'thinking', artist, size, ctl, found: 0 };
+  S.draft = null; S.view = 'draft'; render();
+  try {
+    const data = await S.sample.json(genPrompt(artist, size), {
+      signal: ctl.signal,
+      ...(fresh ? { cache: false } : {}),
+      onText: ({ text }) => {
+        const n = (text.match(/"title"\s*:/g) || []).length;
+        const el = document.getElementById('gen-live');
+        if (el) el.textContent = n ? `Found ${Math.min(n, size)} of ${size} songs…` : 'Writing the lineup…';
+      },
+    });
+    S.draft = draftFromClaude(data, artist, size);
+    S.gen = null;
+  } catch (e) {
+    const code = e?.code || 'upstream_error';
+    if (code === 'cancelled') { S.gen = null; S.view = 'home'; }
+    else S.gen = { status: 'error', code, artist, size };
+    if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) S.sample = null;
+  }
+  render();
+}
+function genError(code) {
+  return ({
+    not_granted: 'Claude access was turned off for this page, so it can’t build lineups here. Paste a song list instead.',
+    sampling_disabled: 'Claude isn’t available on this account, so it can’t build lineups here. Paste a song list instead.',
+    rate_limited: 'Too many requests right now. Wait a minute, then try again.',
+    unknown_artist: 'Claude didn’t recognize that artist. Check the spelling, or paste a song list instead.',
+    invalid_json: 'The lineup came back incomplete. Try again.',
+    refused: 'Claude couldn’t build a lineup for that name. Try a different artist.',
+    session_expired: 'Your session expired. Sign in again, then retry.',
+  })[code] || 'Something went wrong while building the lineup. Try again.';
+}
+
+function draftToDoc(d) {
+  const n = d.size;
+  const ranked = d.songs.slice(0, n).map((s, i) => ({ ...s, seed: i + 1 }));
+  const slots = d.seeding === 'seeded' ? seedOrder(n).map(seed => ranked[seed - 1]) : shuffle(ranked.slice());
+  const used = [...new Set(slots.map(s => s.a))].sort((x, y) => x - y);
+  const map = new Map(used.map((a, i) => [a, i]));
+  return {
+    artist: d.artist, size: n,
+    albums: used.map(a => ({ name: d.albums[a].name, year: d.albums[a].year ?? null, color: d.albums[a].color })),
+    songs: slots.map(s => ({ t: s.t, a: map.get(s.a), seed: s.seed })),
+    seeding: d.seeding, source: d.source, createdBy: S.me.id || null, createdAt: Date.now(),
+  };
+}
+
+/* ---------- people ---------- */
+function avatar(uid, cls = '') {
+  if (uid === '__me' || (uid && uid === S.me.id)) {
+    return S.me.avatarUrl ? `<img class="av ${cls}" src="${esc(S.me.avatarUrl)}" alt="">` : `<span class="av ${cls}">Y</span>`;
+  }
+  if (uid) S.ids.add(uid);
+  const p = S.prof[uid];
+  return p && p.avatarUrl ? `<img class="av ${cls}" src="${esc(p.avatarUrl)}" alt="">` : `<span class="av ${cls}">${esc((p?.name || '?')[0])}</span>`;
+}
+function nameOf(uid) {
+  if (uid === '__me' || (uid && uid === S.me.id)) return 'You';
+  if (uid) S.ids.add(uid);
+  return S.prof[uid]?.name || 'Someone';
+}
+async function refreshProfiles() {
+  if (!S.user) return;
+  const need = [...S.ids].filter(id => !(id in S.prof));
+  if (!need.length) return;
+  need.forEach(id => S.prof[id] = { name: '', avatarUrl: '' });
+  const ps = await S.user.profiles(need);
+  let changed = false;
+  for (const id of need) if (ps[id]) { S.prof[id] = { name: ps[id].name || '', avatarUrl: ps[id].avatarUrl || '' }; changed = true; }
+  if (changed) render();
+}
+
+function participants(bid) {
+  const b = S.brackets.get(bid);
+  const ids = new Set();
+  for (const [uid, doc] of S.picks) { const w = doc?.b?.[bid]?.w; if (Array.isArray(w) && w.some(x => x !== null)) ids.add(uid); }
+  const mine = getMine(bid);
+  const meKey = S.me.id || '__me';
+  if (mine.some(x => x !== null)) ids.add(meKey);
+  return [...ids].map(uid => {
+    const w = (uid === meKey) ? mine : normalize(b.size, remotePicks(uid, bid));
+    return { uid, me: uid === meKey, w, n: picked(w), done: isDone(w), champ: w[b.size - 2] };
+  }).sort((x, y) => (y.me - x.me) || (y.done - x.done) || (y.n - x.n));
+}
+
+/* ---------- views ---------- */
+function shell() {
+  S.ids = new Set();
+  let main = '';
+  if (S.view === 'draft') main = draftView();
+  else if (S.view === 'bracket' && S.brackets.get(S.bid)) main = bracketView();
+  else { S.view = 'home'; main = homeView(); }
+  return `<div class="wrap">${topBar()}${notices()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+}
+
+const MARK = `<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M2 4h6v8h5M2 20h6v-8"/><path d="M24 4h-6v8h-5M24 20h-6v-8"/></g><rect x="10" y="9.5" width="6" height="5" fill="var(--accent)"/></svg>`;
+function topBar() {
+  let who = '';
+  if (S.mode === 'shared' && S.me.id) who = `${avatar(S.me.id)}<span>${esc(S.me.name || 'Signed in')}</span>`;
+  else if (S.mode !== 'connecting') who = `<span>Picks save on this device</span>`;
+  return `<header class="top"><button class="brand" data-act="home" aria-label="Track Bracket home">${MARK}Track Bracket</button><div class="me">${who}</div></header>`;
+}
+function notices() {
+  if (S.mode === 'local') return `<div class="notice"><b>Sharing is off in this view.</b> Brackets and picks are kept in this browser only. Open the page from claude.ai while signed in to share them with friends.</div>`;
+  if (S.mode === 'shared' && (S.writeBlocked || !S.canWrite)) return `<div class="notice"><b>You can look but not save.</b> Your picks are kept on this device. Ask whoever made this page to invite you with edit access so friends can see your bracket.</div>`;
+  return '';
+}
+
+function homeView() {
+  const list = [...S.brackets.entries()].sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  const canGen = !!S.sample;
+  const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
+  const f = S.form;
+  const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}">${n}</button>`).join('')}</div>`;
+  const hero = `<section class="hero">
+    <p class="eyebrow">New bracket</p>
+    <h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
+    <form id="new-form" class="new-form" autocomplete="off">
+      <input type="text" id="artist" placeholder="Artist name, like Dua Lipa" value="${esc(f.artist)}" aria-label="Artist name" ${blocked ? 'disabled' : ''}>
+      ${sizeSeg}
+      <button class="btn primary" type="submit" ${blocked ? 'disabled' : ''}>${canGen && !f.showPaste ? 'Build bracket' : 'Use my list'}</button>
+    </form>
+    <div class="hero-foot">
+      <p class="hint">${canGen
+        ? 'Claude picks songs from across their albums and seeds them so the biggest hits meet late. You can swap songs before the bracket goes live.'
+        : 'Paste one song per line, optionally followed by “ - Album”. 16, 32 or 64 songs.'}</p>
+      ${canGen ? `<button class="linkbtn" type="button" data-act="toggle-paste">${f.showPaste ? 'Let Claude pick the songs' : 'Paste my own song list'}</button>` : ''}
+    </div>
+    ${(f.showPaste || !canGen) ? `<div class="paste"><textarea id="paste" placeholder="Sicko Mode - Astroworld&#10;Goosebumps - Birds in the Trap Sing McKnight&#10;Antidote - Rodeo" aria-label="Song list">${esc(f.paste)}</textarea></div>` : ''}
+  </section>`;
+  let grid;
+  if (!S.loadedB) grid = `<p class="loading">Loading brackets…</p>`;
+  else if (!list.length) grid = `<div class="empty-state">No brackets yet. Type an artist above to make the first one.</div>`;
+  else grid = `<div class="grid">${list.map(([id, b]) => bracketCard(id, b)).join('')}</div>`;
+  return hero + `<section><h2 class="sec-h">Brackets</h2>${grid}</section>`;
+}
+function bracketCard(id, b) {
+  const counts = new Map(); b.songs.forEach(s => counts.set(s.a, (counts.get(s.a) || 0) + 1));
+  const strip = b.albums.map((a, i) => counts.get(i) ? `<i style="--f:${counts.get(i)};--al:${esc(a.color)}"></i>` : '').join('');
+  const w = getMine(id); const n = picked(w);
+  const status = isDone(w)
+    ? `<span class="status done">Champion: ${esc(b.songs[w[b.size - 2]].t)}</span>`
+    : n ? `<span class="status todo">${n} of ${b.size - 1} picked</span>` : `<span class="status todo">Not started</span>`;
+  const ppl = participants(id).filter(p => !p.me).slice(0, 5);
+  return `<button class="card" data-act="open" data-id="${esc(id)}">
+    <div class="strip">${strip}</div>
+    <div class="card-body">
+      <h3 class="card-h">${esc(b.artist)}</h3>
+      <p class="meta">${b.size} songs · ${b.albums.length} ${b.albums.length === 1 ? 'album' : 'albums'}</p>
+      <div class="card-foot">${status}<span class="avs">${ppl.map(p => avatar(p.uid)).join('')}</span></div>
+    </div></button>`;
+}
+
+function draftView() {
+  const g = S.gen;
+  if (g && g.status === 'thinking') return `<section class="gen">
+      <p class="eyebrow">Building the lineup</p>
+      <h1 class="artist-h">${esc(g.artist)}</h1>
+      <p class="gen-live"><span class="pulse"></span><span id="gen-live">Thinking about their catalog…</span></p>
+      <p class="hint">This usually takes 20 to 60 seconds.</p>
+      <button class="btn" data-act="stop-gen">Stop</button></section>`;
+  if (g && g.status === 'error') return `<section class="gen">
+      <p class="eyebrow">Building the lineup</p>
+      <h1 class="artist-h">${esc(g.artist)}</h1>
+      <p class="err">${esc(genError(g.code))}</p>
+      <div class="grp" style="display:flex;gap:8px;flex-wrap:wrap">
+        ${S.sample && g.code !== 'refused' ? `<button class="btn primary" data-act="retry-gen">Try again</button>` : ''}
+        <button class="btn" data-act="home">Back</button></div></section>`;
+  const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
+  const n = d.songs.length, ok = n === d.size;
+  const msg = ok ? (d.seeding === 'seeded' ? 'Order matters: #1 and #2 land on opposite sides and can only meet in the final. Use the arrows to move songs up or down.' : 'Songs will be placed at random.')
+    : n < d.size ? `Add ${d.size - n} more ${d.size - n === 1 ? 'song' : 'songs'} from the alternates or type your own.` : `Remove ${n - d.size} ${n - d.size === 1 ? 'song' : 'songs'} to fit a ${d.size}-song bracket.`;
+  const albumOpts = d.albums.map((a, i) => `<option value="${i}">${esc(a.name)}</option>`).join('') + `<option value="new">Other / single</option>`;
+  return `<section class="draft">
+    <button class="back" data-act="cancel-draft">← Cancel</button>
+    <p class="eyebrow">Review the lineup</p>
+    <h1 class="artist-h">${esc(d.artist)}</h1>
+    <div class="legend">${d.albums.map(a => `<span class="chip"><span class="sw" style="${alStyle(a.color)}"></span>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</span>`).join('')}</div>
+    <div class="draft-bar">
+      <span class="count ${ok ? 'ok' : 'off'}">${n} / ${d.size} songs</span>
+      <div class="seg" role="group" aria-label="Bracket size">${SIZES.map(s => `<button type="button" data-act="draft-size" data-n="${s}" aria-pressed="${d.size === s}">${s}</button>`).join('')}</div>
+      <div class="seg words" role="group" aria-label="Seeding">
+        <button type="button" data-act="seeding" data-v="seeded" aria-pressed="${d.seeding === 'seeded'}">Seeded</button>
+        <button type="button" data-act="seeding" data-v="shuffled" aria-pressed="${d.seeding === 'shuffled'}">Random</button></div>
+      ${d.source === 'claude' && S.sample ? `<button class="btn" data-act="regen">New lineup</button>` : ''}
+      <button class="btn primary" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>
+    </div>
+    <p class="hint">${esc(msg)}</p>
+    ${S.createErr ? `<p class="err" style="margin-top:8px">${esc(S.createErr)}</p>` : ''}
+    <ol class="lineup">${d.songs.map((s, i) => {
+      const a = d.albums[s.a];
+      return `<li class="lu"><span class="rk">${i + 1}</span><span class="sw" style="${alStyle(a.color)}"></span>
+        <span class="tt"><b>${esc(s.t)}</b><small>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</small></span>
+        <span class="acts"><button class="icon" data-act="mv" data-i="${i}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${i === 0 ? 'disabled' : ''}>↑</button><button class="icon" data-act="mv" data-i="${i}" data-d="1" aria-label="Move ${esc(s.t)} down" ${i === n - 1 ? 'disabled' : ''}>↓</button><button class="icon" data-act="bench" data-i="${i}" aria-label="Remove ${esc(s.t)}">×</button></span></li>`;
+    }).join('')}</ol>
+    <p class="eyebrow">Alternates</p>
+    ${d.bench.length ? `<div class="bench">${d.bench.map((s, i) => `<button class="chip" data-act="unbench" data-i="${i}"><span class="sw" style="${alStyle(d.albums[s.a].color)}"></span>+ ${esc(s.t)}</button>`).join('')}</div>` : `<p class="hint" style="margin-bottom:18px">Removed songs show up here so you can bring them back.</p>`}
+    <form id="add-song" class="add-song" autocomplete="off">
+      <input type="text" id="add-title" placeholder="Add a song by name" aria-label="Song title">
+      <select id="add-album" aria-label="Album">${albumOpts}</select>
+      <button class="btn" type="submit">Add song</button>
+    </form>
+  </section>`;
+}
+
+function bracketView() {
+  const b = S.brackets.get(S.bid);
+  const creator = b.createdBy ? nameOf(b.createdBy) : null;
+  const tabs = [['play', 'Pick'], ['bracket', 'Bracket'], ['compare', 'Compare'], ['listen', 'Listen']];
+  let body = '';
+  if (S.tab === 'play') body = playTab(b);
+  else if (S.tab === 'bracket') body = treeTab(b);
+  else if (S.tab === 'compare') body = compareTab(b);
+  else body = listenTab(b);
+  return `<div class="bk-head">
+      <button class="back" data-act="home">← All brackets</button>
+      <h1 class="artist-h">${esc(b.artist)}</h1>
+      <p class="meta">${b.size} songs · ${b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw'}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p>
+      <div class="legend">${b.albums.map(a => `<span class="chip"><span class="sw" style="${alStyle(a.color)}"></span>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</span>`).join('')}</div>
+      <nav class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab === k}">${l}</button>`).join('')}</nav>
+    </div>${body}`;
+}
+
+function songCard(b, k, s, win, side) {
+  const song = b.songs[s], al = albumOf(b, s);
+  const cls = win === null ? '' : win === s ? 'won' : 'lost';
+  return `<div class="duel-card ${cls}" style="${alStyle(al.color)}">
+    <button class="duel-pick" data-act="pick" data-k="${k}" data-s="${s}" aria-pressed="${win === s}" aria-label="Pick ${esc(song.t)}">
+      <span class="duel-seed">${song.seed ? `#${song.seed} seed` : `Slot ${s + 1}`}</span>
+      <span class="duel-title">${esc(song.t)}</span>
+      <span class="duel-album">${esc(al.name)}${al.year ? ` · ${al.year}` : ''}</span>
+      <span class="duel-cta">${win === s ? 'Your pick' : side === 'L' ? 'Pick ←' : 'Pick →'}</span>
+    </button>
+    <div class="listen"><a href="${spotifyUrl(b.artist, song.t)}" target="_blank" rel="noopener">Spotify</a><a href="${ytUrl(b.artist, song.t)}" target="_blank" rel="noopener">YouTube</a><a href="${appleUrl(b.artist, song.t)}" target="_blank" rel="noopener">Apple Music</a></div>
+  </div>`;
+}
+function currentPlayK(b, w) {
+  const ks = playable(b.size, w);
+  if (S.playK !== null && ks.includes(S.playK)) return S.playK;
+  const open = ks.find(k => w[k] === null);
+  return open === undefined ? null : open;
+}
+function playTab(b) {
+  const n = b.size, w = getMine(S.bid);
+  const k = currentPlayK(b, w);
+  if (k === null) return championView(b, w);
+  const [r, i] = locate(n, k);
+  const [a, c] = entrants(n, w, r, i);
+  const done = picked(w);
+  return `<section class="play">
+    <div class="play-meta"><span class="round-name">${roundName(n, r)}</span><span class="mono">Match ${i + 1} of ${mCount(n, r)} · ${done} / ${n - 1} picked</span></div>
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${n - 1}" aria-valuenow="${done}"><i style="width:${(done / (n - 1)) * 100}%"></i></div>
+    <div class="duel">${songCard(b, k, a, w[k], 'L')}<div class="vs">VS</div>${songCard(b, k, c, w[k], 'R')}</div>
+    <div class="play-nav">
+      <button class="btn sm" data-act="prev" ${playable(n, w).indexOf(k) <= 0 ? 'disabled' : ''}>← Previous</button>
+      <span class="kbd">Press ← or → to pick · <span id="save-label">${esc(saveLabel())}</span></span>
+      <button class="btn sm" data-act="next">${w[k] === null ? 'Skip' : 'Next'} →</button>
+    </div></section>`;
+}
+function championView(b, w) {
+  const n = b.size;
+  if (!isDone(w)) {
+    return `<section class="champ"><p class="eyebrow">Skipped matches</p><h2 class="round-name">You skipped ${n - 1 - picked(w)} ${n - 1 - picked(w) === 1 ? 'match' : 'matches'}</h2>
+      <div class="row"><button class="btn primary" data-act="first-open">Go to the first one</button><button class="btn" data-act="tab" data-tab="bracket">Open the bracket</button></div></section>`;
+  }
+  const c = w[n - 2], song = b.songs[c], al = albumOf(b, c);
+  const route = [];
+  for (let k = 0; k < n - 1; k++) if (w[k] === c) {
+    const [r, i] = locate(n, k); const [x, y] = entrants(n, w, r, i);
+    route.push(`<li><span>${roundName(n, r)}</span><span>beat ${esc(b.songs[x === c ? y : x].t)}</span></li>`);
+  }
+  return `<section class="champ" style="${alStyle(al.color)}">
+    <p class="eyebrow">Your champion</p>
+    <h2 class="champ-title"><span>${esc(song.t)}</span></h2>
+    <p class="meta">${esc(al.name)}${al.year ? ` · ${al.year}` : ''}${song.seed ? ` · #${song.seed} seed` : ''}</p>
+    <ol class="route">${route.join('')}</ol>
+    <div class="row">
+      <button class="btn primary" data-act="tab" data-tab="compare">Compare with friends</button>
+      <button class="btn" data-act="tab" data-tab="bracket">See my bracket</button>
+      <button class="btn" data-act="first">Review from the start</button>
+    </div></section>`;
+}
+
+function slotBtn(b, s, k, win, editable) {
+  if (s === null) return `<div class="slot empty" aria-hidden="true"></div>`;
+  const song = b.songs[s], al = albumOf(b, s);
+  const cls = win === null ? '' : win === s ? 'won' : 'lost';
+  return `<button class="slot ${cls}" style="${alStyle(al.color)}" data-act="pick" data-k="${k}" data-s="${s}" title="${esc(song.t)} · ${esc(al.name)}" ${editable ? '' : 'disabled'}><span class="sd">${song.seed ?? ''}</span><span class="st">${esc(song.t)}</span></button>`;
+}
+function matchBox(b, w, r, i, editable) {
+  const k = off(b.size, r) + i, [a, c] = entrants(b.size, w, r, i);
+  return `<div class="mb">${slotBtn(b, a, k, w[k], editable)}${slotBtn(b, c, k, w[k], editable)}</div>`;
+}
+function tree(b, w, editable) {
+  const n = b.size, R = nRounds(n);
+  const side = s => {
+    const cols = [];
+    for (let r = 0; r < R - 1; r++) {
+      const half = mCount(n, r) / 2, start = s === 'L' ? 0 : half;
+      const ms = [];
+      for (let i = start; i < start + half; i++) ms.push(`<div class="m ${r > 0 ? 'in' : ''}">${matchBox(b, w, r, i, editable)}</div>`);
+      if (half === 1) cols.push(`<div class="col"><div class="pair solo">${ms[0]}</div></div>`);
+      else { const pairs = []; for (let p = 0; p < ms.length; p += 2) pairs.push(`<div class="pair">${ms[p]}${ms[p + 1]}</div>`); cols.push(`<div class="col">${pairs.join('')}</div>`); }
+    }
+    return `<div class="side ${s}">${cols.join('')}</div>`;
+  };
+  const c = w[n - 2];
+  const plate = c !== null
+    ? `<div class="plate-t set" style="${alStyle(albumOf(b, c).color)}">${esc(b.songs[c].t)}</div>`
+    : `<div class="plate-t">TBD</div>`;
+  return `<div class="bk-frame"><div class="bk ${n >= 64 ? 'big' : ''}" style="--rows:${n / 4}">
+    ${side('L')}
+    <div class="center"><div class="plate"><span class="plate-l">Champion</span>${plate}</div>
+      <div class="m">${matchBox(b, w, R - 1, 0, editable)}</div><span class="final-l">Final</span></div>
+    ${side('R')}
+  </div></div>`;
+}
+function treeTab(b) {
+  const uid = S.viewing;
+  const w = uid ? picksOf(uid, S.bid) : getMine(S.bid);
+  let top;
+  if (uid) {
+    top = `<div class="viewing"><span class="who">${avatar(uid)}Viewing ${esc(nameOf(uid))}’s picks</span><button class="btn sm" data-act="view-mine">Back to mine</button></div>`;
+  } else {
+    const confirming = S.confirm === 'reset';
+    top = `<div class="toolbar"><span class="save"><span id="save-label">${esc(saveLabel())}</span> · Click a song to send it through.</span>
+      <div class="grp">${picked(w) ? (confirming
+        ? `<span class="save">Clear all ${picked(w)} picks?</span><button class="btn sm danger" data-act="reset-yes">Clear picks</button><button class="btn sm" data-act="confirm-no">Keep</button>`
+        : `<button class="btn sm" data-act="reset">Clear my picks</button>`) : ''}${deleteControls(b)}</div></div>`;
+  }
+  return top + tree(b, w, !uid);
+}
+function deleteControls(b) {
+  if (!canManage(b)) return '';
+  if (S.confirm === 'delete') return `<span class="save">Delete for everyone?</span><button class="btn sm danger" data-act="delete-yes">Delete bracket</button><button class="btn sm" data-act="confirm-no">Keep</button>`;
+  return `<button class="btn sm danger" data-act="delete">Delete bracket</button>`;
+}
+
+function compareTab(b) {
+  const n = b.size, ppl = participants(S.bid);
+  const mine = ppl.find(p => p.me);
+  const others = ppl.filter(p => !p.me);
+  const revealed = (mine && mine.done) || S.peek[S.bid] || !others.length;
+  const people = ppl.length ? ppl.map(p => {
+    const champ = p.champ !== null && p.champ !== undefined ? b.songs[p.champ] : null;
+    const show = revealed || p.me;
+    const sub = !show ? (p.done ? 'Finished · champion hidden' : `${p.n} of ${n - 1} picked`)
+      : champ ? `<span class="sw" style="${alStyle(albumOf(b, p.champ).color)}"></span>Champion <b>${esc(champ.t)}</b>`
+      : `${p.n} of ${n - 1} picked`;
+    return `<div class="person">${avatar(p.uid)}<div style="min-width:0"><div class="nm">${esc(nameOf(p.uid))}</div><div class="sub">${sub}</div><div class="mini"><i style="width:${p.n / (n - 1) * 100}%"></i></div></div>
+      ${show && !p.me ? `<button class="btn sm" data-act="view" data-uid="${esc(p.uid)}">View bracket</button>` : p.me ? `<button class="btn sm" data-act="tab" data-tab="bracket">My bracket</button>` : '<span></span>'}</div>`;
+  }).join('') : `<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div>`;
+
+  let right;
+  if (!ppl.length) right = '';
+  else if (!revealed) {
+    right = `<div class="hidden-box"><b style="color:var(--ink)">Everyone’s picks stay hidden until you finish yours.</b><span>That way nobody sways your bracket before the call.</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">Show them anyway</button></div></div>`;
+  } else {
+    // standings: one point per match won, summed over everyone
+    const pts = new Array(n).fill(0), champs = new Array(n).fill(0);
+    for (const p of ppl) { p.w.forEach(s => { if (s !== null) pts[s]++; }); if (p.champ !== null && p.champ !== undefined) champs[p.champ]++; }
+    const order = [...pts.keys()].filter(s => pts[s] > 0).sort((x, y) => pts[y] - pts[x] || champs[y] - champs[x]).slice(0, 12);
+    const max = Math.max(1, ...pts);
+    const stand = order.map((s, i) => {
+      const al = albumOf(b, s), pct = pts[s] / max * 100;
+      return `<li><span class="rk">${i + 1}</span><span class="bar" style="${alStyle(al.color)}"><i style="width:${pct}%"></i><span class="${pct > 55 ? 'on' : ''}">${esc(b.songs[s].t)}</span></span><span class="pts">${pts[s]} ${pts[s] === 1 ? 'win' : 'wins'}${champs[s] ? ` · ${champs[s]}× champ` : ''}</span></li>`;
+    }).join('');
+    // first-round splits: the only round where everyone faced the same matchups
+    const splits = [];
+    for (let i = 0; i < mCount(n, 0); i++) {
+      const A = [], B = [];
+      for (const p of ppl) { if (p.w[i] === 2 * i) A.push(p.uid); else if (p.w[i] === 2 * i + 1) B.push(p.uid); }
+      if (A.length && B.length) splits.push({ i, A, B });
+    }
+    splits.sort((x, y) => (Math.min(y.A.length, y.B.length) / (y.A.length + y.B.length)) - (Math.min(x.A.length, x.B.length) / (x.A.length + x.B.length)) || (y.A.length + y.B.length) - (x.A.length + x.B.length));
+    const splitHtml = splits.slice(0, 10).map(({ i, A, B }) => `<div class="split">
+        <div class="sd"><span class="t">${esc(b.songs[2 * i].t)}</span><span class="avs">${A.slice(0, 6).map(u => avatar(u)).join('')}</span></div>
+        <span class="score">${A.length}–${B.length}</span>
+        <div class="sd r"><span class="t">${esc(b.songs[2 * i + 1].t)}</span><span class="avs">${B.slice(0, 6).map(u => avatar(u)).join('')}</span></div></div>`).join('');
+    right = `<h3 class="panel-h">Group standings</h3><p class="hint" style="margin-bottom:12px">Every match a song wins in anyone’s bracket is one point.</p><ol class="stand">${stand}</ol>
+      <h3 class="panel-h" style="margin-top:28px">Biggest debates</h3>
+      ${splitHtml ? `<p class="hint" style="margin-bottom:12px">First-round matchups where the group disagreed.</p><div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'Everyone agrees on the first round so far.' : 'Splits appear once two people have picked.'}</p>`}`;
+  }
+  return `<section class="cmp"><div><h3 class="panel-h">Who’s in</h3><div class="ppl">${people}</div>
+      <p class="hint">To bring friends in, share this page from the claude.ai share menu and give them edit access, so their picks are saved where everyone can see them.</p></div>
+    <div>${right}</div></section>`;
+}
+
+function listenTab(b) {
+  const groups = b.albums.map((a, ai) => ({ a, songs: b.songs.filter(s => s.a === ai).sort((x, y) => (x.seed ?? 0) - (y.seed ?? 0)) })).filter(g => g.songs.length);
+  return `<section>
+    <div class="listen-top">
+      <div style="max-width:62ch"><h3 class="panel-h">Make it a playlist</h3>
+        <p class="hint">Copy the track list, then paste it into a playlist importer like <a href="https://www.tunemymusic.com/transfer" target="_blank" rel="noopener">TuneMyMusic</a> or <a href="https://soundiiz.com" target="_blank" rel="noopener">Soundiiz</a> and choose Spotify, Apple Music or YouTube Music as the destination. Or play songs one at a time with the links below.</p></div>
+      <button class="btn primary" data-act="copy">Copy track list</button>
+    </div>
+    ${S.copyText ? `<textarea class="copy-out" id="copy-out" readonly aria-label="Track list">${esc(S.copyText)}</textarea>` : ''}
+    ${groups.map(g => `<div class="album-grp"><h4 class="album-h"><span class="sw" style="${alStyle(g.a.color)}"></span>${esc(g.a.name)}${g.a.year ? ` <span class="mono">${g.a.year}</span>` : ''}</h4>
+      <ul class="tracks">${g.songs.map(s => `<li><span>${esc(s.t)}</span><span class="ln"><a href="${spotifyUrl(b.artist, s.t)}" target="_blank" rel="noopener">Spotify</a><a href="${ytUrl(b.artist, s.t)}" target="_blank" rel="noopener">YouTube</a><a href="${appleUrl(b.artist, s.t)}" target="_blank" rel="noopener">Apple Music</a></span></li>`).join('')}</ul></div>`).join('')}
+  </section>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const app = document.getElementById('app');
+  const a = document.activeElement;
+  const focus = a && a.id ? { id: a.id, s: a.selectionStart, e: a.selectionEnd } : null;
+  app.innerHTML = shell();
+  if (focus) {
+    const el = document.getElementById(focus.id);
+    if (el) { el.focus({ preventScroll: true }); try { if (focus.s != null) el.setSelectionRange(focus.s, focus.e); } catch {} }
+  }
+  refreshProfiles();
+}
+
+/* ---------- events ---------- */
+function openBracket(id) { S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
+
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const act = t.dataset.act, d = S.draft;
+  switch (act) {
+    case 'home': S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
+    case 'size': S.form.size = +t.dataset.n; render(); break;
+    case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
+    case 'open': openBracket(t.dataset.id); break;
+    case 'tab': S.tab = t.dataset.tab; S.confirm = null; if (t.dataset.tab !== 'bracket') S.viewing = null; render(); break;
+    case 'pick': doPick(+t.dataset.k, +t.dataset.s); break;
+    case 'prev': case 'next': {
+      const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
+      const idx = ks.indexOf(cur);
+      if (act === 'prev') S.playK = idx > 0 ? ks[idx - 1] : cur;
+      else S.playK = idx + 1 < ks.length ? ks[idx + 1] : null;
+      render(); break;
+    }
+    case 'first': { const b = S.brackets.get(S.bid); S.playK = playable(b.size, getMine(S.bid))[0] ?? null; render(); break; }
+    case 'first-open': S.playK = null; render(); break;
+    case 'view': S.viewing = t.dataset.uid; S.tab = 'bracket'; render(); break;
+    case 'view-mine': S.viewing = null; render(); break;
+    case 'peek': S.peek[S.bid] = true; render(); break;
+    case 'reset': S.confirm = 'reset'; render(); break;
+    case 'delete': S.confirm = 'delete'; render(); break;
+    case 'confirm-no': S.confirm = null; render(); break;
+    case 'reset-yes': { const b = S.brackets.get(S.bid); setMine(S.bid, normalize(b.size, [])); S.confirm = null; S.playK = null; render(); break; }
+    case 'delete-yes': {
+      try { await deleteBracket(S.bid); S.view = 'home'; S.bid = null; S.confirm = null; toast('Bracket deleted'); }
+      catch { S.confirm = null; toast('Couldn’t delete it. You may not have permission.'); }
+      break;
+    }
+    case 'copy': {
+      const b = S.brackets.get(S.bid);
+      const text = [...b.songs].sort((x, y) => (x.seed ?? 0) - (y.seed ?? 0)).map(s => `${b.artist} - ${s.t}`).join('\n');
+      try { await navigator.clipboard.writeText(text); toast('Track list copied'); }
+      catch { S.copyText = text; render(); const el = document.getElementById('copy-out'); if (el) { el.focus(); el.select(); } }
+      break;
+    }
+    case 'stop-gen': S.gen?.ctl?.abort(); break;
+    case 'retry-gen': generate(S.gen.artist, S.gen.size, true); break;
+    case 'regen': generate(d.artist, d.size, true); break;
+    case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'home'; S.createErr = null; render(); break;
+    case 'draft-size': d.size = +t.dataset.n; while (d.songs.length > d.size) d.bench.unshift(d.songs.pop()); render(); break;
+    case 'seeding': d.seeding = t.dataset.v; render(); break;
+    case 'mv': { const i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < d.songs.length) [d.songs[i], d.songs[j]] = [d.songs[j], d.songs[i]]; render(); break; }
+    case 'bench': d.bench.unshift(d.songs.splice(+t.dataset.i, 1)[0]); render(); break;
+    case 'unbench': d.songs.push(d.bench.splice(+t.dataset.i, 1)[0]); render(); break;
+    case 'create': {
+      if (d.songs.length !== d.size) return;
+      t.disabled = true; S.createErr = null;
+      try { const id = await createBracket(draftToDoc(d)); S.draft = null; openBracket(id); }
+      catch (err) {
+        S.createErr = err?.code === 'invalid_argument' ? 'You don’t have permission to add brackets here. Ask the page owner for edit access.'
+          : err?.code === 'quota_exceeded' ? 'This page is out of storage. Delete an old bracket and try again.'
+          : 'Couldn’t save the bracket. Check your connection and try again.';
+        render();
+      }
+      break;
+    }
+  }
+});
+
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (e.target.id === 'new-form') {
+    const f = S.form;
+    const artist = (document.getElementById('artist')?.value || '').trim();
+    f.artist = artist;
+    const pasteMode = f.showPaste || !S.sample;
+    if (pasteMode) {
+      const text = document.getElementById('paste')?.value || f.paste;
+      if (!text.trim()) { document.getElementById('paste')?.focus(); return; }
+      S.draft = draftFromPaste(text, artist, f.size); S.gen = null; S.view = 'draft'; render();
+    } else {
+      if (!artist) { document.getElementById('artist')?.focus(); return; }
+      generate(artist, f.size, false);
+    }
+  } else if (e.target.id === 'add-song') {
+    const d = S.draft, t = document.getElementById('add-title').value.trim();
+    if (!t) return;
+    const v = document.getElementById('add-album').value;
+    const a = v === 'new' ? addAlbum(d, 'Singles') : +v;
+    d.songs.push({ t, a }); tidyAlbums(d); render();
+    document.getElementById('add-title')?.focus();
+  }
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'artist') S.form.artist = e.target.value;
+  if (e.target.id === 'paste') S.form.paste = e.target.value;
+});
+
+document.addEventListener('keydown', e => {
+  if (S.view !== 'bracket' || S.tab !== 'play' || S.viewing) return;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) return;
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const b = S.brackets.get(S.bid); if (!b) return;
+  const w = getMine(S.bid), k = currentPlayK(b, w); if (k === null) return;
+  const [r, i] = locate(b.size, k), [a, c] = entrants(b.size, w, r, i);
+  e.preventDefault();
+  doPick(k, e.key === 'ArrowLeft' ? a : c);
+});
+
+/* ---------- boot ---------- */
+function goLocal() {
+  S.mode = 'local';
+  const all = lsGet(LS_BRACKETS, {});
+  S.brackets = new Map(Object.entries(all));
+  S.loadedB = true;
+  render();
+}
+async function boot() {
+  render();
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') return goLocal();
+  const [db, user, sample] = await Promise.all([c.use('db'), c.use('user'), c.use('sample')]);
+  S.sample = sample; S.user = user;
+  if (user) {
+    try {
+      const me = await user.me();
+      S.me = { id: me.id, name: me.name, avatarUrl: me.avatarUrl, isOwner: me.isOwner };
+      const can = await user.can('data.write');
+      S.canWrite = can !== false;
+    } catch {}
+  }
+  if (!db) return goLocal();
+  S.db = db; S.mode = 'shared';
+  db.collection('brackets').onSnapshot(snap => {
+    S.brackets = new Map(snap.docs.map(d => [d.id, d.data()]));
+    S.loadedB = true;
+    render();
+  }, () => { S.loadedB = true; render(); });
+  db.collection('picks').onSnapshot(snap => {
+    S.picks = new Map(snap.docs.map(d => [d.id, d.data()]));
+    if (S.me.id && S.picks.has(S.me.id)) myDocKnown = true;
+    render();
+  }, () => {});
+  render();
+}
+boot();
+})();
+</script>

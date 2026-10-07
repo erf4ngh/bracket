@@ -1,0 +1,170 @@
+{
+    "artist": "Travis Scott",
+    "size": 32,
+    "albums": [
+        {
+            "name": "Days Before Rodeo",
+            "year": 2014,
+            "color": "#2F54EB"
+        },
+        {
+            "name": "Rodeo",
+            "year": 2015,
+            "color": "#1F2026"
+        },
+        {
+            "name": "Birds in the Trap Sing McKnight",
+            "year": 2016,
+            "color": "#E5383B"
+        },
+        {
+            "name": "Astroworld",
+            "year": 2018,
+            "color": "#E33FA8"
+        },
+        {
+            "name": "JackBoys",
+            "year": 2019,
+            "color": "#E0C33A"
+        },
+        {
+            "name": "Singles & features",
+            "year": null,
+            "color": "#23A55A"
+        }
+    ],
+    "songs": [
+        {
+            "t": "Through the Late Night",
+            "a": 2
+        },
+        {
+            "t": "Mamacita",
+            "a": 0
+        },
+        {
+            "t": "Skeletons",
+            "a": 3
+        },
+        {
+            "t": "Oh My Dis Side",
+            "a": 1
+        },
+        {
+            "t": "Overdue",
+            "a": 5
+        },
+        {
+            "t": "90210",
+            "a": 1
+        },
+        {
+            "t": "Goosebumps",
+            "a": 2
+        },
+        {
+            "t": "Gatti",
+            "a": 4
+        },
+        {
+            "t": "Drugs You Should Try It",
+            "a": 0
+        },
+        {
+            "t": "R.I.P. Screw",
+            "a": 3
+        },
+        {
+            "t": "Gang Gang",
+            "a": 4
+        },
+        {
+            "t": "Outside",
+            "a": 2
+        },
+        {
+            "t": "Watch",
+            "a": 5
+        },
+        {
+            "t": "Pornography",
+            "a": 1
+        },
+        {
+            "t": "Butterfly Effect",
+            "a": 3
+        },
+        {
+            "t": "The Scotts",
+            "a": 5
+        },
+        {
+            "t": "Nightcrawler",
+            "a": 1
+        },
+        {
+            "t": "Sicko Mode",
+            "a": 3
+        },
+        {
+            "t": "Stop Trying to Be God",
+            "a": 3
+        },
+        {
+            "t": "Antidote",
+            "a": 1
+        },
+        {
+            "t": "Out West",
+            "a": 4
+        },
+        {
+            "t": "Skyfall",
+            "a": 0
+        },
+        {
+            "t": "Carousel",
+            "a": 3
+        },
+        {
+            "t": "Beibs in the Trap",
+            "a": 2
+        },
+        {
+            "t": "Franchise",
+            "a": 5
+        },
+        {
+            "t": "Stargazing",
+            "a": 3
+        },
+        {
+            "t": "3500",
+            "a": 1
+        },
+        {
+            "t": "Pick Up the Phone",
+            "a": 2
+        },
+        {
+            "t": "Yosemite",
+            "a": 3
+        },
+        {
+            "t": "Pray 4 Love",
+            "a": 1
+        },
+        {
+            "t": "Highest in the Room",
+            "a": 5
+        },
+        {
+            "t": "Maria I'm Drunk",
+            "a": 1
+        }
+    ],
+    "seeding": "custom",
+    "source": "import",
+    "createdBy": null,
+    "createdAt": 1759600000000
+}
