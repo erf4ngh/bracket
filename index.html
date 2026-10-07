@@ -3,150 +3,317 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: one centered column (max 1180px); the bracket is a two-sided tournament tree that scrolls sideways inside its own frame */
+/* Layout: one centered column (max 1200px). Dark by default; the host's data-theme="light" switches to the light tokens.
+   Album colors carry the look; one lime accent marks actions and progress. */
 :root{
-  --bg:#E8EBF0; --surface:#FFFFFF; --surface-2:#F2F4F7; --ink:#101217; --muted:#596070; --line:#D0D5DD;
-  --accent:#E3165B; --accent-ink:#FFFFFF; --good:#1D8F4E; --warn:#A8651A; --connector:#A3AAB6;
+  --bg:#0D0E11; --surface:#16181D; --surface-2:#1F2229; --well:#0D0E11; --tree:#121418;
+  --ink:#F2F0EA; --muted:#A2A8B3; --line:#2C3038; --line-2:#3A3F49; --track:#2A2E37;
+  --accent:#C6F432; --accent-ink:#0D0E11; --accent-fg:#C6F432; --fill:#C6F432; --fill-ink:#0D0E11;
+  --good:#6FE3A0; --warn:#F2B84B; --danger:#FF8A96; --connector:#3A3F49; --ring:rgba(255,255,255,.14);
   --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
   --body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --tabbar:0px;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0D0E11; --surface:#16181D; --surface-2:#1E2128; --ink:#EEF0F4; --muted:#9AA1AD; --line:#2B2F37;
-    --accent:#FF3D7E; --accent-ink:#16050C; --good:#3CCB7F; --warn:#E3A93B; --connector:#4A505C; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0D0E11; --surface:#16181D; --surface-2:#1E2128; --ink:#EEF0F4; --muted:#9AA1AD; --line:#2B2F37;
-  --accent:#FF3D7E; --accent-ink:#16050C; --good:#3CCB7F; --warn:#E3A93B; --connector:#4A505C; color-scheme:dark;
+:root[data-theme="light"]{
+  --bg:#F3F2EE; --surface:#FFFFFF; --surface-2:#ECEBE6; --well:#F3F2EE; --tree:#FAFAF8;
+  --ink:#14151A; --muted:#5D636F; --line:#DAD9D3; --line-2:#C5C4BD; --track:#E3E2DC;
+  --accent:#C6F432; --accent-ink:#14151A; --accent-fg:#3F6212; --fill:#4D7C0F; --fill-ink:#FFFFFF;
+  --good:#1D7A45; --warn:#9A5B0F; --danger:#B4233C; --connector:#B9B8B1; --ring:rgba(0,0,0,.14);
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
-body{color:var(--ink);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body{margin:0;color:var(--ink);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-a{color:inherit}
+a{color:var(--accent-fg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:18px;height:18px;flex:none}
+.ic.sm{width:14px;height:14px}
+.ic.lg{width:22px;height:22px}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:24px;padding-block:0 calc(72px + var(--tabbar))}
+.wrap.wide{max-width:1440px}
 @media (max-width:520px){.wrap{padding-inline:16px}}
 
 /* top bar */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px;border-bottom:1px solid var(--line);margin-bottom:28px}
-.brand{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer;font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.04em}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;border-bottom:1px solid var(--line);margin-inline:-24px;padding-inline:24px}
+@media (max-width:520px){.top{margin-inline:-16px;padding-inline:16px}}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;min-height:44px;cursor:pointer;font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.04em}
 .brand svg{width:26px;height:26px;flex:none}
-.me{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
+.me{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:var(--muted);min-width:0}
 .me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.av{width:24px;height:24px;border-radius:50%;flex:none;object-fit:cover;background:var(--surface-2);display:inline-grid;place-items:center;font:600 11px var(--body);color:var(--muted)}
+.av{width:24px;height:24px;border-radius:50%;flex:none;object-fit:cover;background:var(--track);display:inline-grid;place-items:center;font:700 11px var(--body);color:var(--ink)}
+.me .av{width:32px;height:32px;font-size:13px}
 .avs{display:flex}
 .avs .av{box-shadow:0 0 0 2px var(--surface);margin-left:-6px}
 .avs .av:first-child{margin-left:0}
 
 /* shared bits */
-.eyebrow{font:600 12px/1 var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 10px}
+.eyebrow{font:600 12px/1 var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:0 0 12px}
 .hint{color:var(--muted);font-size:14px;margin:0;max-width:62ch}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:10px;padding:0 16px;min-height:44px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap;color:var(--ink)}
 .btn:hover{border-color:var(--muted)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
 .btn.primary:hover{filter:brightness(1.06)}
-.btn.danger{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
 .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
-.btn.sm{padding:6px 10px;font-size:13px}
-.linkbtn{background:none;border:0;padding:0;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.linkbtn:hover{color:var(--ink)}
-.back{background:none;border:0;padding:0;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;margin-bottom:14px}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn.lg{min-height:54px;font-size:16px;border-radius:12px}
+.btn.block{width:100%}
+.iconbtn{width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);cursor:pointer}
+.iconbtn:hover{border-color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;min-height:44px;color:var(--ink);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.linkbtn:hover{color:var(--accent-fg)}
+.back{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:0;min-height:44px;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer}
 .back:hover{color:var(--ink)}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:none;padding:9px 13px;font:600 14px var(--mono);cursor:pointer;color:var(--muted)}
-.seg button + button{border-left:1px solid var(--line)}
+.seg{display:inline-flex;gap:4px;background:var(--well);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg button{border:0;border-radius:8px;background:none;padding:0 14px;min-height:36px;font:600 14px var(--mono);cursor:pointer;color:var(--muted)}
+.seg button:hover{color:var(--ink)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .seg.words button{font-family:var(--body)}
-.notice{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--muted);margin-bottom:20px}
+.notice{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:20px}
 .notice b{color:var(--ink)}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px 4px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap}
-.sw{width:12px;height:12px;border-radius:3px;background:var(--al);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 18%,transparent);flex:none}
-input[type=text],textarea,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:0 12px 0 8px;min-height:32px;border-radius:999px;background:transparent;border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.chip .n{font:500 12px var(--mono);color:var(--muted)}
+.sw{width:12px;height:12px;border-radius:3px;background:var(--al);box-shadow:inset 0 0 0 1px var(--ring);flex:none;display:inline-block}
+input[type=text],textarea,select{background:var(--well);border:1px solid var(--line);border-radius:10px;padding:0 12px;min-height:44px;min-width:0;color:var(--ink)}
+textarea{padding:10px 12px}
 input[type=text]:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.card-box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.h2{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.h3{font:800 24px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.sec-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;margin-bottom:14px}
+.sec-top .hint{font-size:13px}
+.meter{height:6px;border-radius:99px;background:var(--track);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--fill);transition:width .3s}
+.kbd{font:600 12px var(--mono);border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--ink)}
 
 /* home */
-.hero{padding-block:8px 36px;border-bottom:1px solid var(--line);margin-bottom:28px}
-.hero-h{font:900 clamp(44px,8vw,92px)/.88 var(--display);text-transform:uppercase;letter-spacing:.005em;margin:0 0 22px;text-wrap:balance;max-width:14ch}
-.hero-h em{font-style:normal;color:var(--accent)}
-.new-form{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin-bottom:12px}
-.new-form input[type=text]{flex:1 1 260px;font-size:18px;padding:12px 14px}
-.paste{display:grid;gap:8px;margin-top:14px;max-width:640px}
-.paste textarea{min-height:150px;font:13px/1.5 var(--mono);resize:vertical}
-.hero-foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
-.sec-h{font:800 26px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.card{display:flex;flex-direction:column;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;padding:0;cursor:pointer}
+.hero{padding-block:56px 48px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:40px 48px;align-items:flex-end}
+.hero-main{flex:999 1 560px;min-width:0}
+.hero-h{font:900 clamp(52px,8vw,104px)/.86 var(--display);text-transform:uppercase;margin:0 0 32px;text-wrap:balance;max-width:12ch}
+.hero-h em{font-style:normal;color:var(--accent-fg)}
+.composer{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;max-width:820px}
+.composer .field{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--well);border-radius:10px;min-height:60px;cursor:text;color:var(--muted)}
+.composer .field input{flex:1;min-width:0;background:none;border:0;outline:none;padding:0;min-height:0;font:500 20px var(--body);color:var(--ink)}
+.composer .field:focus-within{outline:2px solid var(--accent);outline-offset:-2px}
+.composer .seg{border:0;border-radius:10px;background:var(--well)}
+.composer .seg button{display:grid;gap:1px;text-align:center;min-width:76px;padding:6px 12px}
+.composer .seg button b{font:600 17px var(--mono)}
+.composer .seg button small{font:500 11px var(--body)}
+.composer .go{flex:0 1 auto;min-height:60px;padding:0 26px;font-size:16px;border-radius:10px}
+@media (max-width:640px){.composer .field{flex-basis:100%;min-height:54px}.composer .seg{flex:1 1 auto}.composer .seg button{flex:1;min-width:0}.composer .go{flex:1 1 100%;min-height:54px}}
+.hero-foot{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;margin-top:10px}
+.paste{display:grid;gap:8px;margin-top:12px;max-width:820px}
+.paste textarea{min-height:160px;font:13px/1.5 var(--mono);resize:vertical}
+.steps{flex:1 1 280px;list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:40px 1fr;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps .no{font:600 13px var(--mono);color:var(--accent-fg)}
+.steps b{display:block;font-weight:600}
+.steps span span{color:var(--muted);font-size:14px}
+.home-list{padding-top:40px}
+.home-list .sec-top{align-items:center;margin-bottom:20px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:999px;padding:0 16px;min-height:40px;font:600 14px var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.filters button span{font:500 13px var(--mono);color:var(--muted)}
+.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.filters button[aria-pressed="true"] span{color:inherit;opacity:.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;padding:0;cursor:pointer;color:var(--ink)}
 .card:hover{border-color:var(--muted)}
-.strip{display:flex;height:10px}
-.strip i{flex:var(--f);background:var(--al)}
-.card-body{padding:14px 16px 16px;display:grid;gap:4px}
-.card-h{font:800 30px/1 var(--display);text-transform:uppercase;margin:4px 0 0;overflow-wrap:anywhere}
+.strip{display:flex;height:56px;gap:2px;padding:10px 10px 0}
+.strip i{flex:var(--f);background:var(--al);border-radius:4px;box-shadow:inset 0 0 0 1px var(--ring)}
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1;width:100%}
+.card-h{font:800 34px/.95 var(--display);text-transform:uppercase;margin:0;overflow-wrap:anywhere}
 .meta{color:var(--muted);font-size:13px;margin:0}
-.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;min-height:24px}
-.status{font-size:13px;font-weight:600}
-.status.done{color:var(--good)}
-.status.todo{color:var(--muted)}
-.empty-state{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--muted);text-align:center}
+.card-status{margin-top:auto;padding-top:14px;display:grid;gap:6px;font-size:13px}
+.card-status .row{display:flex;justify-content:space-between;gap:8px}
+.card-status .row b{font-weight:600}
+.card-status .row span{font-family:var(--mono);color:var(--muted)}
+.card-status .champ-line{display:flex;align-items:center;gap:8px;min-width:0}
+.card-status .champ-line span{color:var(--muted)}
+.card-status .champ-line b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:12px;margin-top:10px}
+.card-foot .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
+.card-foot .cta{display:flex;align-items:center;gap:4px;font-weight:700;font-size:14px;color:var(--accent-fg);white-space:nowrap}
+.empty-state{border:1px dashed var(--line-2);border-radius:16px;padding:32px;color:var(--muted);text-align:center}
 
-/* bracket page header */
-.bk-head{margin-bottom:6px}
-.artist-h{font:900 clamp(40px,7vw,78px)/.9 var(--display);text-transform:uppercase;margin:0 0 10px;overflow-wrap:anywhere}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 18px}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow-x:auto}
-.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+/* generating + lineup review */
+.draft-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:16px}
+.stepper{display:flex;align-items:center;gap:8px;list-style:none;margin:0;padding:0;font-size:13px;font-weight:600;color:var(--muted)}
+.stepper li{display:flex;align-items:center;gap:8px}
+.stepper .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--mono);border:1px solid var(--line)}
+.stepper .done .dot{background:var(--track);border-color:var(--track);color:var(--ink)}
+.stepper .now{color:var(--ink)}
+.stepper .now .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stepper .bar{width:28px;height:1px;background:var(--line)}
+@media (max-width:520px){.stepper .lbl{display:none}.stepper .now .lbl{display:inline}}
+.draft-head{padding-block:28px 28px}
+.artist-h{font:900 clamp(48px,7vw,88px)/.88 var(--display);text-transform:uppercase;margin:0 0 10px;overflow-wrap:anywhere}
+.draft-body{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.draft-list{flex:999 1 560px;min-width:0}
+.draft-side{flex:1 1 320px;min-width:0;display:grid;gap:16px;position:sticky;top:16px}
+@media (max-width:900px){.draft-side{position:static}}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.lineup{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:6px}
+.lu{display:grid;grid-template-columns:18px 28px 6px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 8px;cursor:grab}
+.lu.dragging{opacity:.4}
+.lu.over{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.lu .grip{color:var(--line-2);display:grid;place-items:center}
+.lu .rk{font:600 13px var(--mono);color:var(--muted);text-align:right}
+.lu .rk.hi{color:var(--accent-fg)}
+.lu .bar{width:6px;height:30px;border-radius:3px;background:var(--al);box-shadow:inset 0 0 0 1px var(--ring)}
+.lu .tt{min-width:0}
+.lu .tt b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu .tt small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu .acts{display:flex}
+.icon{width:32px;height:36px;border:0;border-radius:8px;background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.icon:hover{background:var(--surface-2);color:var(--ink)}
+.icon:disabled{opacity:.25;cursor:default;background:none}
+.side-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:18px}
+.side-card .title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.side-card .title .h3{font-size:22px}
+.count{display:inline-flex;align-items:center;gap:6px;font:600 14px var(--mono);white-space:nowrap}
+.count.ok{color:var(--good)}
+.count.off{color:var(--warn)}
+.field-l{font-size:13px;color:var(--muted);font-weight:600;margin:0 0 8px;padding:0}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.dist{display:flex;height:14px;gap:2px}
+.dist i{flex:var(--f);background:var(--al);border-radius:3px;box-shadow:inset 0 0 0 1px var(--ring)}
+.side-card .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.opt{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;width:100%;text-align:left;padding:12px;border-radius:10px;border:1px solid var(--line);background:none;cursor:pointer;color:var(--ink)}
+.opt + .opt{margin-top:8px}
+.opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);margin-top:2px;display:grid;place-items:center}
+.opt[aria-pressed="true"]{border-color:var(--accent-fg)}
+.opt[aria-pressed="true"] .radio{border-color:var(--accent-fg)}
+.opt[aria-pressed="true"] .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent-fg)}
+.opt b{display:block;font-weight:600}
+.opt span span{font-size:13px;color:var(--muted)}
+.bench{display:flex;flex-wrap:wrap;gap:6px}
+.bench .chip{cursor:pointer;background:var(--well);min-height:36px}
+.bench .chip:hover{border-color:var(--muted)}
+.add-song{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.add-song select{grid-column:1}
+.add-song .btn{grid-row:1 / span 2;grid-column:2;height:auto}
+.gen{padding-block:48px;display:grid;gap:16px;justify-items:start}
+.gen-live{font:600 15px var(--mono);color:var(--muted);margin:0;display:flex;align-items:center}
+.pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:10px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+.err{color:var(--danger);font-weight:600;margin:0}
+
+/* bracket page header + tabs */
+.bk-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:16px}
+.bk-title{display:flex;align-items:center;gap:14px;min-width:0}
+.bk-title h1{font:900 clamp(30px,4vw,40px)/.95 var(--display);text-transform:uppercase;margin:0;overflow-wrap:anywhere}
+.bk-title .meta{margin-top:2px}
+.save{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.save .ic{color:var(--good)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px -24px 28px;padding-inline:24px;overflow-x:auto}
+.tabs button{display:flex;align-items:center;gap:8px;background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 11px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button .ic{display:none}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
-.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.save{font-size:12px;color:var(--muted)}
+.tabs .badge{font:600 11px var(--mono);background:var(--track);color:var(--ink);border-radius:99px;padding:1px 7px}
+@media (max-width:640px){
+  :root{--tabbar:76px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;margin:0;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;background:var(--surface);border-top:1px solid var(--line);border-bottom:0}
+  .tabs button{flex-direction:column;gap:2px;padding:6px 0;border:0;font-size:11px;position:relative}
+  .tabs button .ic{display:block}
+  .tabs button[aria-selected="true"]{color:var(--accent-fg)}
+  .tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);font-size:10px;padding:0 5px}
+  .bk-head + .notice{margin-bottom:16px}
+  .play{padding-top:16px}
+}
 
 /* pick (head to head) */
-.play-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:10px}
-.round-name{font:800 28px/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.rounds{list-style:none;margin:0 0 28px;padding:0;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px}
+.rounds li{display:grid;gap:6px;min-width:0}
+.rounds .lbl{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.rounds .lbl b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.rounds .lbl span{font-family:var(--mono);font-weight:500}
+.rounds .now .lbl b{color:var(--ink);font-weight:700}
+@media (max-width:640px){.rounds .lbl{display:none}.rounds{display:flex;gap:3px;margin-bottom:16px}.rounds li{flex:var(--w) 1 0}}
+.play-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:16px}
+.round-name{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.round-name span{color:var(--muted)}
+.next-line{font-size:14px;color:var(--muted)}
 .mono{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.progress{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:22px;box-shadow:inset 0 0 0 1px var(--line)}
-.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
-.duel{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
-.vs{align-self:center;font:900 30px/1 var(--display);color:var(--muted)}
-.duel-card{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent);transition:opacity .2s,transform .15s}
-.duel-card.lost{opacity:.4}
+.duel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;position:relative}
+.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font:900 20px/1 var(--display);color:var(--muted);z-index:1;pointer-events:none}
+.duel-card{display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);transition:opacity .2s,box-shadow .2s}
+.duel-card.lost{opacity:.35}
 .duel-card.won{box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--accent)}
-.duel-pick{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:none;border:0;color:inherit;padding:22px 22px 18px;cursor:pointer;min-height:220px}
-.duel-pick:hover .duel-cta{background:var(--al-ink);color:var(--al)}
-.duel-seed{font:600 13px var(--mono);opacity:.8}
-.duel-title{font:900 clamp(32px,4.6vw,56px)/.92 var(--display);text-transform:uppercase;overflow-wrap:anywhere;flex:1}
-.duel-album{font-size:14px;font-weight:500;opacity:.85}
-.duel-cta{margin-top:6px;font-size:13px;font-weight:700;border:2px solid currentColor;border-radius:99px;padding:5px 12px;transition:background .15s,color .15s}
-.duel-card.won .duel-cta{background:var(--al-ink);color:var(--al)}
-.listen{display:flex;gap:6px;padding:0 22px 18px}
-.listen a{font-size:12px;font-weight:700;text-decoration:none;border-radius:6px;padding:5px 9px;background:color-mix(in srgb,var(--al-ink) 16%,transparent)}
-.listen a:hover{background:color-mix(in srgb,var(--al-ink) 28%,transparent)}
-.play-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}
-.kbd{font-size:13px;color:var(--muted)}
+.duel-pick{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:none;border:0;color:inherit;padding:26px 26px 18px;cursor:pointer;min-height:300px}
+.duel-top{display:flex;width:100%;justify-content:space-between;align-items:center}
+.duel-seed{font:600 13px var(--mono);opacity:.85}
+.duel-key{font:600 13px var(--mono);border:1.5px solid currentColor;border-radius:6px;padding:0 7px;opacity:.75}
+.duel-title{flex:1;display:flex;align-items:flex-end;font:900 clamp(40px,5vw,72px)/.9 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.duel-album{font-size:15px;font-weight:500;opacity:.88}
+.duel-cta{margin-top:6px;font-size:14px;font-weight:700;border:2px solid currentColor;border-radius:99px;padding:6px 16px;transition:background .15s,color .15s}
+.duel-pick:hover .duel-cta,.duel-card.won .duel-cta{background:var(--al-ink);color:var(--al);border-color:var(--al-ink)}
+.listen{display:flex;flex-wrap:wrap;gap:6px;padding:0 26px 22px}
+.listen a{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;color:inherit;background:color-mix(in srgb,var(--al-ink) 14%,transparent)}
+.listen a:hover{background:color-mix(in srgb,var(--al-ink) 26%,transparent)}
+.play-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px}
+.keys{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.jump{margin-top:36px;border-top:1px solid var(--line);padding-top:20px}
+.jump-top{display:flex;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;margin-bottom:12px;font-size:13px;color:var(--muted)}
+.jump-top b{color:var(--ink);font-weight:600}
+.jump-key{display:flex;gap:14px;flex-wrap:wrap}
+.jump-key span{display:inline-flex;align-items:center;gap:6px}
+.jump-key i{width:10px;height:10px;border-radius:3px}
+.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:6px}
+.jump-grid button{min-height:44px;border:0;border-radius:8px;cursor:pointer;font:600 13px var(--mono);background:var(--track);color:var(--muted)}
+.jump-grid button.done,.jump-key .done{background:var(--fill);color:var(--fill-ink)}
+.jump-grid button.now,.jump-key .now{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.jump-key .open{background:var(--track)}
+.jump-grid button:disabled{opacity:.35;cursor:default}
 @media (max-width:640px){
-  .duel{grid-template-columns:1fr;gap:10px}
-  .vs{justify-self:center;font-size:22px}
-  .duel-pick{min-height:150px}
-  .kbd{display:none}
+  .duel{grid-template-columns:minmax(0,1fr);gap:10px}
+  .duel-pick{min-height:190px;padding:18px 18px 10px;gap:6px}
+  .duel-title{font-size:48px}
+  .duel-cta,.duel-key{display:none}
+  .listen{padding:0 18px 14px}
+  .keys{display:none}
+  .jump{margin-top:24px}
 }
-.champ{text-align:center;padding-block:20px 8px}
-.champ-title{font:900 clamp(56px,11vw,128px)/.85 var(--display);text-transform:uppercase;margin:6px 0 10px;overflow-wrap:anywhere}
-.champ-title span{background:var(--al);color:var(--al-ink);padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.champ .row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
-.route{list-style:none;padding:0;margin:22px auto 0;display:grid;gap:6px;max-width:440px;text-align:left}
-.route li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:6px}
-.route li span:first-child{color:var(--muted)}
-.route li span:last-child{text-align:right;min-width:0}
+
+/* champion */
+.champ-hero{border-radius:20px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);padding:clamp(22px,4vw,40px);display:grid;gap:10px}
+.champ-hero .eyebrow{color:inherit;display:flex;align-items:center;gap:8px;margin:0}
+.champ-title{font:900 clamp(64px,11vw,140px)/.84 var(--display);text-transform:uppercase;margin:0;overflow-wrap:anywhere}
+.champ-hero p{margin:0;font-weight:500}
+.champ-body{display:flex;flex-wrap:wrap;gap:24px 40px;margin-top:28px;align-items:flex-start}
+.champ-body > div{flex:1 1 320px;min-width:0}
+.route{list-style:none;padding:0;margin:14px 0 0}
+.route li{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.route li > span:first-child{color:var(--muted);font-size:13px}
+.route .who{display:flex;align-items:center;gap:8px;min-width:0}
+.route .who span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.champ-acts{display:grid;gap:8px}
+.champ-acts .row{display:flex;gap:8px;flex-wrap:wrap}
+.champ-acts .row .btn{flex:1 1 auto}
+.friends-line{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);margin:0 0 6px}
+.skipped{text-align:center;padding-block:40px;display:grid;gap:12px;justify-items:center}
 
 /* bracket tree */
-.bk-frame{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.bk{--colw:150px;--gap:28px;display:flex;align-items:stretch;min-width:max-content;height:max(380px,calc(var(--rows) * 66px));padding:16px 8px}
-.bk.big{--colw:138px;--gap:22px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.toolbar label{font-size:13px;color:var(--muted);font-weight:600}
+.toolbar select{font-weight:600;font-size:14px;background:var(--surface)}
+.toolbar .seg{padding:3px;border-radius:10px;background:var(--surface)}
+.toolbar .seg button{min-height:32px;font-family:var(--body);font-size:13px}
+.confirm{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.bk-frame{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--tree)}
+.bk{--colw:132px;--gap:20px;display:flex;align-items:stretch;min-width:max-content;height:calc(max(380px,calc(var(--rows) * 72px)) + 30px);padding:18px 8px 22px}
+.bk.big{--colw:124px;--gap:18px}
 .side{display:flex}
 .side.R{flex-direction:row-reverse}
 .col{display:flex;flex-direction:column;width:var(--colw);margin-inline:calc(var(--gap) / 2)}
+.col-h{height:30px;flex:none;font:600 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;white-space:nowrap}
 .pair{flex:1;display:flex;flex-direction:column;position:relative}
 .m{flex:1;display:flex;align-items:center;position:relative}
 .mb{width:100%;display:flex;flex-direction:column;gap:2px;position:relative;z-index:1}
@@ -158,93 +325,88 @@ input[type=text]:focus,textarea:focus,select:focus{outline:2px solid var(--accen
 .pair:not(.solo)::after{content:"";position:absolute;top:25%;bottom:25%;border-left:2px solid var(--connector)}
 .L .pair:not(.solo)::after{left:calc(100% + var(--gap) / 2 - 1px)}
 .R .pair:not(.solo)::after{right:calc(100% + var(--gap) / 2 - 1px)}
-.center{width:210px;margin-inline:calc(var(--gap) / 2);position:relative;display:flex;flex-direction:column;justify-content:center}
+.center{width:200px;margin-inline:calc(var(--gap) / 2);display:flex;flex-direction:column}
+.center-body{flex:1;position:relative;display:flex;flex-direction:column;justify-content:center}
 .center .m{flex:none}
 .center .m::before{content:"";position:absolute;top:calc(50% - 1px);right:100%;width:calc(var(--gap) / 2);border-top:2px solid var(--connector)}
 .center .m::after{left:100%}
-.plate{position:absolute;left:-40px;right:-40px;bottom:calc(50% + 46px);text-align:center;display:grid;gap:6px;justify-items:center}
-.plate-l{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
-.plate-t{font:900 32px/.95 var(--display);text-transform:uppercase;padding:6px 12px;border-radius:6px;background:var(--ink);color:var(--bg);max-width:100%;overflow-wrap:anywhere}
-.plate-t.set{background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent)}
-.final-l{position:absolute;top:calc(50% + 34px);left:0;right:0;text-align:center;font:600 11px var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
-.slot{display:flex;align-items:center;gap:6px;height:24px;width:100%;padding:0 8px;border:0;border-radius:4px;background:var(--al);color:var(--al-ink);font:600 12px/1 var(--body);text-align:left;cursor:pointer;min-width:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 16%,transparent);transition:opacity .15s}
+.plate{position:absolute;left:-30px;right:-30px;bottom:calc(50% + 50px);text-align:center;display:grid;gap:8px;justify-items:center;color:var(--muted)}
+.plate-l{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.14em}
+.plate-t{font:900 28px/.95 var(--display);text-transform:uppercase;padding:10px 12px;border-radius:10px;max-width:100%;overflow-wrap:anywhere;border:2px dashed var(--line-2);color:var(--muted)}
+.plate-t.set{border:0;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring)}
+.left-l{position:absolute;top:calc(50% + 40px);left:0;right:0;display:flex;justify-content:center}
+.left-l button{display:inline-flex;align-items:center;gap:6px;background:none;border:0;min-height:44px;font-weight:700;font-size:13px;color:var(--accent-fg);cursor:pointer}
+.slot{display:flex;align-items:center;gap:6px;height:28px;width:100%;padding:0 8px;border:0;border-radius:5px;background:var(--al);color:var(--al-ink);font:600 12px/1 var(--body);text-align:left;cursor:pointer;min-width:0;box-shadow:inset 0 0 0 1px var(--ring);transition:opacity .15s}
 .slot:disabled{cursor:default;color:var(--al-ink)}
-.slot .sd{font:500 10px var(--mono);opacity:.7;flex:none;min-width:14px}
+.slot .sd{font:500 10px var(--mono);opacity:.75;flex:none;min-width:14px}
 .slot .st{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.slot.lost{opacity:.26}
-.slot.won{box-shadow:inset 0 0 0 2px var(--al-ink),0 0 0 1px var(--al);font-weight:700}
-.slot.empty{background:transparent;box-shadow:inset 0 0 0 1px var(--line);cursor:default}
-.center .slot{height:30px;font-size:13px}
-.viewing{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px}
-.viewing .who{display:flex;align-items:center;gap:8px;font-weight:600}
+.slot.lost{opacity:.28}
+.slot.won{box-shadow:inset 0 0 0 2px var(--al-ink);font-weight:700}
+.slot.empty{background:transparent;box-shadow:none;border:1px dashed var(--line-2);cursor:default}
+.center .slot{height:36px;font-size:13px;padding-inline:10px}
+.legend.below{margin:14px 0 0;gap:8px 18px}
+.legend.below span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 
 /* compare */
-.cmp{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px}
-@media (max-width:860px){.cmp{grid-template-columns:minmax(0,1fr)}}
-.panel-h{font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 12px}
-.ppl{display:grid;gap:8px;margin-bottom:28px}
-.person{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.person .av{width:32px;height:32px;font-size:13px}
+.cmp{display:grid;gap:28px}
+.vote{display:grid;gap:16px}
+.vote-bar{display:flex;flex-wrap:wrap;gap:4px}
+.vote-seg{flex:var(--f) 1 150px;min-height:92px;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);min-width:0}
+.vote-seg b{font:900 30px/.9 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.vote-seg span{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700}
+.vote-seg span em{font-style:normal;font-family:var(--mono);white-space:nowrap}
+.vote-seg.wait{background:none;color:var(--muted);box-shadow:none;border:2px dashed var(--line-2)}
+.vote-seg.wait b{font-size:22px}
+.cmp-cols{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.cmp-cols > section{flex:1 1 380px;min-width:0;display:grid;gap:12px;align-content:start}
+.person{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 12px 12px 14px}
+.person .av{width:40px;height:40px;font-size:15px}
+.person .nmrow{display:flex;align-items:baseline;gap:8px;min-width:0}
 .person .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.person .sub{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;min-width:0}
-.person .sub b{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mini{height:4px;border-radius:9px;background:var(--surface-2);overflow:hidden;margin-top:6px;max-width:220px}
-.mini i{display:block;height:100%;background:var(--accent)}
-.stand{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-.stand li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.pill{font:600 11px var(--mono);border-radius:99px;padding:1px 8px;white-space:nowrap;background:var(--track);color:var(--muted)}
+.pill.hi{background:var(--fill);color:var(--fill-ink)}
+.person .sub{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;min-width:0}
+.person .sub b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person .meter{height:4px;margin-top:6px;max-width:220px}
+.stand{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.stand li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center}
 .stand .rk{font:600 12px var(--mono);color:var(--muted);text-align:right}
-.bar{position:relative;height:26px;border-radius:5px;overflow:hidden;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;min-width:0}
-.bar i{position:absolute;inset:0 auto 0 0;background:var(--al);opacity:.9}
-.bar span{position:relative;padding:0 8px;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);mix-blend-mode:normal}
-.bar span.on{color:var(--al-ink)}
-.stand .pts{font:600 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.splits{display:grid;gap:8px}
-.split{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
-.split .sd{display:grid;gap:4px;min-width:0}
-.split .sd.r{text-align:right;justify-items:end}
-.split .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-.split .score{font:600 16px var(--mono);font-variant-numeric:tabular-nums}
-.hidden-box{border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--muted);display:grid;gap:12px;justify-items:start}
+.sbar{position:relative;height:32px;border-radius:7px;overflow:hidden;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;min-width:0}
+.sbar i{position:absolute;inset:0 auto 0 0;background:var(--al);box-shadow:inset 0 0 0 1px var(--ring);border-radius:7px}
+.sbar span{position:relative;padding:0 10px;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.sbar span.on{color:var(--al-ink)}
+.stand .pts{font:600 13px var(--mono);text-align:right;white-space:nowrap}
+.stand .pts small{font-weight:500;color:var(--muted)}
+.splits{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.split{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.split .teams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.split .teams b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split .teams b:last-child{text-align:right}
+.split .score{font:600 15px var(--mono);font-variant-numeric:tabular-nums}
+.split .tug{display:flex;height:8px;gap:3px}
+.split .tug i{flex:var(--f);border-radius:99px;background:var(--al);box-shadow:inset 0 0 0 1px var(--ring)}
+.split .names{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+.split .names span:last-child{text-align:right}
+.hidden-box{border:1px dashed var(--line-2);border-radius:16px;padding:24px;color:var(--muted);display:grid;gap:12px;justify-items:start}
+.hidden-box b{color:var(--ink);font-size:16px}
+.invite{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.invite b{color:var(--ink)}
 
 /* listen */
-.listen-top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
-.album-grp{margin-bottom:22px}
-.album-h{display:flex;align-items:center;gap:10px;font:800 20px/1 var(--display);text-transform:uppercase;margin:0 0 8px}
+.listen-top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.album-grp{margin-bottom:24px}
+.album-h{display:flex;align-items:center;gap:10px;font:800 22px/1 var(--display);text-transform:uppercase;margin:0 0 8px}
 .album-h .sw{width:16px;height:16px}
 .tracks{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .tracks li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
-.tracks .ln{display:flex;gap:6px}
-.tracks .ln a{font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--muted)}
+.tracks .t{display:flex;align-items:center;gap:10px;font-weight:500}
+.tracks .t .mono{min-width:26px}
+.tracks .ln{display:flex;gap:6px;flex-wrap:wrap}
+.tracks .ln a{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:0 10px;min-height:32px;color:var(--muted)}
 .tracks .ln a:hover{color:var(--ink);border-color:var(--muted)}
-.copy-out{width:100%;min-height:120px;font:12px/1.5 var(--mono);margin-top:8px}
+.copy-out{width:100%;min-height:120px;font:12px/1.5 var(--mono);margin:-8px 0 24px}
 
-/* draft */
-.draft-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 8px}
-.count{font:600 14px var(--mono);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
-.count.off{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
-.count.ok{color:var(--good)}
-.lineup{list-style:none;margin:18px 0 26px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px}
-.lu{display:grid;grid-template-columns:28px auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 8px 7px 10px}
-.lu .rk{font:600 12px var(--mono);color:var(--muted);text-align:right}
-.lu .tt{min-width:0}
-.lu .tt b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lu .tt small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lu .acts{display:flex;gap:2px}
-.icon{width:28px;height:28px;border:0;border-radius:6px;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
-.icon:hover{background:var(--surface-2);color:var(--ink)}
-.icon:disabled{opacity:.3;cursor:default;background:none}
-.bench{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 22px}
-.bench button{cursor:pointer}
-.bench button:hover{border-color:var(--muted)}
-.add-song{display:flex;flex-wrap:wrap;gap:8px;max-width:720px}
-.add-song input{flex:2 1 220px}
-.add-song select{flex:1 1 160px}
-.gen{padding-block:30px;display:grid;gap:14px;justify-items:start}
-.gen-live{font:600 15px var(--mono);color:var(--muted)}
-.pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:8px;animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
-.err{color:var(--accent);font-weight:600;margin:0}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;font-size:14px;z-index:10}
+.toast{position:fixed;left:50%;bottom:calc(20px + var(--tabbar) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:10;max-width:calc(100vw - 32px)}
 .loading{color:var(--muted);padding-block:40px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -279,7 +441,9 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 function inkFor(hex) {
   const h = String(hex || '#888').replace('#', '');
   const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4));
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.36 ? '#111216' : '#FFFFFF';
+  // pick whichever of near-black or white has more contrast against the album color
+  const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return (L + .05) / .0559 >= 1.05 / (L + .05) ? '#111216' : '#FFFFFF';
 }
 const alStyle = color => `--al:${esc(color)};--al-ink:${inkFor(color)}`;
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -380,21 +544,28 @@ function saveLabel() {
   if (S.mode !== 'shared' || !S.me.id || S.writeBlocked) return 'Saved on this device';
   return { saving: 'Saving…', saved: 'Saved', retry: 'Reconnecting…', failed: 'Not saved. Check your connection.' }[S.saveState] || '';
 }
-function updateSaveLabel() { const el = document.getElementById('save-label'); if (el) el.textContent = saveLabel(); else render(); }
+function updateSaveLabel() { const el = document.getElementById('save'); if (el) el.innerHTML = `${saveIcon()}<span id="save-label">${esc(saveLabel())}</span>`; else render(); }
 
+function advance() {}
 function doPick(k, s) {
   if (S.viewing) return;
-  const b = S.brackets.get(S.bid); if (!b) return;
-  const w = getMine(S.bid).slice();
-  if (w[k] === s) return;
+  const bid = S.bid, b = S.brackets.get(bid); if (!b) return;
+  const w = getMine(bid).slice();
+  const onPlay = S.tab === 'play';
+  if (w[k] === s) { if (onPlay) playStep(1); return; }
   w[k] = s;
-  const next = normalize(b.size, w);
-  setMine(S.bid, next);
-  if (S.tab === 'play') {
-    const ks = playable(b.size, next);
-    S.playK = ks.find(x => x > k && next[x] === null) ?? ks.find(x => next[x] === null) ?? null;
-  }
-  render();
+  setMine(bid, normalize(b.size, w));
+  if (!onPlay) { render(); return; }
+  // show the pick for a moment, then move to the next open match
+  S.playK = k; render();
+  clearTimeout(advance.t);
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  advance.t = setTimeout(() => {
+    if (S.view !== 'bracket' || S.tab !== 'play' || S.bid !== bid) return;
+    const cur = getMine(bid), ks = playable(b.size, cur);
+    S.playK = ks.find(x => x > k && cur[x] === null) ?? ks.find(x => cur[x] === null) ?? null;
+    render();
+  }, still ? 0 : 320);
 }
 
 /* ---------- brackets ---------- */
@@ -578,13 +749,45 @@ function participants(bid) {
 }
 
 /* ---------- views ---------- */
+const ICONS = {
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
+  trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  refresh: '<path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/>',
+  share: '<path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  invite: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+  pick: '<rect x="3" y="5" width="7" height="14" rx="2"/><rect x="14" y="5" width="7" height="14" rx="2"/>',
+  bracket: '<path d="M3 5h5v6h4M3 17h5v-6M21 5h-5v6h-4M21 17h-5v-6"/>',
+  compare: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',
+  listen: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+const PLAY = `<svg class="ic sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
+const GRIP = `<svg class="ic sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
+const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
+const albumLine = al => `${esc(al.name)}${al.year ? ` · ${al.year}` : ''}`;
+function listNames(uids, max = 3) {
+  const names = uids.map(nameOf);
+  return names.length > max ? names.slice(0, max).join(', ') + ` +${names.length - max}` : names.join(', ');
+}
+function listenLinks(artist, t) {
+  return `<a href="${spotifyUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}Spotify</a><a href="${ytUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}YouTube</a><a href="${appleUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}Apple Music</a>`;
+}
+
 function shell() {
   S.ids = new Set();
-  let main = '';
+  let main = '', wide = false;
   if (S.view === 'draft') main = draftView();
-  else if (S.view === 'bracket' && S.brackets.get(S.bid)) main = bracketView();
+  else if (S.view === 'bracket' && S.brackets.get(S.bid)) { main = bracketView(); wide = S.tab === 'bracket'; }
   else { S.view = 'home'; main = homeView(); }
-  return `<div class="wrap">${topBar()}${notices()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+  return `<div class="wrap${wide ? ' wide' : ''}">${topBar()}${S.view === 'bracket' ? '' : notices()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
 }
 
 const MARK = `<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M2 4h6v8h5M2 20h6v-8"/><path d="M24 4h-6v8h-5M24 20h-6v-8"/></g><rect x="10" y="9.5" width="6" height="5" fill="var(--accent)"/></svg>`;
@@ -600,132 +803,188 @@ function notices() {
   return '';
 }
 
+/* home */
+function bracketStatus(id, b) {
+  const w = getMine(id), n = picked(w);
+  if (isDone(w)) return 'done';
+  return n ? 'progress' : 'fresh';
+}
 function homeView() {
-  const list = [...S.brackets.entries()].sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  const all = [...S.brackets.entries()].sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
   const canGen = !!S.sample;
   const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
   const f = S.form;
-  const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}">${n}</button>`).join('')}</div>`;
+  const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}"><b>${n}</b><small>${n - 1} matches</small></button>`).join('')}</div>`;
+  const pasteMode = f.showPaste || !canGen;
   const hero = `<section class="hero">
-    <p class="eyebrow">New bracket</p>
-    <h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
-    <form id="new-form" class="new-form" autocomplete="off">
-      <input type="text" id="artist" placeholder="Artist name, like Dua Lipa" value="${esc(f.artist)}" aria-label="Artist name" ${blocked ? 'disabled' : ''}>
-      ${sizeSeg}
-      <button class="btn primary" type="submit" ${blocked ? 'disabled' : ''}>${canGen && !f.showPaste ? 'Build bracket' : 'Use my list'}</button>
-    </form>
-    <div class="hero-foot">
-      <p class="hint">${canGen
-        ? 'Claude picks songs from across their albums and seeds them so the biggest hits meet late. You can swap songs before the bracket goes live.'
-        : 'Paste one song per line, optionally followed by “ - Album”. 16, 32 or 64 songs.'}</p>
-      ${canGen ? `<button class="linkbtn" type="button" data-act="toggle-paste">${f.showPaste ? 'Let Claude pick the songs' : 'Paste my own song list'}</button>` : ''}
+    <div class="hero-main">
+      <p class="eyebrow">New bracket</p>
+      <h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
+      <form id="new-form" class="composer" autocomplete="off">
+        <label class="field" for="artist">${ic('search', 'lg')}<span class="sr">Artist name</span>
+          <input type="text" id="artist" placeholder="${pasteMode ? 'Bracket name, like Dua Lipa' : 'Artist, like Dua Lipa'}" value="${esc(f.artist)}" ${blocked ? 'disabled' : ''}></label>
+        ${sizeSeg}
+        <button class="btn primary go" type="submit" ${blocked ? 'disabled' : ''}>${pasteMode ? 'Use my list' : 'Build bracket'}${ic('arrow')}</button>
+      </form>
+      <div class="hero-foot">
+        <p class="hint">${canGen
+          ? (pasteMode ? 'Paste one song per line, optionally followed by “ - Album”.' : 'Claude picks songs across their albums. You can swap any of them before it goes live.')
+          : 'Paste one song per line, optionally followed by “ - Album”. 16, 32 or 64 songs.'}</p>
+        ${canGen ? `<button class="linkbtn" type="button" data-act="toggle-paste">${f.showPaste ? 'Let Claude pick the songs' : 'Paste my own list instead'}</button>` : ''}
+      </div>
+      ${pasteMode ? `<div class="paste"><label class="sr" for="paste">Song list</label><textarea id="paste" placeholder="Sicko Mode - Astroworld&#10;Goosebumps - Birds in the Trap Sing McKnight&#10;Antidote - Rodeo">${esc(f.paste)}</textarea></div>` : ''}
     </div>
-    ${(f.showPaste || !canGen) ? `<div class="paste"><textarea id="paste" placeholder="Sicko Mode - Astroworld&#10;Goosebumps - Birds in the Trap Sing McKnight&#10;Antidote - Rodeo" aria-label="Song list">${esc(f.paste)}</textarea></div>` : ''}
+    <ol class="steps">
+      <li><span class="no">01</span><span><b>Build</b><span>Songs are seeded so #1 and #2 can only meet in the final.</span></span></li>
+      <li><span class="no">02</span><span><b>Pick</b><span>One matchup at a time. Listen, then choose.</span></span></li>
+      <li><span class="no">03</span><span><b>Compare</b><span>Friends’ picks unlock once you finish yours.</span></span></li>
+    </ol>
   </section>`;
+  const status = new Map(all.map(([id, b]) => [id, bracketStatus(id, b)]));
+  const cnt = k => all.filter(([id]) => status.get(id) === k).length;
+  const filt = S.filter || 'all';
+  const list = filt === 'all' ? all : all.filter(([id]) => status.get(id) === filt);
+  const filters = all.length ? `<div class="filters" role="group" aria-label="Filter brackets">${[['all', 'All', all.length], ['progress', 'In progress', cnt('progress')], ['done', 'Finished', cnt('done')]].map(([k, l, n]) => `<button type="button" data-act="filter" data-v="${k}" aria-pressed="${filt === k}">${l} <span>${n}</span></button>`).join('')}</div>` : '';
   let grid;
   if (!S.loadedB) grid = `<p class="loading">Loading brackets…</p>`;
-  else if (!list.length) grid = `<div class="empty-state">No brackets yet. Type an artist above to make the first one.</div>`;
-  else grid = `<div class="grid">${list.map(([id, b]) => bracketCard(id, b)).join('')}</div>`;
-  return hero + `<section><h2 class="sec-h">Brackets</h2>${grid}</section>`;
+  else if (!all.length) grid = `<div class="empty-state">No brackets yet. Type an artist above to make the first one.</div>`;
+  else if (!list.length) grid = `<div class="empty-state">${filt === 'done' ? 'No finished brackets yet.' : 'Nothing in progress right now.'}</div>`;
+  else grid = `<div class="grid">${list.map(([id, b]) => bracketCard(id, b, status.get(id))).join('')}</div>`;
+  return hero + `<section class="home-list"><div class="sec-top"><h2 class="h2">${S.mode === 'shared' ? 'Brackets' : 'Your brackets'}</h2>${filters}</div>${grid}</section>`;
 }
-function bracketCard(id, b) {
+function bracketCard(id, b, st) {
   const counts = new Map(); b.songs.forEach(s => counts.set(s.a, (counts.get(s.a) || 0) + 1));
   const strip = b.albums.map((a, i) => counts.get(i) ? `<i style="--f:${counts.get(i)};--al:${esc(a.color)}"></i>` : '').join('');
-  const w = getMine(id); const n = picked(w);
-  const status = isDone(w)
-    ? `<span class="status done">Champion: ${esc(b.songs[w[b.size - 2]].t)}</span>`
-    : n ? `<span class="status todo">${n} of ${b.size - 1} picked</span>` : `<span class="status todo">Not started</span>`;
-  const ppl = participants(id).filter(p => !p.me).slice(0, 5);
+  const w = getMine(id), n = picked(w);
+  let status, cta;
+  if (st === 'done') {
+    status = `<div class="champ-line">${ic('trophy', 'sm')}<span>Your champion</span><b>${esc(b.songs[w[b.size - 2]].t)}</b></div>`;
+    cta = 'Compare';
+  } else if (st === 'progress') {
+    const k = playable(b.size, w).find(x => w[x] === null);
+    const rn = k === undefined ? 'Skipped matches' : roundName(b.size, locate(b.size, k)[0]);
+    status = `<div class="row"><b>${rn}</b><span>${n} / ${b.size - 1}</span></div><div class="meter"><i style="width:${n / (b.size - 1) * 100}%"></i></div>`;
+    cta = 'Continue';
+  } else { status = `<span class="meta">Not started yet</span>`; cta = 'Start'; }
+  const ppl = participants(id).filter(p => !p.me);
+  const seeding = b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw';
   return `<button class="card" data-act="open" data-id="${esc(id)}">
-    <div class="strip">${strip}</div>
+    <div class="strip" aria-hidden="true">${strip}</div>
     <div class="card-body">
       <h3 class="card-h">${esc(b.artist)}</h3>
-      <p class="meta">${b.size} songs · ${b.albums.length} ${b.albums.length === 1 ? 'album' : 'albums'}</p>
-      <div class="card-foot">${status}<span class="avs">${ppl.map(p => avatar(p.uid)).join('')}</span></div>
+      <p class="meta">${b.size} songs · ${plural(b.albums.length, 'album')} · ${seeding}</p>
+      <div class="card-status">${status}</div>
+      <div class="card-foot"><span class="who">${ppl.length ? `<span class="avs">${ppl.slice(0, 4).map(p => avatar(p.uid)).join('')}</span>${plural(ppl.length, 'friend')}` : 'Just you so far'}</span><span class="cta">${cta}${ic('arrow', 'sm')}</span></div>
     </div></button>`;
 }
 
+/* generating + lineup review */
+function draftStepper() {
+  return `<ol class="stepper" aria-label="Steps">
+    <li class="done"><span class="dot">${ic('check', 'sm')}</span><span class="lbl">Artist</span></li><li class="bar" aria-hidden="true"></li>
+    <li class="now" aria-current="step"><span class="dot">2</span><span class="lbl">Review lineup</span></li><li class="bar" aria-hidden="true"></li>
+    <li><span class="dot">3</span><span class="lbl">Go live</span></li></ol>`;
+}
 function draftView() {
   const g = S.gen;
-  if (g && g.status === 'thinking') return `<section class="gen">
+  if (g && g.status === 'thinking') return `<div class="draft-top"><button class="back" data-act="stop-gen">${ic('back')}Stop</button>${draftStepper()}</div><section class="gen">
       <p class="eyebrow">Building the lineup</p>
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="gen-live"><span class="pulse"></span><span id="gen-live">Thinking about their catalog…</span></p>
-      <p class="hint">This usually takes 20 to 60 seconds.</p>
-      <button class="btn" data-act="stop-gen">Stop</button></section>`;
-  if (g && g.status === 'error') return `<section class="gen">
+      <p class="hint">This usually takes 20 to 60 seconds.</p></section>`;
+  if (g && g.status === 'error') return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}Back</button>${draftStepper()}</div><section class="gen">
       <p class="eyebrow">Building the lineup</p>
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="err">${esc(genError(g.code))}</p>
-      <div class="grp" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${S.sample && g.code !== 'refused' ? `<button class="btn primary" data-act="retry-gen">Try again</button>` : ''}
         <button class="btn" data-act="home">Back</button></div></section>`;
   const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
-  const n = d.songs.length, ok = n === d.size;
-  const msg = ok ? (d.seeding === 'seeded' ? 'Order matters: #1 and #2 land on opposite sides and can only meet in the final. Use the arrows to move songs up or down.' : 'Songs will be placed at random.')
-    : n < d.size ? `Add ${d.size - n} more ${d.size - n === 1 ? 'song' : 'songs'} from the alternates or type your own.` : `Remove ${n - d.size} ${n - d.size === 1 ? 'song' : 'songs'} to fit a ${d.size}-song bracket.`;
+  const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded';
+  const intro = d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
+  const how = seeded ? 'Drag to reorder: seeds 1 and 2 start on opposite sides and can only meet in the final.' : 'Songs will be placed at random, so order doesn’t matter.';
+  const countMsg = ok ? 'Ready to go' : n < d.size ? `Add ${d.size - n} more` : `Remove ${n - d.size}`;
+  const counts = d.albums.map((_, i) => d.songs.filter(s => s.a === i).length);
   const albumOpts = d.albums.map((a, i) => `<option value="${i}">${esc(a.name)}</option>`).join('') + `<option value="new">Other / single</option>`;
-  return `<section class="draft">
-    <button class="back" data-act="cancel-draft">← Cancel</button>
+  return `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Cancel</button>${draftStepper()}</div>
+  <section class="draft-head">
     <p class="eyebrow">Review the lineup</p>
     <h1 class="artist-h">${esc(d.artist)}</h1>
-    <div class="legend">${d.albums.map(a => `<span class="chip"><span class="sw" style="${alStyle(a.color)}"></span>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</span>`).join('')}</div>
-    <div class="draft-bar">
-      <span class="count ${ok ? 'ok' : 'off'}">${n} / ${d.size} songs</span>
-      <div class="seg" role="group" aria-label="Bracket size">${SIZES.map(s => `<button type="button" data-act="draft-size" data-n="${s}" aria-pressed="${d.size === s}">${s}</button>`).join('')}</div>
-      <div class="seg words" role="group" aria-label="Seeding">
-        <button type="button" data-act="seeding" data-v="seeded" aria-pressed="${d.seeding === 'seeded'}">Seeded</button>
-        <button type="button" data-act="seeding" data-v="shuffled" aria-pressed="${d.seeding === 'shuffled'}">Random</button></div>
-      ${d.source === 'claude' && S.sample ? `<button class="btn" data-act="regen">New lineup</button>` : ''}
-      <button class="btn primary" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>
-    </div>
-    <p class="hint">${esc(msg)}</p>
-    ${S.createErr ? `<p class="err" style="margin-top:8px">${esc(S.createErr)}</p>` : ''}
-    <ol class="lineup">${d.songs.map((s, i) => {
-      const a = d.albums[s.a];
-      return `<li class="lu"><span class="rk">${i + 1}</span><span class="sw" style="${alStyle(a.color)}"></span>
-        <span class="tt"><b>${esc(s.t)}</b><small>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</small></span>
-        <span class="acts"><button class="icon" data-act="mv" data-i="${i}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${i === 0 ? 'disabled' : ''}>↑</button><button class="icon" data-act="mv" data-i="${i}" data-d="1" aria-label="Move ${esc(s.t)} down" ${i === n - 1 ? 'disabled' : ''}>↓</button><button class="icon" data-act="bench" data-i="${i}" aria-label="Remove ${esc(s.t)}">×</button></span></li>`;
-    }).join('')}</ol>
-    <p class="eyebrow">Alternates</p>
-    ${d.bench.length ? `<div class="bench">${d.bench.map((s, i) => `<button class="chip" data-act="unbench" data-i="${i}"><span class="sw" style="${alStyle(d.albums[s.a].color)}"></span>+ ${esc(s.t)}</button>`).join('')}</div>` : `<p class="hint" style="margin-bottom:18px">Removed songs show up here so you can bring them back.</p>`}
-    <form id="add-song" class="add-song" autocomplete="off">
-      <input type="text" id="add-title" placeholder="Add a song by name" aria-label="Song title">
-      <select id="add-album" aria-label="Album">${albumOpts}</select>
-      <button class="btn" type="submit">Add song</button>
-    </form>
-  </section>`;
+    <p class="hint">${esc(intro + how)}</p>
+  </section>
+  <div class="draft-body">
+    <section class="draft-list" aria-label="Songs">
+      <div class="legend">${d.albums.map((a, i) => counts[i] ? `<span class="chip"><span class="sw" style="${alStyle(a.color)}"></span>${esc(a.name)} <span class="n">${counts[i]}</span></span>` : '').join('')}</div>
+      <ol class="lineup">${d.songs.map((s, i) => {
+        const a = d.albums[s.a];
+        return `<li class="lu" draggable="true" data-i="${i}"><span class="grip" aria-hidden="true">${GRIP}</span><span class="rk ${seeded && i < 4 ? 'hi' : ''}">${i + 1}</span><span class="bar" style="${alStyle(a.color)}"></span>
+          <span class="tt"><b>${esc(s.t)}</b><small>${albumLine(a)}</small></span>
+          <span class="acts"><button class="icon" data-act="mv" data-i="${i}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${i === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="mv" data-i="${i}" data-d="1" aria-label="Move ${esc(s.t)} down" ${i === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="bench" data-i="${i}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span></li>`;
+      }).join('')}</ol>
+    </section>
+    <aside class="draft-side">
+      <div class="side-card">
+        <div class="title"><span class="h3">${countMsg}</span><span class="count ${ok ? 'ok' : 'off'}">${ok ? ic('check', 'sm') : ''}${n} / ${d.size}</span></div>
+        ${n ? `<div><p class="field-l">Songs per album</p><div class="dist">${d.albums.map((a, i) => counts[i] ? `<i style="--f:${counts[i]};--al:${esc(a.color)}" title="${esc(a.name)}: ${counts[i]}"></i>` : '').join('')}</div></div>` : ''}
+        <fieldset><legend class="field-l">Size</legend><div class="seg" role="group" aria-label="Bracket size">${SIZES.map(s => `<button type="button" data-act="draft-size" data-n="${s}" aria-pressed="${d.size === s}">${s}</button>`).join('')}</div></fieldset>
+        <fieldset><legend class="field-l">Draw</legend>
+          <button type="button" class="opt" data-act="seeding" data-v="seeded" aria-pressed="${seeded}"><span class="radio"></span><span><b>Seeded</b><span>Biggest songs meet late. Order matters.</span></span></button>
+          <button type="button" class="opt" data-act="seeding" data-v="shuffled" aria-pressed="${!seeded}"><span class="radio"></span><span><b>Random draw</b><span>Anything can meet anything.</span></span></button>
+        </fieldset>
+        ${S.createErr ? `<p class="err">${esc(S.createErr)}</p>` : ''}
+        <button class="btn primary lg" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>
+        ${d.source === 'claude' && S.sample ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
+      </div>
+      <div class="side-card">
+        <span class="h3">Alternates</span>
+        ${d.bench.length
+          ? `<p class="hint" style="font-size:13px;margin-top:-8px">Click one to bring it in.${n >= d.size ? ' It swaps out the lowest seed.' : ''}</p><div class="bench">${d.bench.map((s, i) => `<button class="chip" data-act="unbench" data-i="${i}"><span class="sw" style="${alStyle(d.albums[s.a].color)}"></span>${esc(s.t)}${ic('plus', 'sm')}</button>`).join('')}</div>`
+          : `<p class="hint" style="font-size:13px;margin-top:-8px">Removed songs show up here so you can bring them back.</p>`}
+        <form id="add-song" class="add-song" autocomplete="off">
+          <label class="sr" for="add-title">Song title</label><input type="text" id="add-title" placeholder="Add a song by name">
+          <label class="sr" for="add-album">Album</label><select id="add-album">${albumOpts}</select>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+    </aside>
+  </div>`;
 }
 
+/* bracket page */
 function bracketView() {
   const b = S.brackets.get(S.bid);
   const creator = b.createdBy ? nameOf(b.createdBy) : null;
-  const tabs = [['play', 'Pick'], ['bracket', 'Bracket'], ['compare', 'Compare'], ['listen', 'Listen']];
+  const others = participants(S.bid).filter(p => !p.me).length;
+  const tabs = [['play', 'Pick', 'pick'], ['bracket', 'Bracket', 'bracket'], ['compare', 'Compare', 'compare'], ['listen', 'Listen', 'listen']];
   let body = '';
   if (S.tab === 'play') body = playTab(b);
   else if (S.tab === 'bracket') body = treeTab(b);
   else if (S.tab === 'compare') body = compareTab(b);
   else body = listenTab(b);
+  const seeding = b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw';
   return `<div class="bk-head">
-      <button class="back" data-act="home">← All brackets</button>
-      <h1 class="artist-h">${esc(b.artist)}</h1>
-      <p class="meta">${b.size} songs · ${b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw'}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p>
-      <div class="legend">${b.albums.map(a => `<span class="chip"><span class="sw" style="${alStyle(a.color)}"></span>${esc(a.name)}${a.year ? ` · ${a.year}` : ''}</span>`).join('')}</div>
-      <nav class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab === k}">${l}</button>`).join('')}</nav>
-    </div>${body}`;
+      <div class="bk-title"><button class="iconbtn" data-act="home" aria-label="All brackets">${ic('back')}</button>
+        <div style="min-width:0"><h1>${esc(b.artist)}</h1><p class="meta">${b.size} songs · ${seeding}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p></div></div>
+      <span class="save" id="save" role="status">${saveIcon()}<span id="save-label">${esc(saveLabel())}</span></span>
+    </div>
+    ${notices()}
+    <nav class="tabs" role="tablist" aria-label="Bracket sections">${tabs.map(([k, l, icon]) => `<button role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab === k}">${ic(icon, 'lg')}${l}${k === 'compare' && others ? `<span class="badge">${others}</span>` : ''}</button>`).join('')}</nav>
+    ${body}`;
 }
+const saveIcon = () => S.saveState === 'saved' || S.mode !== 'shared' || !S.me.id || S.writeBlocked ? ic('check', 'sm') : '';
 
+/* pick */
 function songCard(b, k, s, win, side) {
   const song = b.songs[s], al = albumOf(b, s);
   const cls = win === null ? '' : win === s ? 'won' : 'lost';
   return `<div class="duel-card ${cls}" style="${alStyle(al.color)}">
     <button class="duel-pick" data-act="pick" data-k="${k}" data-s="${s}" aria-pressed="${win === s}" aria-label="Pick ${esc(song.t)}">
-      <span class="duel-seed">${song.seed ? `#${song.seed} seed` : `Slot ${s + 1}`}</span>
+      <span class="duel-top"><span class="duel-seed">${song.seed ? `#${song.seed} seed` : `Slot ${s + 1}`}</span><span class="duel-key" aria-hidden="true">${side === 'L' ? '←' : '→'}</span></span>
       <span class="duel-title">${esc(song.t)}</span>
-      <span class="duel-album">${esc(al.name)}${al.year ? ` · ${al.year}` : ''}</span>
-      <span class="duel-cta">${win === s ? 'Your pick' : side === 'L' ? 'Pick ←' : 'Pick →'}</span>
+      <span class="duel-album">${albumLine(al)}</span>
+      <span class="duel-cta">${win === s ? 'Your pick' : 'Pick this song'}</span>
     </button>
-    <div class="listen"><a href="${spotifyUrl(b.artist, song.t)}" target="_blank" rel="noopener">Spotify</a><a href="${ytUrl(b.artist, song.t)}" target="_blank" rel="noopener">YouTube</a><a href="${appleUrl(b.artist, song.t)}" target="_blank" rel="noopener">Apple Music</a></div>
+    <div class="listen">${listenLinks(b.artist, song.t)}</div>
   </div>`;
 }
 function currentPlayK(b, w) {
@@ -734,47 +993,81 @@ function currentPlayK(b, w) {
   const open = ks.find(k => w[k] === null);
   return open === undefined ? null : open;
 }
+function nextLine(b, w, r, i) {
+  const n = b.size, R = nRounds(n);
+  if (r === R - 1) return 'Winner is your champion';
+  const j = i ^ 1, [pa, pb] = entrants(n, w, r, j), pw = w[off(n, r) + j];
+  const next = roundName(n, r + 1).toLowerCase().replace(/^round/, 'Round');
+  if (pw !== null) return `Winner plays ${esc(b.songs[pw].t)} in the ${next}`;
+  if (pa !== null && pb !== null) return `Winner plays ${esc(b.songs[pa].t)} or ${esc(b.songs[pb].t)}`;
+  return `Winner moves on to the ${next}`;
+}
 function playTab(b) {
-  const n = b.size, w = getMine(S.bid);
+  const n = b.size, w = getMine(S.bid), R = nRounds(n);
   const k = currentPlayK(b, w);
   if (k === null) return championView(b, w);
   const [r, i] = locate(n, k);
   const [a, c] = entrants(n, w, r, i);
-  const done = picked(w);
+  const ks = playable(n, w);
+  const rounds = Array.from({ length: R }, (_, rr) => {
+    const m = mCount(n, rr), o = off(n, rr);
+    let d = 0; for (let x = 0; x < m; x++) if (w[o + x] !== null) d++;
+    return `<li class="${rr === r ? 'now' : ''}" style="--w:${m}"><span class="lbl"><b>${roundName(n, rr)}</b><span>${d}/${m}</span></span><span class="meter"><i style="width:${d / m * 100}%"></i></span></li>`;
+  }).join('');
+  const o = off(n, r), m = mCount(n, r);
+  const jump = Array.from({ length: m }, (_, x) => {
+    const kk = o + x, ok = ks.includes(kk), [ea, eb] = entrants(n, w, r, x);
+    const cls = kk === k ? 'now' : w[kk] !== null ? 'done' : '';
+    const label = ok ? `Match ${x + 1}: ${b.songs[ea].t} vs ${b.songs[eb].t}${w[kk] !== null ? ', picked' : ''}` : `Match ${x + 1}: not set yet`;
+    return `<button type="button" class="${cls}" data-act="jump" data-k="${kk}" aria-label="${esc(label)}" ${ok ? '' : 'disabled'}>${x + 1}</button>`;
+  }).join('');
   return `<section class="play">
-    <div class="play-meta"><span class="round-name">${roundName(n, r)}</span><span class="mono">Match ${i + 1} of ${mCount(n, r)} · ${done} / ${n - 1} picked</span></div>
-    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${n - 1}" aria-valuenow="${done}"><i style="width:${(done / (n - 1)) * 100}%"></i></div>
-    <div class="duel">${songCard(b, k, a, w[k], 'L')}<div class="vs">VS</div>${songCard(b, k, c, w[k], 'R')}</div>
+    <ol class="rounds" aria-label="Progress by round" style="--n:${R}">${rounds}</ol>
+    <div class="play-meta"><h2 class="round-name">${roundName(n, r)} <span>· Match ${i + 1} of ${m}</span></h2><span class="next-line">${nextLine(b, w, r, i)}</span></div>
+    <div class="duel">${songCard(b, k, a, w[k], 'L')}<div class="vs" aria-hidden="true">VS</div>${songCard(b, k, c, w[k], 'R')}</div>
     <div class="play-nav">
-      <button class="btn sm" data-act="prev" ${playable(n, w).indexOf(k) <= 0 ? 'disabled' : ''}>← Previous</button>
-      <span class="kbd">Press ← or → to pick · <span id="save-label">${esc(saveLabel())}</span></span>
-      <button class="btn sm" data-act="next">${w[k] === null ? 'Skip' : 'Next'} →</button>
-    </div></section>`;
+      <button class="btn" data-act="prev" ${ks.indexOf(k) <= 0 ? 'disabled' : ''}>${ic('back', 'sm')}Previous</button>
+      <span class="keys">Use <span class="kbd">←</span><span class="kbd">→</span> to pick, <span class="kbd">S</span> to skip</span>
+      <button class="btn" data-act="next">${w[k] === null ? 'Skip' : 'Next'}${ic('arrow', 'sm')}</button>
+    </div>
+    ${m > 1 ? `<section class="jump" aria-label="All ${esc(roundName(n, r))} matches">
+      <div class="jump-top"><b>Jump to a match</b><span class="jump-key"><span><i class="done"></i>Picked</span><span><i class="now"></i>Now</span><span><i class="open"></i>Open</span></span></div>
+      <div class="jump-grid">${jump}</div></section>` : ''}
+  </section>`;
 }
 function championView(b, w) {
   const n = b.size;
   if (!isDone(w)) {
-    return `<section class="champ"><p class="eyebrow">Skipped matches</p><h2 class="round-name">You skipped ${n - 1 - picked(w)} ${n - 1 - picked(w) === 1 ? 'match' : 'matches'}</h2>
-      <div class="row"><button class="btn primary" data-act="first-open">Go to the first one</button><button class="btn" data-act="tab" data-tab="bracket">Open the bracket</button></div></section>`;
+    const left = n - 1 - picked(w);
+    return `<section class="skipped"><p class="eyebrow">Skipped matches</p><h2 class="round-name">You skipped ${plural(left, 'match', 'matches')}</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="first-open">Go to the first one</button><button class="btn" data-act="tab" data-tab="bracket">Open the bracket</button></div></section>`;
   }
   const c = w[n - 2], song = b.songs[c], al = albumOf(b, c);
   const route = [];
   for (let k = 0; k < n - 1; k++) if (w[k] === c) {
     const [r, i] = locate(n, k); const [x, y] = entrants(n, w, r, i);
-    route.push(`<li><span>${roundName(n, r)}</span><span>beat ${esc(b.songs[x === c ? y : x].t)}</span></li>`);
+    const lost = x === c ? y : x, la = albumOf(b, lost);
+    route.push(`<li><span>${roundName(n, r)}</span><span class="who"><span class="sw" style="${alStyle(la.color)}"></span><span>${esc(b.songs[lost].t)}</span></span><span class="mono">${b.songs[lost].seed ? '#' + b.songs[lost].seed : ''}</span></li>`);
   }
-  return `<section class="champ" style="${alStyle(al.color)}">
-    <p class="eyebrow">Your champion</p>
-    <h2 class="champ-title"><span>${esc(song.t)}</span></h2>
-    <p class="meta">${esc(al.name)}${al.year ? ` · ${al.year}` : ''}${song.seed ? ` · #${song.seed} seed` : ''}</p>
-    <ol class="route">${route.join('')}</ol>
-    <div class="row">
-      <button class="btn primary" data-act="tab" data-tab="compare">Compare with friends</button>
-      <button class="btn" data-act="tab" data-tab="bracket">See my bracket</button>
-      <button class="btn" data-act="first">Review from the start</button>
+  const done = participants(S.bid).filter(p => !p.me && p.done).map(p => p.uid);
+  const friends = done.length ? `<p class="friends-line"><span class="avs">${done.slice(0, 4).map(u => avatar(u)).join('')}</span>${esc(listNames(done))} ${done.length === 1 ? 'is' : 'are'} done too. Their picks are unlocked.</p>` : '';
+  return `<section class="champ">
+    <div class="champ-hero" style="${alStyle(al.color)}">
+      <p class="eyebrow">${ic('trophy')}Your champion</p>
+      <h2 class="champ-title">${esc(song.t)}</h2>
+      <p>${albumLine(al)}${song.seed ? ` · #${song.seed} seed` : ''}</p>
+    </div>
+    <div class="champ-body">
+      <div><h3 class="h3" style="font-size:20px">Road to the title</h3><ol class="route">${route.join('')}</ol></div>
+      <div class="champ-acts">
+        ${friends}
+        <div class="row"><button class="btn primary lg" data-act="tab" data-tab="compare">Compare with friends</button><button class="btn lg" data-act="share">${ic('share', 'sm')}Share</button></div>
+        <div class="row"><button class="btn" data-act="tab" data-tab="bracket">See my bracket</button><button class="btn" data-act="first">Review from the start</button></div>
+      </div>
     </div></section>`;
 }
 
+/* bracket tree */
 function slotBtn(b, s, k, win, editable) {
   if (s === null) return `<div class="slot empty" aria-hidden="true"></div>`;
   const song = b.songs[s], al = albumOf(b, s);
@@ -787,111 +1080,165 @@ function matchBox(b, w, r, i, editable) {
 }
 function tree(b, w, editable) {
   const n = b.size, R = nRounds(n);
+  const short = r => { const left = n >> r; return left === 8 ? 'Quarters' : left === 4 ? 'Semis' : 'Round of ' + left; };
   const side = s => {
     const cols = [];
     for (let r = 0; r < R - 1; r++) {
       const half = mCount(n, r) / 2, start = s === 'L' ? 0 : half;
       const ms = [];
       for (let i = start; i < start + half; i++) ms.push(`<div class="m ${r > 0 ? 'in' : ''}">${matchBox(b, w, r, i, editable)}</div>`);
-      if (half === 1) cols.push(`<div class="col"><div class="pair solo">${ms[0]}</div></div>`);
-      else { const pairs = []; for (let p = 0; p < ms.length; p += 2) pairs.push(`<div class="pair">${ms[p]}${ms[p + 1]}</div>`); cols.push(`<div class="col">${pairs.join('')}</div>`); }
+      const head = `<div class="col-h">${short(r)}</div>`;
+      if (half === 1) cols.push(`<div class="col">${head}<div class="pair solo">${ms[0]}</div></div>`);
+      else { const pairs = []; for (let p = 0; p < ms.length; p += 2) pairs.push(`<div class="pair">${ms[p]}${ms[p + 1]}</div>`); cols.push(`<div class="col">${head}${pairs.join('')}</div>`); }
     }
     return `<div class="side ${s}">${cols.join('')}</div>`;
   };
-  const c = w[n - 2];
+  const c = w[n - 2], left = n - 1 - picked(w);
   const plate = c !== null
     ? `<div class="plate-t set" style="${alStyle(albumOf(b, c).color)}">${esc(b.songs[c].t)}</div>`
-    : `<div class="plate-t">TBD</div>`;
-  return `<div class="bk-frame"><div class="bk ${n >= 64 ? 'big' : ''}" style="--rows:${n / 4}">
+    : `<div class="plate-t">To be picked</div>`;
+  return `<div class="bk-frame" id="bk-frame"><div class="bk ${n >= 64 ? 'big' : ''}" id="bk" style="--rows:${n / 4}">
     ${side('L')}
-    <div class="center"><div class="plate"><span class="plate-l">Champion</span>${plate}</div>
-      <div class="m">${matchBox(b, w, R - 1, 0, editable)}</div><span class="final-l">Final</span></div>
+    <div class="center"><div class="col-h">Final</div><div class="center-body"><div class="plate">${ic('trophy', 'lg')}<span class="plate-l">Champion</span>${plate}</div>
+      <div class="m">${matchBox(b, w, R - 1, 0, editable)}</div>
+      ${editable && left ? `<div class="left-l"><button data-act="tab" data-tab="play">${plural(left, 'pick')} left${ic('arrow', 'sm')}</button></div>` : ''}</div></div>
     ${side('R')}
   </div></div>`;
+}
+function revealed(bid) {
+  const ppl = participants(bid), mine = ppl.find(p => p.me), others = ppl.filter(p => !p.me);
+  return (mine && mine.done) || S.peek[bid] || !others.length;
 }
 function treeTab(b) {
   const uid = S.viewing;
   const w = uid ? picksOf(uid, S.bid) : getMine(S.bid);
-  let top;
-  if (uid) {
-    top = `<div class="viewing"><span class="who">${avatar(uid)}Viewing ${esc(nameOf(uid))}’s picks</span><button class="btn sm" data-act="view-mine">Back to mine</button></div>`;
-  } else {
-    const confirming = S.confirm === 'reset';
-    top = `<div class="toolbar"><span class="save"><span id="save-label">${esc(saveLabel())}</span> · Click a song to send it through.</span>
-      <div class="grp">${picked(w) ? (confirming
-        ? `<span class="save">Clear all ${picked(w)} picks?</span><button class="btn sm danger" data-act="reset-yes">Clear picks</button><button class="btn sm" data-act="confirm-no">Keep</button>`
-        : `<button class="btn sm" data-act="reset">Clear my picks</button>`) : ''}${deleteControls(b)}</div></div>`;
-  }
-  return top + tree(b, w, !uid);
+  const mine = getMine(S.bid);
+  const others = revealed(S.bid) ? participants(S.bid).filter(p => !p.me) : [];
+  const opts = [`<option value="">My picks (${picked(mine)} of ${b.size - 1})</option>`, ...others.map(p => `<option value="${esc(p.uid)}" ${p.uid === uid ? 'selected' : ''}>${esc(nameOf(p.uid))}’s picks${p.done ? '' : ` (${p.n} of ${b.size - 1})`}</option>`)].join('');
+  const confirming = S.confirm === 'reset';
+  const right = uid ? '' : (picked(w) ? (confirming
+    ? `<span class="confirm">Clear all ${picked(w)} picks?<button class="btn sm danger" data-act="reset-yes">Clear picks</button><button class="btn sm" data-act="confirm-no">Keep</button></span>`
+    : `<button class="btn sm" data-act="reset">Clear my picks</button>`) : '') + deleteControls(b);
+  const zoom = zoomMode();
+  const top = `<div class="toolbar">
+      <div class="grp">${others.length ? `<label for="whose">Showing</label><select id="whose">${opts}</select>` : ''}
+        <span class="hint" style="font-size:13px">${uid ? `Read only. These are ${esc(nameOf(uid))}’s picks.` : 'Click a song to send it through. Changing an early pick clears the picks after it.'}</span></div>
+      <div class="grp"><div class="seg words" role="group" aria-label="Zoom"><button type="button" data-act="zoom" data-v="fit" aria-pressed="${zoom === 'fit'}">Fit</button><button type="button" data-act="zoom" data-v="full" aria-pressed="${zoom === 'full'}">100%</button></div>${right}</div>
+    </div>`;
+  const legend = `<div class="legend below">${b.albums.map(a => `<span><span class="sw" style="${alStyle(a.color)}"></span>${albumLine(a)}</span>`).join('')}</div>`;
+  return top + tree(b, w, !uid) + legend;
 }
 function deleteControls(b) {
   if (!canManage(b)) return '';
-  if (S.confirm === 'delete') return `<span class="save">Delete for everyone?</span><button class="btn sm danger" data-act="delete-yes">Delete bracket</button><button class="btn sm" data-act="confirm-no">Keep</button>`;
+  if (S.confirm === 'delete') return `<span class="confirm">Delete for everyone?<button class="btn sm danger" data-act="delete-yes">Delete bracket</button><button class="btn sm" data-act="confirm-no">Keep</button></span>`;
   return `<button class="btn sm danger" data-act="delete">Delete bracket</button>`;
 }
+const zoomMode = () => S.zoom || (window.innerWidth < 700 ? 'full' : 'fit');
+function fitTree() {
+  const frame = document.getElementById('bk-frame'), bk = document.getElementById('bk');
+  if (!frame || !bk) return;
+  bk.style.zoom = '';
+  if (zoomMode() !== 'fit') return;
+  const scale = Math.min(1, (frame.clientWidth - 2) / bk.offsetWidth);
+  if (scale < 1) bk.style.zoom = String(Math.max(.55, scale));
+}
 
+/* compare */
+function agreement(b, w1, w2) {
+  const n = b.size; let same = 0, tot = 0;
+  for (let k = 0; k < n - 1; k++) {
+    if (w1[k] === null || w2[k] === null) continue;
+    const [r, i] = locate(n, k), e1 = entrants(n, w1, r, i), e2 = entrants(n, w2, r, i);
+    if (e1[0] !== e2[0] || e1[1] !== e2[1]) continue;
+    tot++; if (w1[k] === w2[k]) same++;
+  }
+  return tot ? Math.round(same / tot * 100) : null;
+}
 function compareTab(b) {
   const n = b.size, ppl = participants(S.bid);
   const mine = ppl.find(p => p.me);
-  const others = ppl.filter(p => !p.me);
-  const revealed = (mine && mine.done) || S.peek[S.bid] || !others.length;
-  const people = ppl.length ? ppl.map(p => {
+  const isRevealed = revealed(S.bid);
+  const invite = `<button class="btn sm" data-act="invite" aria-expanded="${!!S.invite}">${ic('invite', 'sm')}Invite friends</button>`;
+  const inviteBox = S.invite ? `<div class="notice invite" style="margin:0"><b>Share this page from the claude.ai Share menu.</b><span>Give friends edit access so their picks are saved where everyone can see them. They’ll find this bracket on the home screen.</span></div>` : '';
+  if (!ppl.length) return `<section class="cmp"><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div></section>`;
+
+  const scores = new Map();
+  if (mine) for (const p of ppl) if (!p.me && (isRevealed)) { const a = agreement(b, mine.w, p.w); if (a !== null) scores.set(p.uid, a); }
+  const best = Math.max(-1, ...scores.values());
+  const people = ppl.map(p => {
     const champ = p.champ !== null && p.champ !== undefined ? b.songs[p.champ] : null;
-    const show = revealed || p.me;
+    const show = isRevealed || p.me;
     const sub = !show ? (p.done ? 'Finished · champion hidden' : `${p.n} of ${n - 1} picked`)
       : champ ? `<span class="sw" style="${alStyle(albumOf(b, p.champ).color)}"></span>Champion <b>${esc(champ.t)}</b>`
       : `${p.n} of ${n - 1} picked`;
-    return `<div class="person">${avatar(p.uid)}<div style="min-width:0"><div class="nm">${esc(nameOf(p.uid))}</div><div class="sub">${sub}</div><div class="mini"><i style="width:${p.n / (n - 1) * 100}%"></i></div></div>
-      ${show && !p.me ? `<button class="btn sm" data-act="view" data-uid="${esc(p.uid)}">View bracket</button>` : p.me ? `<button class="btn sm" data-act="tab" data-tab="bracket">My bracket</button>` : '<span></span>'}</div>`;
-  }).join('') : `<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div>`;
+    const sc = scores.get(p.uid);
+    const pill = sc !== undefined ? `<span class="pill ${sc === best && scores.size > 1 ? 'hi' : ''}">${sc}% match${p.done && mine.done ? '' : ' so far'}</span>` : '';
+    const act = p.me ? `<button class="btn sm" data-act="tab" data-tab="bracket">My bracket</button>` : show ? `<button class="btn sm" data-act="view" data-uid="${esc(p.uid)}">View bracket</button>` : '<span></span>';
+    return `<div class="person">${avatar(p.uid)}<div style="min-width:0"><div class="nmrow"><span class="nm">${esc(nameOf(p.uid))}</span>${pill}</div><div class="sub">${sub}</div>${p.done ? '' : `<div class="meter"><i style="width:${p.n / (n - 1) * 100}%"></i></div>`}</div>${act}</div>`;
+  }).join('');
+  const whoCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}${people}
+    ${scores.size ? `<p class="hint" style="font-size:13px">Match % is how often you made the same pick in matchups you both faced.</p>` : ''}</section>`;
 
-  let right;
-  if (!ppl.length) right = '';
-  else if (!revealed) {
-    right = `<div class="hidden-box"><b style="color:var(--ink)">Everyone’s picks stay hidden until you finish yours.</b><span>That way nobody sways your bracket before the call.</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">Show them anyway</button></div></div>`;
-  } else {
-    // standings: one point per match won, summed over everyone
-    const pts = new Array(n).fill(0), champs = new Array(n).fill(0);
-    for (const p of ppl) { p.w.forEach(s => { if (s !== null) pts[s]++; }); if (p.champ !== null && p.champ !== undefined) champs[p.champ]++; }
-    const order = [...pts.keys()].filter(s => pts[s] > 0).sort((x, y) => pts[y] - pts[x] || champs[y] - champs[x]).slice(0, 12);
-    const max = Math.max(1, ...pts);
-    const stand = order.map((s, i) => {
-      const al = albumOf(b, s), pct = pts[s] / max * 100;
-      return `<li><span class="rk">${i + 1}</span><span class="bar" style="${alStyle(al.color)}"><i style="width:${pct}%"></i><span class="${pct > 55 ? 'on' : ''}">${esc(b.songs[s].t)}</span></span><span class="pts">${pts[s]} ${pts[s] === 1 ? 'win' : 'wins'}${champs[s] ? ` · ${champs[s]}× champ` : ''}</span></li>`;
-    }).join('');
-    // first-round splits: the only round where everyone faced the same matchups
-    const splits = [];
-    for (let i = 0; i < mCount(n, 0); i++) {
-      const A = [], B = [];
-      for (const p of ppl) { if (p.w[i] === 2 * i) A.push(p.uid); else if (p.w[i] === 2 * i + 1) B.push(p.uid); }
-      if (A.length && B.length) splits.push({ i, A, B });
-    }
-    splits.sort((x, y) => (Math.min(y.A.length, y.B.length) / (y.A.length + y.B.length)) - (Math.min(x.A.length, x.B.length) / (x.A.length + x.B.length)) || (y.A.length + y.B.length) - (x.A.length + x.B.length));
-    const splitHtml = splits.slice(0, 10).map(({ i, A, B }) => `<div class="split">
-        <div class="sd"><span class="t">${esc(b.songs[2 * i].t)}</span><span class="avs">${A.slice(0, 6).map(u => avatar(u)).join('')}</span></div>
-        <span class="score">${A.length}–${B.length}</span>
-        <div class="sd r"><span class="t">${esc(b.songs[2 * i + 1].t)}</span><span class="avs">${B.slice(0, 6).map(u => avatar(u)).join('')}</span></div></div>`).join('');
-    right = `<h3 class="panel-h">Group standings</h3><p class="hint" style="margin-bottom:12px">Every match a song wins in anyone’s bracket is one point.</p><ol class="stand">${stand}</ol>
-      <h3 class="panel-h" style="margin-top:28px">Biggest debates</h3>
-      ${splitHtml ? `<p class="hint" style="margin-bottom:12px">First-round matchups where the group disagreed.</p><div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'Everyone agrees on the first round so far.' : 'Splits appear once two people have picked.'}</p>`}`;
+  if (!isRevealed) {
+    return `<section class="cmp"><div class="cmp-cols">${whoCol}<section><div class="hidden-box"><b>Everyone’s picks stay hidden until you finish yours.</b><span>That way nobody sways your bracket before the call.</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">Show them anyway</button></div></div></section></div></section>`;
   }
-  return `<section class="cmp"><div><h3 class="panel-h">Who’s in</h3><div class="ppl">${people}</div>
-      <p class="hint">To bring friends in, share this page from the claude.ai share menu and give them edit access, so their picks are saved where everyone can see them.</p></div>
-    <div>${right}</div></section>`;
+
+  // champion vote
+  const votes = new Map();
+  for (const p of ppl) if (p.done) { const v = votes.get(p.champ) || []; v.push(p.uid); votes.set(p.champ, v); }
+  const waiting = ppl.filter(p => !p.done);
+  const doneN = ppl.length - waiting.length;
+  const segs = [...votes.entries()].sort((x, y) => y[1].length - x[1].length).map(([s, uids]) => {
+    const al = albumOf(b, s);
+    return `<div class="vote-seg" style="${alStyle(al.color)};--f:${uids.length}"><b>${esc(b.songs[s].t)}</b><span><span>${esc(listNames(uids))}</span><em>${plural(uids.length, 'vote')}</em></span></div>`;
+  });
+  if (waiting.length) segs.push(`<div class="vote-seg wait" style="--f:${waiting.length}"><b>${waiting.length === 1 ? esc(nameOf(waiting[0].uid)) : `${waiting.length} people`}</b><span><span>Still picking</span></span></div>`);
+  const vote = `<section class="card-box vote" aria-label="Champion vote"><div class="sec-top" style="margin:0"><h2 class="h3">The group’s champion</h2><span class="hint">${doneN} of ${ppl.length} finished</span></div><div class="vote-bar">${segs.join('')}</div></section>`;
+
+  // standings: one point per match won, summed over everyone
+  const pts = new Array(n).fill(0), champs = new Array(n).fill(0);
+  for (const p of ppl) { p.w.forEach(s => { if (s !== null) pts[s]++; }); if (p.champ !== null && p.champ !== undefined) champs[p.champ]++; }
+  const order = [...pts.keys()].filter(s => pts[s] > 0).sort((x, y) => pts[y] - pts[x] || champs[y] - champs[x]).slice(0, 10);
+  const max = Math.max(1, ...pts);
+  const stand = order.map((s, i) => {
+    const al = albumOf(b, s), pct = pts[s] / max * 100;
+    return `<li><span class="rk">${i + 1}</span><span class="sbar" style="${alStyle(al.color)}"><i style="width:${pct}%"></i><span class="${pct > 60 ? 'on' : ''}">${esc(b.songs[s].t)}</span></span><span class="pts">${pts[s]}${champs[s] ? ` <small>· ${champs[s]}× champ</small>` : ''}</span></li>`;
+  }).join('');
+  const standCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Group standings</h2><span class="hint">1 point per match won, in anyone’s bracket</span></div><ol class="stand">${stand}</ol></section>`;
+
+  // first-round splits: the only round where everyone faced the same matchups
+  const splits = [];
+  for (let i = 0; i < mCount(n, 0); i++) {
+    const A = [], B = [];
+    for (const p of ppl) { if (p.w[i] === 2 * i) A.push(p.uid); else if (p.w[i] === 2 * i + 1) B.push(p.uid); }
+    if (A.length && B.length) splits.push({ i, A, B });
+  }
+  splits.sort((x, y) => (Math.min(y.A.length, y.B.length) / (y.A.length + y.B.length)) - (Math.min(x.A.length, x.B.length) / (x.A.length + x.B.length)) || (y.A.length + y.B.length) - (x.A.length + x.B.length));
+  const splitHtml = splits.slice(0, 10).map(({ i, A, B }) => {
+    const a1 = albumOf(b, 2 * i), a2 = albumOf(b, 2 * i + 1);
+    return `<div class="split"><div class="teams"><b>${esc(b.songs[2 * i].t)}</b><span class="score">${A.length}–${B.length}</span><b>${esc(b.songs[2 * i + 1].t)}</b></div>
+      <div class="tug" aria-hidden="true"><i style="${alStyle(a1.color)};--f:${A.length}"></i><i style="${alStyle(a2.color)};--f:${B.length}"></i></div>
+      <div class="names"><span>${esc(listNames(A))}</span><span>${esc(listNames(B))}</span></div></div>`;
+  }).join('');
+  const debates = `<section><div class="sec-top" style="margin-bottom:12px"><h2 class="h3">Biggest debates</h2><span class="hint">First-round matchups where the group split</span></div>
+    ${splitHtml ? `<div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'Everyone agrees on the first round so far.' : 'Splits appear once two people have picked.'}</p>`}</section>`;
+
+  return `<section class="cmp">${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${debates}</section>`;
 }
 
+/* listen */
 function listenTab(b) {
   const groups = b.albums.map((a, ai) => ({ a, songs: b.songs.filter(s => s.a === ai).sort((x, y) => (x.seed ?? 0) - (y.seed ?? 0)) })).filter(g => g.songs.length);
   return `<section>
     <div class="listen-top">
-      <div style="max-width:62ch"><h3 class="panel-h">Make it a playlist</h3>
+      <div style="max-width:62ch"><h2 class="h3" style="margin-bottom:8px">Make it a playlist</h2>
         <p class="hint">Copy the track list, then paste it into a playlist importer like <a href="https://www.tunemymusic.com/transfer" target="_blank" rel="noopener">TuneMyMusic</a> or <a href="https://soundiiz.com" target="_blank" rel="noopener">Soundiiz</a> and choose Spotify, Apple Music or YouTube Music as the destination. Or play songs one at a time with the links below.</p></div>
-      <button class="btn primary" data-act="copy">Copy track list</button>
+      <button class="btn primary" data-act="copy">${ic('copy', 'sm')}Copy track list</button>
     </div>
     ${S.copyText ? `<textarea class="copy-out" id="copy-out" readonly aria-label="Track list">${esc(S.copyText)}</textarea>` : ''}
-    ${groups.map(g => `<div class="album-grp"><h4 class="album-h"><span class="sw" style="${alStyle(g.a.color)}"></span>${esc(g.a.name)}${g.a.year ? ` <span class="mono">${g.a.year}</span>` : ''}</h4>
-      <ul class="tracks">${g.songs.map(s => `<li><span>${esc(s.t)}</span><span class="ln"><a href="${spotifyUrl(b.artist, s.t)}" target="_blank" rel="noopener">Spotify</a><a href="${ytUrl(b.artist, s.t)}" target="_blank" rel="noopener">YouTube</a><a href="${appleUrl(b.artist, s.t)}" target="_blank" rel="noopener">Apple Music</a></span></li>`).join('')}</ul></div>`).join('')}
+    ${groups.map(g => `<div class="album-grp"><h3 class="album-h"><span class="sw" style="${alStyle(g.a.color)}"></span>${esc(g.a.name)}${g.a.year ? ` <span class="mono">${g.a.year}</span>` : ''}</h3>
+      <ul class="tracks">${g.songs.map(s => `<li><span class="t"><span class="mono">${s.seed ? '#' + s.seed : ''}</span>${esc(s.t)}</span><span class="ln">${listenLinks(b.artist, s.t)}</span></li>`).join('')}</ul></div>`).join('')}
   </section>`;
 }
 
@@ -905,11 +1252,28 @@ function render() {
     const el = document.getElementById(focus.id);
     if (el) { el.focus({ preventScroll: true }); try { if (focus.s != null) el.setSelectionRange(focus.s, focus.e); } catch {} }
   }
+  fitTree();
   refreshProfiles();
 }
+window.addEventListener('resize', () => { clearTimeout(fitTree.t); fitTree.t = setTimeout(fitTree, 100); });
 
 /* ---------- events ---------- */
-function openBracket(id) { S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
+function openBracket(id) { S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
+function playStep(dir) {
+  const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
+  const idx = ks.indexOf(cur);
+  if (dir < 0) S.playK = idx > 0 ? ks[idx - 1] : cur;
+  else S.playK = idx + 1 < ks.length ? ks[idx + 1] : null;
+  clearTimeout(advance.t);
+  render();
+}
+async function shareChampion() {
+  const b = S.brackets.get(S.bid), w = getMine(S.bid); if (!b || !isDone(w)) return;
+  const text = `My ${b.artist} bracket champion: ${b.songs[w[b.size - 2]].t}`;
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch (e) { if (e?.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text); toast('Copied. Paste it in the group chat.'); }
+  catch { toast(text); }
+}
 
 document.addEventListener('click', async e => {
   const t = e.target.closest('[data-act]'); if (!t) return;
@@ -917,21 +1281,21 @@ document.addEventListener('click', async e => {
   switch (act) {
     case 'home': S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
     case 'size': S.form.size = +t.dataset.n; render(); break;
+    case 'filter': S.filter = t.dataset.v; render(); break;
     case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
     case 'open': openBracket(t.dataset.id); break;
-    case 'tab': S.tab = t.dataset.tab; S.confirm = null; if (t.dataset.tab !== 'bracket') S.viewing = null; render(); break;
+    case 'tab': S.tab = t.dataset.tab; S.confirm = null; if (t.dataset.tab !== 'bracket') S.viewing = null; clearTimeout(advance.t); render(); window.scrollTo(0, 0); break;
     case 'pick': doPick(+t.dataset.k, +t.dataset.s); break;
-    case 'prev': case 'next': {
-      const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
-      const idx = ks.indexOf(cur);
-      if (act === 'prev') S.playK = idx > 0 ? ks[idx - 1] : cur;
-      else S.playK = idx + 1 < ks.length ? ks[idx + 1] : null;
-      render(); break;
-    }
+    case 'prev': playStep(-1); break;
+    case 'next': playStep(1); break;
+    case 'jump': S.playK = +t.dataset.k; clearTimeout(advance.t); render(); break;
     case 'first': { const b = S.brackets.get(S.bid); S.playK = playable(b.size, getMine(S.bid))[0] ?? null; render(); break; }
     case 'first-open': S.playK = null; render(); break;
-    case 'view': S.viewing = t.dataset.uid; S.tab = 'bracket'; render(); break;
+    case 'share': shareChampion(); break;
+    case 'view': S.viewing = t.dataset.uid; S.tab = 'bracket'; render(); window.scrollTo(0, 0); break;
     case 'view-mine': S.viewing = null; render(); break;
+    case 'zoom': S.zoom = t.dataset.v; render(); break;
+    case 'invite': S.invite = !S.invite; render(); break;
     case 'peek': S.peek[S.bid] = true; render(); break;
     case 'reset': S.confirm = 'reset'; render(); break;
     case 'delete': S.confirm = 'delete'; render(); break;
@@ -955,9 +1319,13 @@ document.addEventListener('click', async e => {
     case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'home'; S.createErr = null; render(); break;
     case 'draft-size': d.size = +t.dataset.n; while (d.songs.length > d.size) d.bench.unshift(d.songs.pop()); render(); break;
     case 'seeding': d.seeding = t.dataset.v; render(); break;
-    case 'mv': { const i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < d.songs.length) [d.songs[i], d.songs[j]] = [d.songs[j], d.songs[i]]; render(); break; }
+    case 'mv': { const i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < d.songs.length) [d.songs[i], d.songs[j]] = [d.songs[j], d.songs[i]]; render(); document.querySelector(`[data-act="mv"][data-i="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
     case 'bench': d.bench.unshift(d.songs.splice(+t.dataset.i, 1)[0]); render(); break;
-    case 'unbench': d.songs.push(d.bench.splice(+t.dataset.i, 1)[0]); render(); break;
+    case 'unbench': {
+      const s = d.bench.splice(+t.dataset.i, 1)[0];
+      if (d.songs.length >= d.size) d.bench.unshift(d.songs.pop());
+      d.songs.push(s); render(); break;
+    }
     case 'create': {
       if (d.songs.length !== d.size) return;
       t.disabled = true; S.createErr = null;
@@ -973,6 +1341,36 @@ document.addEventListener('click', async e => {
   }
 });
 
+document.addEventListener('change', e => {
+  if (e.target.id === 'whose') { S.viewing = e.target.value || null; render(); }
+});
+
+/* lineup drag and drop (the arrow buttons do the same thing from a keyboard or touch screen) */
+let dragI = null;
+document.addEventListener('dragstart', e => {
+  const li = e.target.closest?.('.lu'); if (!li || !S.draft) return;
+  dragI = +li.dataset.i; li.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', String(dragI)); } catch {}
+});
+document.addEventListener('dragover', e => {
+  const li = e.target.closest?.('.lu'); if (!li || dragI === null) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.lu.over').forEach(x => x !== li && x.classList.remove('over'));
+  li.classList.add('over');
+});
+document.addEventListener('drop', e => {
+  const li = e.target.closest?.('.lu'); if (!li || dragI === null || !S.draft) return;
+  e.preventDefault();
+  const to = +li.dataset.i, songs = S.draft.songs;
+  if (to !== dragI) songs.splice(to, 0, songs.splice(dragI, 1)[0]);
+  dragI = null; render();
+});
+document.addEventListener('dragend', () => {
+  dragI = null;
+  document.querySelectorAll('.lu.dragging,.lu.over').forEach(x => x.classList.remove('dragging', 'over'));
+});
+
 document.addEventListener('submit', e => {
   e.preventDefault();
   if (e.target.id === 'new-form') {
@@ -983,10 +1381,10 @@ document.addEventListener('submit', e => {
     if (pasteMode) {
       const text = document.getElementById('paste')?.value || f.paste;
       if (!text.trim()) { document.getElementById('paste')?.focus(); return; }
-      S.draft = draftFromPaste(text, artist, f.size); S.gen = null; S.view = 'draft'; render();
+      S.draft = draftFromPaste(text, artist, f.size); S.gen = null; S.view = 'draft'; render(); window.scrollTo(0, 0);
     } else {
       if (!artist) { document.getElementById('artist')?.focus(); return; }
-      generate(artist, f.size, false);
+      generate(artist, f.size, false); window.scrollTo(0, 0);
     }
   } else if (e.target.id === 'add-song') {
     const d = S.draft, t = document.getElementById('add-title').value.trim();
@@ -1005,10 +1403,12 @@ document.addEventListener('input', e => {
 
 document.addEventListener('keydown', e => {
   if (S.view !== 'bracket' || S.tab !== 'play' || S.viewing) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) return;
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   const b = S.brackets.get(S.bid); if (!b) return;
   const w = getMine(S.bid), k = currentPlayK(b, w); if (k === null) return;
+  if (e.key === 's' || e.key === 'S') { e.preventDefault(); playStep(1); return; }
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   const [r, i] = locate(b.size, k), [a, c] = entrants(b.size, w, r, i);
   e.preventDefault();
   doPick(k, e.key === 'ArrowLeft' ? a : c);

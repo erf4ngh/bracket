@@ -6,10 +6,10 @@ Live app: https://claude.ai/artifact/S14pj7wzFEC57eDLABTmv8 (private; share it f
 
 ## What it does
 
-- **Build** – type an artist and choose 16, 32 or 64 songs. Claude picks songs from across their albums and singles, ranks them, and seeds the bracket so #1 and #2 can only meet in the final. You can remove, swap, add or reorder songs before it goes live, or paste your own list (`Song - Album`, one per line).
-- **Pick** – one matchup at a time, with Spotify / YouTube / Apple Music links on each song. Use ← / → on a keyboard.
-- **Bracket** – the full two-sided bracket. Changing an early pick clears later picks that depended on it.
-- **Compare** – who's done, each person's champion, group standings and the first-round matchups where people disagreed. Other people's picks stay hidden until you finish yours.
+- **Build** – type an artist and choose 16, 32 or 64 songs. Claude picks songs from across their albums and singles, ranks them, and seeds the bracket so #1 and #2 can only meet in the final. You can remove, swap, add or drag to reorder songs before it goes live, or paste your own list (`Song - Album`, one per line).
+- **Pick** – one matchup at a time, with Spotify / YouTube / Apple Music links on each song, progress by round, who the winner plays next, and a grid to jump to any match. Use ← / → to pick and S to skip.
+- **Bracket** – the full two-sided bracket, fit to the screen or at full size, with a switcher for friends' brackets. Changing an early pick clears later picks that depended on it.
+- **Compare** – who's done, the group's champion vote, how closely each friend's picks match yours, group standings and the first-round matchups where people disagreed. Other people's picks stay hidden until you finish yours.
 - **Listen** – the track list grouped by album, with a copy button for playlist importers like TuneMyMusic or Soundiiz.
 
 ## How it's built
