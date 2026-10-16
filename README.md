@@ -1,4 +1,4 @@
-# Track Bracket
+# Bracket
 
 Pick an artist, get a seeded song bracket, fill it out song vs song, then compare everyone's picks on the call.
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0D0E11">
 <meta name="description" content="Pick an artist, fill out a song-vs-song bracket, then compare everyone's picks.">
-<title>Track Bracket</title>
+<title>Bracket</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D0E11'/%3E%3Cg fill='none' stroke='%23F2F0EA' stroke-width='2.4' stroke-linecap='square'%3E%3Cpath d='M5 7h6v8h5M5 23h6v-8'/%3E%3Cpath d='M27 7h-6v8h-5M27 23h-6v-8'/%3E%3C/g%3E%3Crect x='13' y='12.5' width='6' height='5' fill='%23C6F432'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -853,7 +853,7 @@ function topBar() {
     who = `<button class="me-btn" data-act="me-menu" aria-expanded="${S.meMenu}" aria-haspopup="true">${avatar(S.me.id)}<span>${esc(S.me.name || 'You')}</span></button>${S.meMenu ? accountMenu() : ''}`;
   } else if (S.mode === 'shared' && S.me.id) who = `${avatar(S.me.id)}<span>${esc(S.me.name || 'Signed in')}</span>`;
   else if (S.mode === 'local') who = `<span>Picks save on this device</span>`;
-  return `<header class="top"><button class="brand" data-act="home" aria-label="Track Bracket home">${MARK}Track Bracket</button><div class="me">${who}</div></header>`;
+  return `<header class="top"><button class="brand" data-act="home" aria-label="Bracket home">${MARK}Bracket</button><div class="me">${who}</div></header>`;
 }
 function accountMenu() {
   return `<div class="menu" role="dialog" aria-label="Your account">
@@ -864,7 +864,7 @@ function accountMenu() {
 }
 function signInView() {
   return `<section class="signin">
-    <div class="signin-copy"><p class="eyebrow">Track Bracket</p><h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
+    <div class="signin-copy"><p class="eyebrow">Bracket</p><h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
       <p class="hint">Pick an artist, fill out a song-vs-song bracket, then compare everyone’s picks.</p></div>
     <div class="card-box signin-card">
       <h2 class="h3">Join in</h2>
