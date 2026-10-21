@@ -6,6 +6,13 @@
 <meta name="theme-color" content="#0D0E11">
 <meta name="description" content="Pick an artist, fill out a song-vs-song bracket, then compare everyone's picks.">
 <title>Bracket</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bracket">
+<meta property="og:description" content="Pick an artist, fill out a song-vs-song bracket, then compare everyone's picks.">
+<meta property="og:image" content="https://erf4ngh.github.io/bracket/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D0E11'/%3E%3Cg fill='none' stroke='%23F2F0EA' stroke-width='2.4' stroke-linecap='square'%3E%3Cpath d='M5 7h6v8h5M5 23h6v-8'/%3E%3Cpath d='M27 7h-6v8h-5M27 23h-6v-8'/%3E%3C/g%3E%3Crect x='13' y='12.5' width='6' height='5' fill='%23C6F432'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -233,6 +240,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   .tabs button[aria-selected="true"]{color:var(--accent-fg)}
   .tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);font-size:10px;padding:0 5px}
   .bk-head + .notice{margin-bottom:16px}
+  .tabs + section{margin-top:20px}
   .play{padding-top:16px}
 }
 
@@ -444,6 +452,61 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .reply textarea{min-height:150px}
 .reply .btn{justify-self:start}
 
+/* landing + create */
+.hero.land{align-items:center}
+.hero.land .hero-h{margin-bottom:18px}
+.lead{font-size:17px;margin-bottom:24px}
+.create{padding-block:28px 40px}
+.create .artist-h{margin-bottom:24px}
+
+/* notes */
+.notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.note{display:grid;gap:6px;min-width:0}
+.note-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+.note-h span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note textarea{width:100%;min-height:64px;resize:vertical;font:14px/1.45 var(--body);background:var(--surface)}
+@media (max-width:640px){.notes{grid-template-columns:minmax(0,1fr);gap:10px}}
+.slot .nd{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8;flex:none;margin-left:auto}
+.tracks .t > span:last-child{display:grid}
+.tnote{font-size:13px;color:var(--muted);font-style:italic}
+
+/* pick nav + clear */
+.play-nav .mid{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+
+/* jump list */
+.jump > summary{display:flex;align-items:baseline;gap:8px 12px;flex-wrap:wrap;cursor:pointer;list-style:none;min-height:44px;align-items:center}
+.jump > summary::-webkit-details-marker{display:none}
+.jump > summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:4px}
+.jump[open] > summary::before{transform:rotate(45deg)}
+.jump > summary b{font-weight:600}
+.jump .seg{margin:4px 0 12px}
+.jump-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:6px}
+.jm{width:100%;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--ink);min-height:56px}
+.jm:hover{border-color:var(--muted)}
+.jm.now{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.jm.open{border-style:dashed;border-color:var(--line-2)}
+.jm:disabled{opacity:.45;cursor:default}
+.jm .jn{font:600 12px var(--mono);color:var(--muted);text-align:right}
+.jm .jp{display:grid;gap:3px;min-width:0}
+.jm .js{display:flex;align-items:center;gap:7px;font-size:13px;min-width:0}
+.jm .js .sw{width:10px;height:10px}
+.jm .jt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jm .js.w{font-weight:700}
+.jm .js.l{opacity:.45}
+.jm .js.tbd{color:var(--muted);font-style:italic}
+.jm .jst{font:600 11px var(--mono);border-radius:99px;padding:2px 8px;background:var(--track);color:var(--muted);white-space:nowrap}
+.jm.done .jst{background:var(--fill);color:var(--fill-ink)}
+.jm.now .jst{background:var(--ink);color:var(--bg)}
+
+/* share modal */
+.modal-bg{position:fixed;inset:0;z-index:30;background:rgba(5,6,8,.72);display:grid;place-items:center;padding:16px;overflow:auto}
+.modal{width:min(440px,100%);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:14px;color:var(--ink)}
+.modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.modal img{width:100%;max-height:min(58vh,620px);object-fit:contain;border-radius:12px;background:var(--bg)}
+.modal .acts{display:grid;gap:8px}
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal .hint{font-size:13px}
+
 .toast{position:fixed;left:50%;bottom:calc(20px + var(--tabbar) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:10;max-width:calc(100vw - 32px)}
 .loading{color:var(--muted);padding-block:40px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -469,11 +532,12 @@ const S = {
   brackets: new Map(), picks: new Map(), loadedB: false,
   mine: {}, edited: new Set(),
   prof: {}, ids: new Set(),
-  view: 'home', bid: null, tab: 'play', viewing: null, playK: null, peek: {},
+  view: 'home', bid: null, tab: 'play', viewing: null, playK: null,
   form: { artist: '', size: 32, paste: '', showPaste: false },
   draft: null, gen: null, confirm: null, copyText: null, toast: null,
   backend: null,                 // 'firebase' | 'artifact' | null (this device only)
   authState: null, authErr: null, meMenu: false, fb: null, unsubs: [],
+  notes: {}, share: null, jumpOpen: null, jumpRound: null,
 };
 
 /* ---------- small helpers ---------- */
@@ -588,13 +652,47 @@ function saveLabel() {
 }
 function updateSaveLabel() { const el = document.getElementById('save'); if (el) el.innerHTML = `${saveIcon()}<span id="save-label">${esc(saveLabel())}</span>`; else render(); }
 
+/* notes: per person, per bracket, per song slot. Kept on this device and, with accounts, in notes/<userId> */
+const LS_NOTES = 'tb.v1.notes';
+const notesKey = () => LS_NOTES + '.' + (S.me.id || 'local');
+const noteOf = (bid, slot) => S.notes?.[bid]?.[slot] || '';
+const noteDirty = new Map(); let noteTimer = null;
+function loadNotesLocal() { S.notes = lsGet(notesKey(), {}); }
+function setNote(bid, slot, text) {
+  text = String(text).slice(0, 500);
+  (S.notes[bid] ||= {})[slot] = text;
+  lsSet(notesKey(), S.notes);
+  if (S.backend !== 'firebase' || !S.fb || !S.me.id) return;
+  if (!noteDirty.has(bid)) noteDirty.set(bid, {});
+  noteDirty.get(bid)[slot] = text;
+  clearTimeout(noteTimer); noteTimer = setTimeout(flushNotes, 700);
+}
+async function flushNotes() {
+  if (!noteDirty.size || !S.fb || !S.me.id) return;
+  const b = Object.fromEntries(noteDirty); noteDirty.clear();
+  try { await S.fb.db.doc('notes/' + S.me.id).update({ b }); } catch {} // if the database refuses, the note is still saved on this device
+}
+async function loadNotesRemote(uid) {
+  try {
+    const d = await S.fb.db.doc('notes/' + uid).get();
+    if (!d.exists || S.me.id !== uid) return;
+    for (const [bid, m] of Object.entries(d.data().b || {})) S.notes[bid] = { ...(S.notes[bid] || {}), ...m };
+    lsSet(notesKey(), S.notes); render();
+  } catch {}
+}
+
+/* who has seen everyone's results, per bracket (results stay hidden until you ask, to avoid spoilers) */
+const LS_REVEAL = 'tb.v1.reveal';
+const revealKey = bid => (S.me.id || 'local') + ':' + bid;
+function setReveal(bid, on) { const all = lsGet(LS_REVEAL, {}); if (on) all[revealKey(bid)] = true; else delete all[revealKey(bid)]; lsSet(LS_REVEAL, all); }
+
 function advance() {}
-function doPick(k, s) {
+function doPick(k, s, toggle) {
   if (S.viewing) return;
   const bid = S.bid, b = S.brackets.get(bid); if (!b) return;
   const w = getMine(bid).slice();
   const onPlay = S.tab === 'play';
-  if (w[k] === s) { if (onPlay) playStep(1); return; }
+  if (w[k] === s) { if (toggle) clearPick(k); else if (onPlay) playStep(1); return; }
   w[k] = s;
   setMine(bid, normalize(b.size, w));
   if (!onPlay) { render(); return; }
@@ -608,6 +706,18 @@ function doPick(k, s) {
     S.playK = ks.find(x => x > k && cur[x] === null) ?? ks.find(x => cur[x] === null) ?? null;
     render();
   }, still ? 0 : 320);
+}
+
+function clearPick(k) {
+  const bid = S.bid, b = S.brackets.get(bid); if (!b || S.viewing) return;
+  const w = getMine(bid).slice(); if (w[k] === null) return;
+  const before = picked(w); w[k] = null;
+  const next = normalize(b.size, w), extra = before - 1 - picked(next);
+  setMine(bid, next);
+  clearTimeout(advance.t);
+  if (S.tab === 'play') S.playK = k;
+  render();
+  toast(extra ? `Pick cleared, plus ${plural(extra, 'later pick')} that depended on it` : 'Pick cleared. This match is undecided again.');
 }
 
 /* ---------- brackets ---------- */
@@ -627,7 +737,8 @@ async function deleteBracket(id) {
   else { const all = lsGet(LS_BRACKETS, {}); delete all[id]; lsSet(LS_BRACKETS, all); }
   S.brackets.delete(id);
 }
-const canManage = b => S.mode === 'local' || S.me.isOwner || (b.createdBy && b.createdBy === S.me.id);
+const canManage = b => S.mode === 'local' || S.me.isOwner || S.me.admin || (b.createdBy && b.createdBy === S.me.id);
+const canCreate = () => S.backend !== 'firebase' || !!S.me.admin;
 const albumOf = (b, s) => b.albums[b.songs[s].a] || { name: 'Unknown', color: '#6E7C8C' };
 
 /* ---------- lineup generation ---------- */
@@ -729,7 +840,7 @@ async function generate(artist, size, fresh) {
     S.gen = null;
   } catch (e) {
     const code = e?.code || 'upstream_error';
-    if (code === 'cancelled') { S.gen = null; S.view = 'home'; }
+    if (code === 'cancelled') { S.gen = null; S.view = 'create'; }
     else S.gen = { status: 'error', code, artist, size };
     if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) S.sample = null;
   }
@@ -819,6 +930,11 @@ const ICONS = {
   compare: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',
   listen: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff: '<path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.4 17.4 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7a10.4 10.4 0 0 0 5.4-1.4M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  download: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  link: '<path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
 };
 const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 const PLAY = `<svg class="ic sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
@@ -840,10 +956,12 @@ function shell() {
     main = S.authState === 'out' ? signInView() : `<p class="loading">Signing you in…</p>`;
     return `<div class="wrap">${topBar()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
   }
-  if (S.view === 'draft') main = draftView();
+  if (S.view === 'create' && !canCreate()) S.view = 'home';
+  if (S.view === 'create') main = createView();
+  else if (S.view === 'draft') main = draftView();
   else if (S.view === 'bracket' && S.brackets.get(S.bid)) { main = bracketView(); wide = S.tab === 'bracket'; }
   else { S.view = 'home'; main = homeView(); }
-  return `<div class="wrap${wide ? ' wide' : ''}">${topBar()}${S.view === 'bracket' ? '' : notices()}${main}</div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+  return `<div class="wrap${wide ? ' wide' : ''}">${topBar()}${S.view === 'bracket' ? '' : notices()}${main}</div>${S.share ? shareModal() : ''}${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
 }
 
 const MARK = `<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M2 4h6v8h5M2 20h6v-8"/><path d="M24 4h-6v8h-5M24 20h-6v-8"/></g><rect x="10" y="9.5" width="6" height="5" fill="var(--accent)"/></svg>`;
@@ -891,33 +1009,17 @@ function bracketStatus(id, b) {
 }
 function homeView() {
   const all = [...S.brackets.entries()].sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-  const canGen = true;
-  const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
-  const f = S.form;
-  const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}"><b>${n}</b><small>${n - 1} matches</small></button>`).join('')}</div>`;
-  const pasteMode = f.showPaste;
-  const hero = `<section class="hero">
+  const admin = canCreate();
+  const hero = `<section class="hero land">
     <div class="hero-main">
-      <p class="eyebrow">New bracket</p>
       <h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
-      <form id="new-form" class="composer" autocomplete="off">
-        <label class="field" for="artist">${ic('search', 'lg')}<span class="sr">Artist name</span>
-          <input type="text" id="artist" placeholder="${pasteMode ? 'Bracket name, like Dua Lipa' : 'Artist, like Dua Lipa'}" value="${esc(f.artist)}" ${blocked ? 'disabled' : ''}></label>
-        ${sizeSeg}
-        <button class="btn primary go" type="submit" ${blocked ? 'disabled' : ''}>${pasteMode ? 'Use my list' : 'Build bracket'}${ic('arrow')}</button>
-      </form>
-      <div class="hero-foot">
-        <p class="hint">${canGen
-          ? (pasteMode ? 'Paste one song per line, optionally followed by “ - Album”.' : S.sample ? 'Claude picks songs across their albums. You can swap any of them before it goes live.' : 'Claude picks songs across their albums: you copy a prompt into Claude and paste its reply back. You can swap any song before it goes live.')
-          : 'Paste one song per line, optionally followed by “ - Album”. 16, 32 or 64 songs.'}</p>
-        ${canGen ? `<button class="linkbtn" type="button" data-act="toggle-paste">${f.showPaste ? 'Let Claude pick the songs' : 'Paste my own list instead'}</button>` : ''}
-      </div>
-      ${pasteMode ? `<div class="paste"><label class="sr" for="paste">Song list</label><textarea id="paste" placeholder="Sicko Mode - Astroworld&#10;Goosebumps - Birds in the Trap Sing McKnight&#10;Antidote - Rodeo">${esc(f.paste)}</textarea></div>` : ''}
+      <p class="hint lead">${admin ? 'Build a bracket for an artist, then send the link to your friends.' : 'Pick a bracket below and fill it out song by song. Nobody sees anyone’s picks until they choose to look.'}</p>
+      ${admin ? `<button class="btn primary lg" data-act="new">${ic('plus', 'sm')}New bracket</button>` : ''}
     </div>
     <ol class="steps">
-      <li><span class="no">01</span><span><b>Build</b><span>Songs are seeded so #1 and #2 can only meet in the final.</span></span></li>
+      <li><span class="no">01</span><span><b>${admin ? 'Build' : 'Choose a bracket'}</b><span>${admin ? 'Songs are seeded so #1 and #2 can only meet in the final.' : 'Each one is an artist’s songs, seeded so the biggest hits meet late.'}</span></span></li>
       <li><span class="no">02</span><span><b>Pick</b><span>One matchup at a time. Listen, then choose.</span></span></li>
-      <li><span class="no">03</span><span><b>Compare</b><span>Friends’ picks unlock once you finish yours.</span></span></li>
+      <li><span class="no">03</span><span><b>Compare</b><span>Reveal everyone’s picks when you’re ready.</span></span></li>
     </ol>
   </section>`;
   const status = new Map(all.map(([id, b]) => [id, bracketStatus(id, b)]));
@@ -927,10 +1029,31 @@ function homeView() {
   const filters = all.length ? `<div class="filters" role="group" aria-label="Filter brackets">${[['all', 'All', all.length], ['progress', 'In progress', cnt('progress')], ['done', 'Finished', cnt('done')]].map(([k, l, n]) => `<button type="button" data-act="filter" data-v="${k}" aria-pressed="${filt === k}">${l} <span>${n}</span></button>`).join('')}</div>` : '';
   let grid;
   if (!S.loadedB) grid = `<p class="loading">Loading brackets…</p>`;
-  else if (!all.length) grid = `<div class="empty-state">No brackets yet. Type an artist above to make the first one.</div>`;
+  else if (!all.length) grid = `<div class="empty-state">${admin ? 'No brackets yet. Click New bracket to make the first one.' : 'No brackets yet. Check back soon.'}</div>`;
   else if (!list.length) grid = `<div class="empty-state">${filt === 'done' ? 'No finished brackets yet.' : 'Nothing in progress right now.'}</div>`;
   else grid = `<div class="grid">${list.map(([id, b]) => bracketCard(id, b, status.get(id))).join('')}</div>`;
   return hero + `<section class="home-list"><div class="sec-top"><h2 class="h2">${S.mode === 'shared' ? 'Brackets' : 'Your brackets'}</h2>${filters}</div>${grid}</section>`;
+}
+function createView() {
+  const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
+  const f = S.form, pasteMode = f.showPaste;
+  const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}"><b>${n}</b><small>${n - 1} matches</small></button>`).join('')}</div>`;
+  return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}All brackets</button>${draftStepper(1)}</div>
+  <section class="create">
+    <p class="eyebrow">New bracket</p>
+    <h1 class="artist-h">Who’s it for?</h1>
+    <form id="new-form" class="composer" autocomplete="off">
+      <label class="field" for="artist">${ic('search', 'lg')}<span class="sr">Artist name</span>
+        <input type="text" id="artist" placeholder="${pasteMode ? 'Bracket name, like Dua Lipa' : 'Artist, like Dua Lipa'}" value="${esc(f.artist)}" ${blocked ? 'disabled' : ''}></label>
+      ${sizeSeg}
+      <button class="btn primary go" type="submit" ${blocked ? 'disabled' : ''}>${pasteMode ? 'Use my list' : 'Build bracket'}${ic('arrow')}</button>
+    </form>
+    <div class="hero-foot">
+      <p class="hint">${pasteMode ? 'Paste one song per line, optionally followed by “ - Album”.' : S.sample ? 'Claude picks songs across their albums. You can swap any of them before it goes live.' : 'Claude picks songs across their albums: you copy a prompt into Claude and paste its reply back. You can swap any song before it goes live.'}</p>
+      <button class="linkbtn" type="button" data-act="toggle-paste">${pasteMode ? 'Let Claude pick the songs' : 'Paste my own list instead'}</button>
+    </div>
+    ${pasteMode ? `<div class="paste"><label class="sr" for="paste">Song list</label><textarea id="paste" placeholder="Sicko Mode - Astroworld&#10;Goosebumps - Birds in the Trap Sing McKnight&#10;Antidote - Rodeo">${esc(f.paste)}</textarea></div>` : ''}
+  </section>`;
 }
 function bracketCard(id, b, st) {
   const counts = new Map(); b.songs.forEach(s => counts.set(s.a, (counts.get(s.a) || 0) + 1));
@@ -959,11 +1082,11 @@ function bracketCard(id, b, st) {
 }
 
 /* generating + lineup review */
-function draftStepper() {
-  return `<ol class="stepper" aria-label="Steps">
-    <li class="done"><span class="dot">${ic('check', 'sm')}</span><span class="lbl">Artist</span></li><li class="bar" aria-hidden="true"></li>
-    <li class="now" aria-current="step"><span class="dot">2</span><span class="lbl">Review lineup</span></li><li class="bar" aria-hidden="true"></li>
-    <li><span class="dot">3</span><span class="lbl">Go live</span></li></ol>`;
+function draftStepper(step = 2) {
+  const li = (n, label) => n < step
+    ? `<li class="done"><span class="dot">${ic('check', 'sm')}</span><span class="lbl">${label}</span></li>`
+    : `<li class="${n === step ? 'now' : ''}"${n === step ? ' aria-current="step"' : ''}><span class="dot">${n}</span><span class="lbl">${label}</span></li>`;
+  return `<ol class="stepper" aria-label="Steps">${li(1, 'Artist')}<li class="bar" aria-hidden="true"></li>${li(2, 'Review lineup')}<li class="bar" aria-hidden="true"></li>${li(3, 'Go live')}</ol>`;
 }
 function draftView() {
   const g = S.gen;
@@ -972,7 +1095,7 @@ function draftView() {
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="gen-live"><span class="pulse"></span><span id="gen-live">Thinking about their catalog…</span></p>
       <p class="hint">This usually takes 20 to 60 seconds.</p></section>`;
-  if (g && g.status === 'manual') return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}Back</button>${draftStepper()}</div>
+  if (g && g.status === 'manual') return `<div class="draft-top"><button class="back" data-act="new">${ic('back')}Back</button>${draftStepper()}</div>
     <section class="draft-head"><p class="eyebrow">Get the lineup from Claude</p><h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="hint">Claude picks and ranks ${g.size} songs. It takes three quick steps and works with a free Claude account.</p></section>
     <ol class="ask">
@@ -986,13 +1109,13 @@ function draftView() {
           ${g.err ? `<p class="err" role="alert">${esc(g.err)}</p>` : ''}<button class="btn primary lg" type="submit">Use this lineup</button></form></div></li>
     </ol>
     <p class="hint">Rather type the songs yourself? <button class="linkbtn" data-act="manual-paste">Paste my own list</button></p>`;
-  if (g && g.status === 'error') return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}Back</button>${draftStepper()}</div><section class="gen">
+  if (g && g.status === 'error') return `<div class="draft-top"><button class="back" data-act="new">${ic('back')}Back</button>${draftStepper()}</div><section class="gen">
       <p class="eyebrow">Building the lineup</p>
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="err">${esc(genError(g.code))}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${S.sample && g.code !== 'refused' ? `<button class="btn primary" data-act="retry-gen">Try again</button>` : ''}
-        <button class="btn" data-act="home">Back</button></div></section>`;
+        <button class="btn" data-act="new">Back</button></div></section>`;
   const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
   const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded';
   const intro = d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
@@ -1072,11 +1195,11 @@ function songCard(b, k, s, win, side) {
   const song = b.songs[s], al = albumOf(b, s);
   const cls = win === null ? '' : win === s ? 'won' : 'lost';
   return `<div class="duel-card ${cls}" style="${alStyle(al.color)}">
-    <button class="duel-pick" data-act="pick" data-k="${k}" data-s="${s}" aria-pressed="${win === s}" aria-label="Pick ${esc(song.t)}">
+    <button class="duel-pick" data-act="pick" data-k="${k}" data-s="${s}" aria-pressed="${win === s}" aria-label="${win === s ? 'Your pick: ' + esc(song.t) + '. Click again to clear it' : 'Pick ' + esc(song.t)}" title="${win === s ? 'Click again to clear this pick' : ''}">
       <span class="duel-top"><span class="duel-seed">${song.seed ? `#${song.seed} seed` : `Slot ${s + 1}`}</span><span class="duel-key" aria-hidden="true">${side === 'L' ? '←' : '→'}</span></span>
       <span class="duel-title">${esc(song.t)}</span>
       <span class="duel-album">${albumLine(al)}</span>
-      <span class="duel-cta">${win === s ? 'Your pick' : 'Pick this song'}</span>
+      <span class="duel-cta">${win === s ? `${ic('check', 'sm')}Your pick` : 'Pick this song'}</span>
     </button>
     <div class="listen">${listenLinks(b.artist, song.t)}</div>
   </div>`;
@@ -1108,25 +1231,38 @@ function playTab(b) {
     let d = 0; for (let x = 0; x < m; x++) if (w[o + x] !== null) d++;
     return `<li class="${rr === r ? 'now' : ''}" style="--w:${m}"><span class="lbl"><b>${roundName(n, rr)}</b><span>${d}/${m}</span></span><span class="meter"><i style="width:${d / m * 100}%"></i></span></li>`;
   }).join('');
-  const o = off(n, r), m = mCount(n, r);
+  const jr = S.jumpRound !== null && S.jumpRound < R - 1 ? S.jumpRound : Math.min(r, R - 2);
+  const o = off(n, jr), m = mCount(n, jr);
+  const sideOf = (s, win) => s === null ? `<span class="js tbd">To be decided</span>`
+    : `<span class="js ${win === null ? '' : win === s ? 'w' : 'l'}"><span class="sw" style="${alStyle(albumOf(b, s).color)}"></span><span class="jt">${esc(b.songs[s].t)}</span></span>`;
+  let undecided = 0;
   const jump = Array.from({ length: m }, (_, x) => {
-    const kk = o + x, ok = ks.includes(kk), [ea, eb] = entrants(n, w, r, x);
-    const cls = kk === k ? 'now' : w[kk] !== null ? 'done' : '';
-    const label = ok ? `Match ${x + 1}: ${b.songs[ea].t} vs ${b.songs[eb].t}${w[kk] !== null ? ', picked' : ''}` : `Match ${x + 1}: not set yet`;
-    return `<button type="button" class="${cls}" data-act="jump" data-k="${kk}" aria-label="${esc(label)}" ${ok ? '' : 'disabled'}>${x + 1}</button>`;
+    const kk = o + x, ok = ks.includes(kk), [ea, eb] = entrants(n, w, jr, x), win = w[kk];
+    if (ok && win === null) undecided++;
+    const st = kk === k ? 'now' : win !== null ? 'done' : ok ? 'open' : 'locked';
+    const label = { now: 'Now', done: 'Picked', open: 'Undecided', locked: 'Waiting' }[st];
+    return `<li><button type="button" class="jm ${st}" data-act="jump" data-k="${kk}" ${ok ? '' : 'disabled'}${kk === k ? ' aria-current="true"' : ''}><span class="jn">${x + 1}</span><span class="jp">${sideOf(ea, win)}${sideOf(eb, win)}</span><span class="jst">${label}</span></button></li>`;
   }).join('');
+  const roundSeg = R > 2 ? `<div class="seg words" role="group" aria-label="Round">${Array.from({ length: R - 1 }, (_, rr) => `<button type="button" data-act="jump-round" data-r="${rr}" aria-pressed="${rr === jr}">${roundName(n, rr).replace('Round of ', 'R').replace('Quarterfinals', 'QF').replace('Semifinals', 'SF')}</button>`).join('')}</div>` : '';
+  const jumpOpen = S.jumpOpen ?? window.innerWidth >= 700;
+  const noteBox = x => {
+    const song = b.songs[x], al = albumOf(b, x);
+    return `<div class="note"><label class="note-h" for="note-${x}"><span class="sw" style="${alStyle(al.color)}"></span><span>Your notes on ${esc(song.t)}</span></label>
+      <textarea id="note-${x}" data-note="${x}" rows="2" maxlength="500" placeholder="What stood out? Only you can see this.">${esc(noteOf(S.bid, x))}</textarea></div>`;
+  };
   return `<section class="play">
     <ol class="rounds" aria-label="Progress by round" style="--n:${R}">${rounds}</ol>
-    <div class="play-meta"><h2 class="round-name">${roundName(n, r)} <span>· Match ${i + 1} of ${m}</span></h2><span class="next-line">${nextLine(b, w, r, i)}</span></div>
+    <div class="play-meta"><h2 class="round-name">${roundName(n, r)} <span>· Match ${i + 1} of ${mCount(n, r)}</span></h2><span class="next-line">${nextLine(b, w, r, i)}</span></div>
     <div class="duel">${songCard(b, k, a, w[k], 'L')}<div class="vs" aria-hidden="true">VS</div>${songCard(b, k, c, w[k], 'R')}</div>
     <div class="play-nav">
       <button class="btn" data-act="prev" ${ks.indexOf(k) <= 0 ? 'disabled' : ''}>${ic('back', 'sm')}Previous</button>
-      <span class="keys">Use <span class="kbd">←</span><span class="kbd">→</span> to pick, <span class="kbd">S</span> to skip</span>
+      <span class="mid">${w[k] !== null ? `<button class="btn sm" data-act="clear-pick" data-k="${k}">${ic('undo', 'sm')}Clear pick</button>` : ''}
+        <span class="keys">Use <span class="kbd">←</span><span class="kbd">→</span> to pick, <span class="kbd">S</span> to skip${w[k] !== null ? ', <span class="kbd">⌫</span> to clear' : ''}</span></span>
       <button class="btn" data-act="next">${w[k] === null ? 'Skip' : 'Next'}${ic('arrow', 'sm')}</button>
     </div>
-    ${m > 1 ? `<section class="jump" aria-label="All ${esc(roundName(n, r))} matches">
-      <div class="jump-top"><b>Jump to a match</b><span class="jump-key"><span><i class="done"></i>Picked</span><span><i class="now"></i>Now</span><span><i class="open"></i>Open</span></span></div>
-      <div class="jump-grid">${jump}</div></section>` : ''}
+    <div class="notes">${noteBox(a)}${noteBox(c)}</div>
+    ${R > 1 ? `<details class="jump" id="jump"${jumpOpen ? ' open' : ''}><summary><b>All ${esc(roundName(n, jr))} matches</b><span class="hint">${undecided ? plural(undecided, 'undecided match', 'undecided matches') : 'All picked'}</span></summary>
+      ${roundSeg}<ol class="jump-list">${jump}</ol></details>` : ''}
   </section>`;
 }
 function championView(b, w) {
@@ -1144,7 +1280,7 @@ function championView(b, w) {
     route.push(`<li><span>${roundName(n, r)}</span><span class="who"><span class="sw" style="${alStyle(la.color)}"></span><span>${esc(b.songs[lost].t)}</span></span><span class="mono">${b.songs[lost].seed ? '#' + b.songs[lost].seed : ''}</span></li>`);
   }
   const done = participants(S.bid).filter(p => !p.me && p.done).map(p => p.uid);
-  const friends = done.length ? `<p class="friends-line"><span class="avs">${done.slice(0, 4).map(u => avatar(u)).join('')}</span>${esc(listNames(done))} ${done.length === 1 ? 'is' : 'are'} done too. Their picks are unlocked.</p>` : '';
+  const friends = done.length ? `<p class="friends-line"><span class="avs">${done.slice(0, 4).map(u => avatar(u)).join('')}</span>${esc(listNames(done))} ${done.length === 1 ? 'is' : 'are'} done too.</p>` : '';
   return `<section class="champ">
     <div class="champ-hero" style="${alStyle(al.color)}">
       <p class="eyebrow">${ic('trophy')}Your champion</p>
@@ -1155,7 +1291,7 @@ function championView(b, w) {
       <div><h3 class="h3" style="font-size:20px">Road to the title</h3><ol class="route">${route.join('')}</ol></div>
       <div class="champ-acts">
         ${friends}
-        <div class="row"><button class="btn primary lg" data-act="tab" data-tab="compare">Compare with friends</button><button class="btn lg" data-act="share">${ic('share', 'sm')}Share</button></div>
+        <div class="row"><button class="btn primary lg" data-act="tab" data-tab="compare">Compare with friends</button><button class="btn lg" data-act="share-card">${ic('share', 'sm')}Share card</button></div>
         <div class="row"><button class="btn" data-act="tab" data-tab="bracket">See my bracket</button><button class="btn" data-act="first">Review from the start</button></div>
       </div>
     </div></section>`;
@@ -1166,7 +1302,8 @@ function slotBtn(b, s, k, win, editable) {
   if (s === null) return `<div class="slot empty" aria-hidden="true"></div>`;
   const song = b.songs[s], al = albumOf(b, s);
   const cls = win === null ? '' : win === s ? 'won' : 'lost';
-  return `<button class="slot ${cls}" style="${alStyle(al.color)}" data-act="pick" data-k="${k}" data-s="${s}" title="${esc(song.t)} · ${esc(al.name)}" ${editable ? '' : 'disabled'}><span class="sd">${song.seed ?? ''}</span><span class="st">${esc(song.t)}</span></button>`;
+  const note = editable ? noteOf(S.bid, s) : '';
+  return `<button class="slot ${cls}" style="${alStyle(al.color)}" data-act="pick" data-k="${k}" data-s="${s}" title="${esc(song.t)} · ${esc(al.name)}${note ? ' · Your note: ' + esc(note) : ''}" ${editable ? '' : 'disabled'}><span class="sd">${song.seed ?? ''}</span><span class="st">${esc(song.t)}</span>${note ? '<i class="nd" aria-hidden="true"></i>' : ''}</button>`;
 }
 function matchBox(b, w, r, i, editable) {
   const k = off(b.size, r) + i, [a, c] = entrants(b.size, w, r, i);
@@ -1200,8 +1337,7 @@ function tree(b, w, editable) {
   </div></div>`;
 }
 function revealed(bid) {
-  const ppl = participants(bid), mine = ppl.find(p => p.me), others = ppl.filter(p => !p.me);
-  return (mine && mine.done) || S.peek[bid] || !others.length;
+  return !participants(bid).some(p => !p.me) || !!lsGet(LS_REVEAL, {})[revealKey(bid)];
 }
 function treeTab(b) {
   const uid = S.viewing;
@@ -1255,6 +1391,8 @@ function compareTab(b) {
   const invite = `<button class="btn sm" data-act="invite"${S.backend === 'artifact' ? ` aria-expanded="${!!S.invite}"` : ''}>${ic('invite', 'sm')}${S.backend === 'artifact' ? 'Invite friends' : 'Copy invite link'}</button>`;
   const inviteBox = S.invite ? `<div class="notice invite" style="margin:0"><b>Share this page from the claude.ai Share menu.</b><span>Give friends edit access so their picks are saved where everyone can see them. They’ll find this bracket on the home screen.</span></div>` : '';
   if (!ppl.length) return `<section class="cmp"><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div></section>`;
+  const hasOthers = ppl.some(p => !p.me);
+  const eye = hasOthers ? `<button class="btn sm" data-act="${isRevealed ? 'hide-results' : 'peek'}" aria-pressed="${isRevealed}">${ic(isRevealed ? 'eyeOff' : 'eye', 'sm')}${isRevealed ? 'Hide results' : 'Show results'}</button>` : '';
 
   const scores = new Map();
   if (mine) for (const p of ppl) if (!p.me && (isRevealed)) { const a = agreement(b, mine.w, p.w); if (a !== null) scores.set(p.uid, a); }
@@ -1262,7 +1400,7 @@ function compareTab(b) {
   const people = ppl.map(p => {
     const champ = p.champ !== null && p.champ !== undefined ? b.songs[p.champ] : null;
     const show = isRevealed || p.me;
-    const sub = !show ? (p.done ? 'Finished · champion hidden' : `${p.n} of ${n - 1} picked`)
+    const sub = !show ? (p.done ? 'Finished' : `${p.n} of ${n - 1} picked`)
       : champ ? `<span class="sw" style="${alStyle(albumOf(b, p.champ).color)}"></span>Champion <b>${esc(champ.t)}</b>`
       : `${p.n} of ${n - 1} picked`;
     const sc = scores.get(p.uid);
@@ -1270,12 +1408,16 @@ function compareTab(b) {
     const act = p.me ? `<button class="btn sm" data-act="tab" data-tab="bracket">My bracket</button>` : show ? `<button class="btn sm" data-act="view" data-uid="${esc(p.uid)}">View bracket</button>` : '<span></span>';
     return `<div class="person">${avatar(p.uid)}<div style="min-width:0"><div class="nmrow"><span class="nm">${esc(nameOf(p.uid))}</span>${pill}</div><div class="sub">${sub}</div>${p.done ? '' : `<div class="meter"><i style="width:${p.n / (n - 1) * 100}%"></i></div>`}</div>${act}</div>`;
   }).join('');
-  const whoCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}${people}
+  const whoCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2><span style="display:flex;gap:8px;flex-wrap:wrap">${eye}${invite}</span></div>${inviteBox}${people}
     ${scores.size ? `<p class="hint" style="font-size:13px">Match % is how often you made the same pick in matchups you both faced.</p>` : ''}</section>`;
 
   if (!isRevealed) {
-    return `<section class="cmp"><div class="cmp-cols">${whoCol}<section><div class="hidden-box"><b>Everyone’s picks stay hidden until you finish yours.</b><span>That way nobody sways your bracket before the call.</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">Show them anyway</button></div></div></section></div></section>`;
+    const box = mine && mine.done
+      ? `<b>Results are hidden so nothing gets spoiled.</b><span>Everyone’s champions, the standings and the debates are behind the eye. Show them when you’re ready, like on the call.</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="peek">${ic('eye', 'sm')}Show results</button></div>`
+      : `<b>Results are hidden.</b><span>Finish your bracket first so nobody sways your picks. You can still look if you want to.</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">${ic('eye', 'sm')}Show anyway</button></div>`;
+    return `<section class="cmp"><div class="cmp-cols">${whoCol}<section><div class="hidden-box">${box}</div></section></div></section>`;
   }
 
   // champion vote
@@ -1332,8 +1474,130 @@ function listenTab(b) {
     </div>
     ${S.copyText ? `<textarea class="copy-out" id="copy-out" readonly aria-label="Track list">${esc(S.copyText)}</textarea>` : ''}
     ${groups.map(g => `<div class="album-grp"><h3 class="album-h"><span class="sw" style="${alStyle(g.a.color)}"></span>${esc(g.a.name)}${g.a.year ? ` <span class="mono">${g.a.year}</span>` : ''}</h3>
-      <ul class="tracks">${g.songs.map(s => `<li><span class="t"><span class="mono">${s.seed ? '#' + s.seed : ''}</span>${esc(s.t)}</span><span class="ln">${listenLinks(b.artist, s.t)}</span></li>`).join('')}</ul></div>`).join('')}
+      <ul class="tracks">${g.songs.map(s => { const note = noteOf(S.bid, b.songs.indexOf(s)); return `<li><span class="t"><span class="mono">${s.seed ? '#' + s.seed : ''}</span><span><span>${esc(s.t)}</span>${note ? `<span class="tnote">${esc(note)}</span>` : ''}</span></span><span class="ln">${listenLinks(b.artist, s.t)}</span></li>`; }).join('')}</ul></div>`).join('')}
   </section>`;
+}
+
+/* share card */
+function wrapText(x, text, maxW) {
+  const words = String(text).split(/\s+/).filter(Boolean), lines = [];
+  let line = '';
+  for (const wd of words) {
+    const t = line ? line + ' ' + wd : wd;
+    if (x.measureText(t).width <= maxW || !line) line = t; else { lines.push(line); line = wd; }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+// biggest font size (stepping down) at which the text wraps into maxLines lines that each fit maxW
+function fitText(x, text, font, maxW, maxLines, from, to) {
+  for (let size = from; size >= to; size -= 4) {
+    x.font = font(size);
+    const lines = wrapText(x, text, maxW);
+    if (lines.length <= maxLines && lines.every(l => x.measureText(l).width <= maxW)) return { size, lines };
+  }
+  x.font = font(to);
+  return { size: to, lines: wrapText(x, text, maxW).slice(0, maxLines) };
+}
+function ellipsize(x, text, maxW) {
+  if (x.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && x.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t.trimEnd() + '…';
+}
+function spaced(x, text, px, y, gap) { let cx = px; for (const ch of text) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + gap; } }
+async function shareCardBlob(b, w) {
+  const n = b.size, c = w[n - 2], song = b.songs[c], al = albumOf(b, c);
+  const D = '"Big Shoulders Display","Arial Narrow",Impact,sans-serif', B = 'Onest,system-ui,sans-serif';
+  try { await Promise.race([Promise.all(['900 100px "Big Shoulders Display"', '800 40px "Big Shoulders Display"', '600 36px Onest', '500 36px Onest'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 2500))]); } catch {}
+  const W = 1080, H = 1920, P = 90, cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  x.fillStyle = '#0D0E11'; x.fillRect(0, 0, W, H);
+  // brand mark + name
+  x.save(); x.translate(P, 96); x.scale(2, 2);
+  x.strokeStyle = '#F2F0EA'; x.lineWidth = 2.4; x.lineCap = 'square';
+  x.beginPath(); x.moveTo(2, 4); x.lineTo(8, 4); x.lineTo(8, 12); x.lineTo(13, 12); x.moveTo(2, 20); x.lineTo(8, 20); x.lineTo(8, 12);
+  x.moveTo(24, 4); x.lineTo(18, 4); x.lineTo(18, 12); x.lineTo(13, 12); x.moveTo(24, 20); x.lineTo(18, 20); x.lineTo(18, 12); x.stroke();
+  x.fillStyle = '#C6F432'; x.fillRect(10, 9.5, 6, 5); x.restore();
+  x.fillStyle = '#F2F0EA'; x.font = `800 46px ${D}`; x.textBaseline = 'middle'; x.fillText('BRACKET', P + 72, 122); x.textBaseline = 'alphabetic';
+  // measure everything first so the stack can be centred between the brand and the footer
+  const route = [];
+  for (let k = 0; k < n - 1; k++) if (w[k] === c) { const [r, i] = locate(n, k), [p, q] = entrants(n, w, r, i); route.push({ r, lost: p === c ? q : p }); }
+  const rowH = 76, footTop = H - 170, top = 200;
+  const artist = fitText(x, b.artist.toUpperCase(), sz => `900 ${sz}px ${D}`, W - 2 * P, 2, 128, 72);
+  const title = fitText(x, song.t.toUpperCase(), sz => `900 ${sz}px ${D}`, W - 2 * P - 100, 4, 260, 84);
+  const artistH = 24 + artist.lines.length * artist.size * .9;
+  const routeH = 96 + 24 + route.length * rowH;
+  const room = footTop - 70 - top - (62 + artistH + 44) - routeH;
+  const blockH = Math.max(380, Math.min(room, 50 + title.lines.length * title.size * .86 + 160));
+  let y = top + Math.max(0, (room - blockH) / 2) + 62;
+  // eyebrow + artist
+  x.fillStyle = '#A2A8B3'; x.font = `600 28px ${B}`; spaced(x, 'MY CHAMPION', P, y, 5);
+  x.fillStyle = '#F2F0EA'; x.font = `900 ${artist.size}px ${D}`;
+  y += 24;
+  for (const l of artist.lines) { y += artist.size * .9; x.fillText(l, P, y); }
+  // the champion, on its album color
+  const blockTop = y + 44;
+  const ink = inkFor(al.color);
+  x.fillStyle = al.color; x.beginPath(); x.roundRect(P, blockTop, W - 2 * P, blockH, 36); x.fill();
+  x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 2; x.stroke();
+  x.fillStyle = ink; x.font = `900 ${title.size}px ${D}`;
+  let ty = blockTop + 50;
+  for (const l of title.lines) { ty += title.size * .86; x.fillText(l, P + 50, ty); }
+  x.font = `500 34px ${B}`; x.globalAlpha = .9;
+  x.fillText(ellipsize(x, `${al.name}${al.year ? ' · ' + al.year : ''}${song.seed ? ' · #' + song.seed + ' seed' : ''}`, W - 2 * P - 100), P + 50, blockTop + blockH - 50);
+  x.globalAlpha = 1;
+  // road to the title
+  y = blockTop + blockH + 96;
+  x.fillStyle = '#A2A8B3'; x.font = `600 28px ${B}`; spaced(x, 'ROAD TO THE TITLE', P, y, 5);
+  y += 24;
+  const short = r => { const left = n >> r; return left === 2 ? 'Final' : left === 4 ? 'Semis' : left === 8 ? 'Quarters' : 'Round of ' + left; };
+  for (const { r, lost } of route) {
+    y += rowH;
+    x.fillStyle = 'rgba(255,255,255,.1)'; x.fillRect(P, y + 26, W - 2 * P, 2);
+    x.fillStyle = '#A2A8B3'; x.font = `500 30px ${B}`; x.fillText(short(r), P, y);
+    x.fillStyle = albumOf(b, lost).color; x.beginPath(); x.roundRect(P + 250, y - 24, 24, 24, 5); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.25)'; x.lineWidth = 1.5; x.stroke();
+    x.fillStyle = '#F2F0EA'; x.font = `600 38px ${B}`; x.fillText(ellipsize(x, b.songs[lost].t, W - P - (P + 296)), P + 296, y);
+  }
+  // footer: where to play
+  x.fillStyle = '#C6F432'; x.beginPath(); x.roundRect(P, footTop, 360, 76, 38); x.fill();
+  x.fillStyle = '#0D0E11'; x.font = `700 32px ${B}`; x.textBaseline = 'middle'; x.fillText('Fill out yours →', P + 34, footTop + 39);
+  x.fillStyle = '#A2A8B3'; x.font = `500 28px ${B}`;
+  const site = (location.host + location.pathname).replace(/\/$/, '');
+  if (site) x.fillText(ellipsize(x, site, W - 2 * P - 400), P + 390, footTop + 39);
+  x.textBaseline = 'alphabetic';
+  return new Promise((res, rej) => cv.toBlob(bl => bl ? res(bl) : rej(new Error('no image')), 'image/png'));
+}
+async function openShare() {
+  const b = S.brackets.get(S.bid), w = getMine(S.bid); if (!b || !isDone(w)) return;
+  S.share = { status: 'making' }; render();
+  try {
+    const blob = await shareCardBlob(b, w);
+    const slug = b.artist.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bracket';
+    const file = new File([blob], `${slug}-champion.png`, { type: 'image/png' });
+    let canFile = false; try { canFile = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch {}
+    if (!S.share) return;
+    S.share = { status: 'ready', url: URL.createObjectURL(blob), file, canFile, alt: `My ${b.artist} champion: ${b.songs[w[b.size - 2]].t}`, text: `My ${b.artist} champion: ${b.songs[w[b.size - 2]].t}. Fill out yours: ${inviteUrl(S.bid)}` };
+  } catch { if (S.share) S.share = { status: 'error' }; }
+  render();
+  document.getElementById('share-go')?.focus();
+}
+function closeShare() { if (S.share?.url) URL.revokeObjectURL(S.share.url); S.share = null; render(); }
+function shareModal() {
+  const sh = S.share;
+  const body = sh.status === 'making' ? `<p class="loading" style="padding:40px 0;text-align:center">Making your card…</p>`
+    : sh.status === 'error' ? `<p class="err">Couldn’t make the image on this device. You can still copy the link.</p><button class="btn" data-act="copy-link">${ic('link', 'sm')}Copy link</button>`
+    : `<img src="${sh.url}" alt="${esc(sh.alt)}">
+      <div class="acts">
+        ${sh.canFile ? `<button class="btn primary lg" id="share-go" data-act="share-native">${ic('share', 'sm')}Share…</button>` : ''}
+        <div class="row"><a class="btn${sh.canFile ? '' : ' primary'}" ${sh.canFile ? '' : 'id="share-go" '}href="${sh.url}" download="${esc(sh.file.name)}">${ic('download', 'sm')}Save image</a><button class="btn" data-act="copy-link">${ic('link', 'sm')}Copy link</button></div>
+      </div>
+      <p class="hint">${sh.canFile ? 'Share opens your phone’s share sheet: Messages, Instagram Stories and more.' : 'Save the image, then post it to your story or drop it in the group chat.'}</p>`;
+  return `<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="share-h">
+    <div class="modal-top"><h2 class="h3" id="share-h">Share your champion</h2><button class="iconbtn" id="share-close" data-act="share-close" aria-label="Close">${ic('x', 'sm')}</button></div>
+    ${body}</div></div>`;
 }
 
 /* ---------- render ---------- */
@@ -1361,7 +1625,7 @@ function openLinkedBracket() {
   return false;
 }
 const inviteUrl = bid => location.href.split('#')[0] + '#b=' + bid;
-function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; const w = getMine(id); S.tab = isDone(w) ? 'compare' : 'play'; window.scrollTo(0, 0); render(); }
+function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; S.jumpRound = null; S.tab = 'play'; window.scrollTo(0, 0); render(); }
 function playStep(dir) {
   const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
   const idx = ks.indexOf(cur);
@@ -1370,15 +1634,9 @@ function playStep(dir) {
   clearTimeout(advance.t);
   render();
 }
-async function shareChampion() {
-  const b = S.brackets.get(S.bid), w = getMine(S.bid); if (!b || !isDone(w)) return;
-  const text = `My ${b.artist} bracket champion: ${b.songs[w[b.size - 2]].t}`;
-  try { if (navigator.share) { await navigator.share({ text }); return; } } catch (e) { if (e?.name === 'AbortError') return; }
-  try { await navigator.clipboard.writeText(text); toast('Copied. Paste it in the group chat.'); }
-  catch { toast(text); }
-}
 
 document.addEventListener('click', async e => {
+  if (S.share && e.target.classList?.contains('modal-bg')) { closeShare(); return; }
   if (S.meMenu && !e.target.closest('.me')) { S.meMenu = false; render(); }
   const t = e.target.closest('[data-act]'); if (!t) return;
   const act = t.dataset.act, d = S.draft;
@@ -1397,20 +1655,35 @@ document.addEventListener('click', async e => {
       break;
     }
     case 'show-prompt': S.gen.show = !S.gen.show; render(); break;
-    case 'manual-paste': S.gen = null; S.view = 'home'; S.form.showPaste = true; render(); document.getElementById('paste')?.focus(); break;
-    case 'home': setHash(''); S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
+    case 'manual-paste': S.gen = null; S.view = 'create'; S.form.showPaste = true; render(); document.getElementById('paste')?.focus(); break;
+    case 'home': setHash(''); if (S.share) closeShare(); S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
     case 'size': S.form.size = +t.dataset.n; render(); break;
     case 'filter': S.filter = t.dataset.v; render(); break;
     case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
     case 'open': openBracket(t.dataset.id); break;
-    case 'tab': S.tab = t.dataset.tab; S.confirm = null; if (t.dataset.tab !== 'bracket') S.viewing = null; clearTimeout(advance.t); render(); window.scrollTo(0, 0); break;
-    case 'pick': doPick(+t.dataset.k, +t.dataset.s); break;
+    case 'tab': S.tab = t.dataset.tab; S.confirm = null; S.jumpRound = null; if (t.dataset.tab !== 'bracket') S.viewing = null; clearTimeout(advance.t); render(); window.scrollTo(0, 0); break;
+    case 'pick': doPick(+t.dataset.k, +t.dataset.s, true); break;
+    case 'clear-pick': clearPick(+t.dataset.k); break;
+    case 'new': S.gen?.ctl?.abort(); S.gen = null; S.draft = null; S.createErr = null; setHash(''); S.view = 'create'; render(); window.scrollTo(0, 0); document.getElementById('artist')?.focus(); break;
+    case 'hide-results': setReveal(S.bid, false); S.viewing = null; render(); break;
+    case 'jump-round': S.jumpRound = +t.dataset.r; render(); break;
+    case 'share-card': openShare(); break;
+    case 'share-close': closeShare(); break;
+    case 'share-native': {
+      const sh = S.share; if (!sh?.file) break;
+      try { await navigator.share({ files: [sh.file], text: sh.text }); } catch (err) { if (err?.name !== 'AbortError') toast('Couldn’t open sharing here. Save the image instead.'); }
+      break;
+    }
+    case 'copy-link': {
+      const url = inviteUrl(S.bid);
+      try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch { toast(url); }
+      break;
+    }
     case 'prev': playStep(-1); break;
     case 'next': playStep(1); break;
-    case 'jump': S.playK = +t.dataset.k; clearTimeout(advance.t); render(); break;
+    case 'jump': S.playK = +t.dataset.k; S.jumpRound = null; clearTimeout(advance.t); render(); document.querySelector('.play-meta')?.scrollIntoView({ block: 'nearest' }); break;
     case 'first': { const b = S.brackets.get(S.bid); S.playK = playable(b.size, getMine(S.bid))[0] ?? null; render(); break; }
     case 'first-open': S.playK = null; render(); break;
-    case 'share': shareChampion(); break;
     case 'view': S.viewing = t.dataset.uid; S.tab = 'bracket'; render(); window.scrollTo(0, 0); break;
     case 'view-mine': S.viewing = null; render(); break;
     case 'zoom': S.zoom = t.dataset.v; render(); break;
@@ -1421,7 +1694,7 @@ document.addEventListener('click', async e => {
       catch { toast(url); }
       break;
     }
-    case 'peek': S.peek[S.bid] = true; render(); break;
+    case 'peek': setReveal(S.bid, true); render(); break;
     case 'reset': S.confirm = 'reset'; render(); break;
     case 'delete': S.confirm = 'delete'; render(); break;
     case 'confirm-no': S.confirm = null; render(); break;
@@ -1441,7 +1714,7 @@ document.addEventListener('click', async e => {
     case 'stop-gen': S.gen?.ctl?.abort(); break;
     case 'retry-gen': generate(S.gen.artist, S.gen.size, true); break;
     case 'regen': generate(d.artist, d.size, true); break;
-    case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'home'; S.createErr = null; render(); break;
+    case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'create'; S.createErr = null; render(); break;
     case 'draft-size': d.size = +t.dataset.n; while (d.songs.length > d.size) d.bench.unshift(d.songs.pop()); render(); break;
     case 'seeding': d.seeding = t.dataset.v; render(); break;
     case 'mv': { const i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < d.songs.length) [d.songs[i], d.songs[j]] = [d.songs[j], d.songs[i]]; render(); document.querySelector(`[data-act="mv"][data-i="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
@@ -1466,6 +1739,7 @@ document.addEventListener('click', async e => {
   }
 });
 
+document.addEventListener('toggle', e => { if (e.target.id === 'jump') S.jumpOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   if (e.target.id === 'whose') { S.viewing = e.target.value || null; render(); }
 });
@@ -1541,15 +1815,18 @@ document.addEventListener('input', e => {
   if (e.target.id === 'artist') S.form.artist = e.target.value;
   if (e.target.id === 'paste') S.form.paste = e.target.value;
   if (e.target.id === 'reply' && S.gen) S.gen.reply = e.target.value;
+  if (e.target.dataset?.note !== undefined && S.bid) setNote(S.bid, e.target.dataset.note, e.target.value);
 });
 
 document.addEventListener('keydown', e => {
+  if (S.share) { if (e.key === 'Escape') closeShare(); return; }
   if (S.view !== 'bracket' || S.tab !== 'play' || S.viewing) return;
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) return;
   const b = S.brackets.get(S.bid); if (!b) return;
   const w = getMine(S.bid), k = currentPlayK(b, w); if (k === null) return;
   if (e.key === 's' || e.key === 'S') { e.preventDefault(); playStep(1); return; }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && w[k] !== null) { e.preventDefault(); clearPick(k); return; }
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   const [r, i] = locate(b.size, k), [a, c] = entrants(b.size, w, r, i);
   e.preventDefault();
@@ -1557,8 +1834,13 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- boot ---------- */
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(v => v.toString(16).padStart(2, '0')).join('');
+}
 function goLocal() {
   S.mode = 'local';
+  loadNotesLocal();
   const all = lsGet(LS_BRACKETS, {});
   S.brackets = new Map(Object.entries(all));
   S.loadedB = true;
@@ -1628,12 +1910,18 @@ async function bootFirebase(cfg) {
     S.brackets = new Map(); S.picks = new Map(); S.prof = {}; S.mine = {}; S.edited = new Set(); S.loadedB = false;
     myDocKnown = null;
     if (!u) {
+      S.notes = {};
       Object.assign(S, { authState: 'out', mode: 'connecting', db: null, me: { id: null, name: '', avatarUrl: '', isOwner: false }, view: 'home', bid: null, meMenu: false });
       render(); return;
     }
     Object.assign(S, { authState: 'in', mode: 'shared', db: fb.db, canWrite: true, writeBlocked: false, authErr: null });
     S.me = { id: u.uid, name: S.pendingName || u.displayName || '', avatarUrl: u.photoURL || '', isOwner: false, anon: u.isAnonymous };
     const pending = S.pendingName; S.pendingName = null;
+    loadNotesLocal(); loadNotesRemote(u.uid);
+    // admins (who can make brackets) are listed in config.js as SHA-256 hashes of their Google email
+    if (!u.isAnonymous && u.email && u.emailVerified && (cfg.admins || []).length) {
+      sha256hex(u.email.trim().toLowerCase()).then(h => { if (S.me.id === u.uid && cfg.admins.includes(h)) { S.me.admin = true; render(); } }).catch(() => {});
+    }
     S.unsubs.push(fb.db.collection('users').onSnapshot(snap => {
       for (const d of snap.docs) { const p = d.data(); S.prof[d.id] = { name: p.name || '', avatarUrl: p.avatarUrl || '' }; }
       const mine = S.prof[u.uid];
@@ -1681,6 +1969,7 @@ async function boot() {
   }
   if (!db) return goLocal();
   S.db = db; S.mode = 'shared';
+  loadNotesLocal();
   db.collection('brackets').onSnapshot(snap => {
     S.brackets = new Map(snap.docs.map(d => [d.id, d.data()]));
     S.loadedB = true;

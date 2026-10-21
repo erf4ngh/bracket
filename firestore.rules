@@ -1,15 +1,27 @@
 rules_version = '2';
 
 // Everyone signed in (Google or name-only) can see all brackets, picks and names.
-// People can only change their own picks and name, and only delete brackets they made.
+// People can only change their own picks, notes and name. Only admins make brackets.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isMe(uid) { return signedIn() && request.auth.uid == uid; }
 
+    // Admins are Google accounts whose lowercased email hashes (SHA-256) to one of these,
+    // so the addresses themselves aren't published. Keep in sync with `admins` in config.js.
+    // Make one with: printf '%s' 'you@gmail.com' | shasum -a 256
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && hashing.sha256(request.auth.token.email.lower()).toHexString().lower() in [
+          'b8cd0fce3dc669277a666745a300d94a810641e2576f00b14e6248153e023137',
+          '556bc93078d4f26e0bebf957d0a7d9c414d8b6162fdf166b0649d6b27d237532'
+        ];
+    }
+
     match /brackets/{id} {
       allow read: if signedIn();
-      allow create: if signedIn()
+      allow create: if isAdmin()
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.artist is string
         && request.resource.data.artist.size() > 0
@@ -20,12 +32,19 @@ service cloud.firestore {
         && request.resource.data.albums is list
         && request.resource.data.albums.size() <= 64;
       allow update: if false;
-      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+      allow delete: if signedIn() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
     // picks/<userId> = { b: { <bracketId>: { w: [...], done, updatedAt } } }
     match /picks/{uid} {
       allow read: if signedIn();
+      allow write: if isMe(uid) && request.resource.data.keys().hasOnly(['b']);
+      allow delete: if isMe(uid);
+    }
+
+    // notes/<userId> = { b: { <bracketId>: { <song slot>: "text" } } }, private to each person
+    match /notes/{uid} {
+      allow read: if isMe(uid);
       allow write: if isMe(uid) && request.resource.data.keys().hasOnly(['b']);
       allow delete: if isMe(uid);
     }
