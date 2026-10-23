@@ -7,11 +7,10 @@ Live site: https://erf4ngh.github.io/bracket/ (once the setup below is done). An
 ## What it does
 
 - **Build** (admins only, from *New bracket*) – type an artist and choose 16, 32 or 64 songs. Claude picks songs (you copy a prompt into Claude and paste its reply back, so it's free) from across their albums and singles, ranks them, and seeds the bracket so #1 and #2 can only meet in the final. You can remove, swap, add or drag to reorder songs before it goes live, or paste your own list (`Song - Album`, one per line).
-- **Pick** – one matchup at a time, with Spotify / YouTube / Apple Music links on each song, progress by round and who the winner plays next. Click your pick again (or press ⌫) to clear it and leave the match undecided. Private notes on each song. A list of every match by song name shows which are still undecided. Use ← / → to pick and S to skip.
+- **Pick** – one matchup at a time, with Spotify / YouTube / Apple Music links on each song, progress by round and who the winner plays next. Click your pick again (or press ⌫) to clear it and leave the match undecided. Private notes on each song, also shown on the Bracket tab. A list of every match by song name shows which are still undecided. Use ← / → to pick and S to skip.
 - **Champion** – your winner and the songs it beat, plus a story-sized share card (1080×1920) for Messages, Instagram Stories and so on.
 - **Bracket** – the full two-sided bracket, fit to the screen or at full size, with a switcher for friends' brackets. Changing an early pick clears later picks that depended on it.
 - **Compare** – a copyable invite link and who's done. Behind an eye button, so nothing gets spoiled: the group's champion vote, how closely each friend's picks match yours, group standings and the first-round matchups where people disagreed. Results stay hidden until you choose to show them, and that choice is remembered per bracket.
-- **Listen** – the track list grouped by album, with your notes and a copy button for playlist importers like TuneMyMusic or Soundiiz.
 
 ## Hosting it (free)
 

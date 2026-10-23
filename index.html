@@ -234,7 +234,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .tabs .badge{font:600 11px var(--mono);background:var(--track);color:var(--ink);border-radius:99px;padding:1px 7px}
 @media (max-width:640px){
   :root{--tabbar:76px}
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;margin:0;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;background:var(--surface);border-top:1px solid var(--line);border-bottom:0}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;margin:0;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;background:var(--surface);border-top:1px solid var(--line);border-bottom:0}
   .tabs button{flex-direction:column;gap:2px;padding:6px 0;border:0;font-size:11px;position:relative}
   .tabs button .ic{display:block}
   .tabs button[aria-selected="true"]{color:var(--accent-fg)}
@@ -408,19 +408,6 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .invite{display:grid;gap:6px;font-size:14px;color:var(--muted)}
 .invite b{color:var(--ink)}
 
-/* listen */
-.listen-top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
-.album-grp{margin-bottom:24px}
-.album-h{display:flex;align-items:center;gap:10px;font:800 22px/1 var(--display);text-transform:uppercase;margin:0 0 8px}
-.album-h .sw{width:16px;height:16px}
-.tracks{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-.tracks li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
-.tracks .t{display:flex;align-items:center;gap:10px;font-weight:500}
-.tracks .t .mono{min-width:26px}
-.tracks .ln{display:flex;gap:6px;flex-wrap:wrap}
-.tracks .ln a{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:0 10px;min-height:32px;color:var(--muted)}
-.tracks .ln a:hover{color:var(--ink);border-color:var(--muted)}
-.copy-out{width:100%;min-height:120px;font:12px/1.5 var(--mono);margin:-8px 0 24px}
 
 /* sign in */
 .signin{padding-block:56px 40px;display:flex;flex-wrap:wrap;gap:40px 56px;align-items:center}
@@ -467,8 +454,6 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .note textarea{width:100%;min-height:64px;resize:vertical;font:14px/1.45 var(--body);background:var(--surface)}
 @media (max-width:640px){.notes{grid-template-columns:minmax(0,1fr);gap:10px}}
 .slot .nd{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8;flex:none;margin-left:auto}
-.tracks .t > span:last-child{display:grid}
-.tnote{font-size:13px;color:var(--muted);font-style:italic}
 
 /* pick nav + clear */
 .play-nav .mid{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
@@ -534,7 +519,7 @@ const S = {
   prof: {}, ids: new Set(),
   view: 'home', bid: null, tab: 'play', viewing: null, playK: null,
   form: { artist: '', size: 32, paste: '', showPaste: false },
-  draft: null, gen: null, confirm: null, copyText: null, toast: null,
+  draft: null, gen: null, confirm: null, toast: null,
   backend: null,                 // 'firebase' | 'artifact' | null (this device only)
   authState: null, authErr: null, meMenu: false, fb: null, unsubs: [],
   notes: {}, share: null, jumpOpen: null, jumpRound: null,
@@ -928,7 +913,6 @@ const ICONS = {
   pick: '<rect x="3" y="5" width="7" height="14" rx="2"/><rect x="14" y="5" width="7" height="14" rx="2"/>',
   bracket: '<path d="M3 5h5v6h4M3 17h5v-6M21 5h-5v6h-4M21 17h-5v-6"/>',
   compare: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',
-  listen: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff: '<path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.4 17.4 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7a10.4 10.4 0 0 0 5.4-1.4M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
@@ -1172,12 +1156,11 @@ function bracketView() {
   const b = S.brackets.get(S.bid);
   const creator = b.createdBy ? nameOf(b.createdBy) : null;
   const others = participants(S.bid).filter(p => !p.me).length;
-  const tabs = [['play', 'Pick', 'pick'], ['bracket', 'Bracket', 'bracket'], ['compare', 'Compare', 'compare'], ['listen', 'Listen', 'listen']];
+  const tabs = [['play', 'Pick', 'pick'], ['bracket', 'Bracket', 'bracket'], ['compare', 'Compare', 'compare']];
   let body = '';
   if (S.tab === 'play') body = playTab(b);
   else if (S.tab === 'bracket') body = treeTab(b);
-  else if (S.tab === 'compare') body = compareTab(b);
-  else body = listenTab(b);
+  else body = compareTab(b);
   const seeding = b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw';
   return `<div class="bk-head">
       <div class="bk-title"><button class="iconbtn" data-act="home" aria-label="All brackets">${ic('back')}</button>
@@ -1463,21 +1446,6 @@ function compareTab(b) {
   return `<section class="cmp">${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${debates}</section>`;
 }
 
-/* listen */
-function listenTab(b) {
-  const groups = b.albums.map((a, ai) => ({ a, songs: b.songs.filter(s => s.a === ai).sort((x, y) => (x.seed ?? 0) - (y.seed ?? 0)) })).filter(g => g.songs.length);
-  return `<section>
-    <div class="listen-top">
-      <div style="max-width:62ch"><h2 class="h3" style="margin-bottom:8px">Make it a playlist</h2>
-        <p class="hint">Copy the track list, then paste it into a playlist importer like <a href="https://www.tunemymusic.com/transfer" target="_blank" rel="noopener">TuneMyMusic</a> or <a href="https://soundiiz.com" target="_blank" rel="noopener">Soundiiz</a> and choose Spotify, Apple Music or YouTube Music as the destination. Or play songs one at a time with the links below.</p></div>
-      <button class="btn primary" data-act="copy">${ic('copy', 'sm')}Copy track list</button>
-    </div>
-    ${S.copyText ? `<textarea class="copy-out" id="copy-out" readonly aria-label="Track list">${esc(S.copyText)}</textarea>` : ''}
-    ${groups.map(g => `<div class="album-grp"><h3 class="album-h"><span class="sw" style="${alStyle(g.a.color)}"></span>${esc(g.a.name)}${g.a.year ? ` <span class="mono">${g.a.year}</span>` : ''}</h3>
-      <ul class="tracks">${g.songs.map(s => { const note = noteOf(S.bid, b.songs.indexOf(s)); return `<li><span class="t"><span class="mono">${s.seed ? '#' + s.seed : ''}</span><span><span>${esc(s.t)}</span>${note ? `<span class="tnote">${esc(note)}</span>` : ''}</span></span><span class="ln">${listenLinks(b.artist, s.t)}</span></li>`; }).join('')}</ul></div>`).join('')}
-  </section>`;
-}
-
 /* share card */
 function wrapText(x, text, maxW) {
   const words = String(text).split(/\s+/).filter(Boolean), lines = [];
@@ -1625,7 +1593,7 @@ function openLinkedBracket() {
   return false;
 }
 const inviteUrl = bid => location.href.split('#')[0] + '#b=' + bid;
-function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.copyText = null; S.invite = false; S.jumpRound = null; S.tab = 'play'; window.scrollTo(0, 0); render(); }
+function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.invite = false; S.jumpRound = null; S.tab = 'play'; window.scrollTo(0, 0); render(); }
 function playStep(dir) {
   const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
   const idx = ks.indexOf(cur);
@@ -1702,13 +1670,6 @@ document.addEventListener('click', async e => {
     case 'delete-yes': {
       try { await deleteBracket(S.bid); S.view = 'home'; S.bid = null; S.confirm = null; toast('Bracket deleted'); }
       catch { S.confirm = null; toast('Couldn’t delete it. You may not have permission.'); }
-      break;
-    }
-    case 'copy': {
-      const b = S.brackets.get(S.bid);
-      const text = [...b.songs].sort((x, y) => (x.seed ?? 0) - (y.seed ?? 0)).map(s => `${b.artist} - ${s.t}`).join('\n');
-      try { await navigator.clipboard.writeText(text); toast('Track list copied'); }
-      catch { S.copyText = text; render(); const el = document.getElementById('copy-out'); if (el) { el.focus(); el.select(); } }
       break;
     }
     case 'stop-gen': S.gen?.ctl?.abort(); break;
