@@ -495,6 +495,43 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + var(--tabbar) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:10;max-width:calc(100vw - 32px)}
 .loading{color:var(--muted);padding-block:40px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* many-artist brackets */
+.kind{margin:0 0 18px}
+.mix-form{display:grid;gap:20px;max-width:820px}
+.mix-form input[type=text],.mix-form textarea{width:100%}
+.mix-form textarea{min-height:88px;padding:10px 12px;resize:vertical;font:15px/1.5 var(--body)}
+.mix-form #paste{min-height:180px;font:13px/1.5 var(--mono)}
+.opt-l{font-weight:500;color:var(--muted);opacity:.8;margin-left:4px}
+.field-note{font-size:13px;color:var(--muted);margin:6px 0 0}
+.field-note.err{color:var(--danger);font-weight:600}
+.mf-grid{display:flex;flex-wrap:wrap;gap:16px 28px}
+.mix-sum{margin:-4px 0 0;font-size:14px;color:var(--muted);max-width:62ch}
+.mix-sum b{color:var(--ink)}
+.check{display:flex;gap:12px;align-items:flex-start;cursor:pointer;max-width:62ch}
+.check input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:var(--fill)}
+.check b{display:block;font-weight:600}
+.check span span{font-size:13px;color:var(--muted)}
+.mix-form .go{justify-self:start;min-height:54px;padding:0 24px;font-size:16px}
+.seg button:disabled{opacity:.3;cursor:not-allowed}
+.seg button:disabled:hover{color:var(--muted)}
+.side-card .seg.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.chip.dim{opacity:.5}
+.grp-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+@media (max-width:520px){.grp-list{grid-template-columns:minmax(0,1fr)}}
+.grp-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:10px;align-content:start;min-width:0}
+.grp-card.over{border-style:dashed;opacity:.6}
+.grp-h{display:grid;grid-template-columns:20px 14px minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.grp-h .rk{font:600 13px var(--mono);color:var(--muted);text-align:right}
+.grp-h b{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grp-h .count{font-size:12px}
+.grp-h .acts{display:flex}
+.grp-songs{grid-template-columns:minmax(0,1fr)}
+.lu.flat{grid-template-columns:22px 6px minmax(0,1fr) auto;cursor:default;background:var(--well)}
+.grp-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gen-live.sm{font-size:13px}
+.mu{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;color:var(--ink)}
+.mu > span:not(.sw){color:var(--muted)}
 </style>
 </head>
 <body>
@@ -505,7 +542,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 (() => {
 'use strict';
 
-const PALETTE = ['#E5383B','#2F54EB','#E33FA8','#23A55A','#E0C33A','#1F2026','#F2751A','#13A4A8','#8B55E8','#9A6B45','#6E7C8C','#B8124F'];
+const PALETTE = ['#E5383B','#2F54EB','#E33FA8','#23A55A','#E0C33A','#1F2026','#F2751A','#13A4A8','#8B55E8','#9A6B45','#6E7C8C','#B8124F','#FF8FA3','#3D5A80','#A7C957','#6D597A'];
 const SIZES = [16, 32, 64];
 const LS_PICKS = 'tb.v1.picks', LS_BRACKETS = 'tb.v1.brackets';
 
@@ -518,7 +555,7 @@ const S = {
   mine: {}, edited: new Set(),
   prof: {}, ids: new Set(),
   view: 'home', bid: null, tab: 'play', viewing: null, playK: null,
-  form: { artist: '', size: 32, paste: '', showPaste: false },
+  form: { artist: '', size: 32, paste: '', showPaste: false, kind: 'artist', theme: '', artists: '', m: 16, k: 4, solo: true, mixErr: null },
   draft: null, gen: null, confirm: null, toast: null,
   backend: null,                 // 'firebase' | 'artifact' | null (this device only)
   authState: null, authErr: null, meMenu: false, fb: null, unsubs: [],
@@ -725,6 +762,17 @@ async function deleteBracket(id) {
 const canManage = b => S.mode === 'local' || S.me.isOwner || S.me.admin || (b.createdBy && b.createdBy === S.me.id);
 const canCreate = () => S.backend !== 'firebase' || !!S.me.admin;
 const albumOf = (b, s) => b.albums[b.songs[s].a] || { name: 'Unknown', color: '#6E7C8C' };
+// In a many-artist bracket the color groups (b.albums) are the artists, and each song carries its own album (al) and year (y)
+const isMix = b => b?.kind === 'mix';
+const songArtist = (b, s) => isMix(b) ? albumOf(b, s).name : b.artist;
+function songLineText(b, s) {
+  const al = albumOf(b, s), song = b.songs[s];
+  return isMix(b) ? al.name + (song.al ? ' · ' + song.al : '') : al.name + (al.year ? ' · ' + al.year : '');
+}
+const songLine = (b, s) => esc(songLineText(b, s));
+// in a many-artist bracket a song's seed is its rank among that artist's songs
+const seedText = (b, song) => isMix(b) ? `#${song.seed} of ${b.per}` : `#${song.seed} seed`;
+const drawLabel = b => ({ seeded: 'Seeded', shuffled: 'Random draw', grouped: 'Artist groups' })[b.seeding] || 'Custom draw';
 
 /* ---------- lineup generation ---------- */
 function genPrompt(artist, size) {
@@ -856,6 +904,191 @@ function draftToDoc(d) {
     songs: slots.map(s => ({ t: s.t, a: map.get(s.a), seed: s.seed })),
     seeding: d.seeding, source: d.source, createdBy: S.me.id || null, createdAt: Date.now(),
   };
+}
+
+/* ---------- many-artist lineups ----------
+   Several artists with the same number of songs each. With the "artist groups"
+   draw, each artist's songs fill one block of the bracket, so they knock each
+   other out first and the survivor reps that artist against the others. */
+const MIX_COUNTS = [2, 4, 8, 16], MIX_PER = [2, 4, 8];
+const mixOk = (m, k) => m * k >= 16 && m * k <= 64;
+function splitArtists(text) {
+  const seen = new Set();
+  return String(text || '').split(/[\n,;]+/).map(x => x.trim()).filter(x => x && !seen.has(x.toLowerCase()) && seen.add(x.toLowerCase()));
+}
+const soloRule = solo => solo
+  ? 'Solo songs only: the artist must be the only credited performer. No features ("feat.", "ft.", "with"), duets or collaborations, even when they are the lead artist.'
+  : 'Songs where they are the lead artist are fine, features included.';
+function mixPrompt(o) {
+  const n = o.artists.length;
+  const who = n >= o.m ? `Use exactly these ${o.m} artists: ${o.artists.join(', ')}.`
+    : n ? `Start with these ${n} artists: ${o.artists.join(', ')}. Then add ${o.m - n} more that fit the theme and are about as well known, for exactly ${o.m} artists in total.`
+    : `Choose exactly ${o.m} artists that fit the theme, names most fans of the genre would recognize.`;
+  return `Build a song bracket for a group of friends. They vote song against song until one track wins. Each artist's songs play each other first, then each artist's best song represents them against the other artists.
+
+Theme: ${o.theme || 'the artists listed below'}
+${who}
+
+For each artist, pick their ${o.k} best songs: the ones fans would actually argue about, spread across their career. ${soloRule(o.solo)} No remixes, live versions, skits or interludes. Also give 2 alternate songs per artist that follow the same rules.
+
+Rank the artists 1 to ${o.m} by how strong their songs are for this bracket (1 = the favorite). Rank each artist's songs 1 to ${o.k} the same way.
+
+Reply with only JSON in this shape, artists and songs in ranked order:
+{"title":"Short bracket name","artists":[{"name":"Artist Name","songs":[{"title":"Song Title","album":"Album or mixtape title, or Single","year":2018}],"alternates":[{"title":"Song Title","album":"Album Title","year":2018}]}]}`;
+}
+function artistPrompt(name, o) {
+  return `Pick the ${o.k} best songs by the artist "${name}" for a song-vs-song bracket${o.theme ? ` themed "${o.theme}"` : ''}: the ones fans would actually argue about, spread across their career. ${soloRule(o.solo)} No remixes, live versions, skits or interludes. Also give 2 alternates that follow the same rules.
+
+Rank the songs 1 to ${o.k} (1 = the strongest).
+
+Reply with only JSON in this shape:
+{"name":"Canonical Artist Name","songs":[{"title":"Song Title","album":"Album or mixtape title, or Single","year":2018}],"alternates":[{"title":"Song Title","album":"Album Title","year":2018}]}
+
+If you do not recognize the artist, reply {"error":"unknown artist"}.`;
+}
+
+function newMix(o, source) {
+  return { kind: 'mix', artist: o.title || o.theme || 'Mixed bracket', theme: o.theme || '', m: o.m, k: o.k, solo: !!o.solo, groups: [], removed: [], seeding: 'grouped', source, o };
+}
+function freeColor(d) {
+  const used = new Set([...d.groups, ...d.removed].map(g => g.color));
+  return PALETTE.find(c => !used.has(c)) || PALETTE[(d.groups.length + d.removed.length) % PALETTE.length];
+}
+function addGroup(d, name, into = 'groups') {
+  name = String(name || '').trim();
+  let g = [...d.groups, ...d.removed].find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (g) return g;
+  g = { name, color: freeColor(d), songs: [], bench: [] };
+  d[into].push(g);
+  return g;
+}
+function toMixSong(s) {
+  const t = String(s?.title ?? '').trim(); if (!t) return null;
+  const y = Number(s.year);
+  return { t, al: String(s.album ?? '').trim().replace(/^singles?$/i, 'Single'), y: y > 1900 && y < 2100 ? Math.round(y) : null };
+}
+// adds songs to an artist: main picks fill up to the songs-per-artist count, the rest wait as alternates
+function fillGroup(d, g, songs, alts) {
+  const seen = new Set([...g.songs, ...g.bench].map(s => s.t.toLowerCase()));
+  const add = (raw, main) => {
+    const s = toMixSong(raw); if (!s || seen.has(s.t.toLowerCase())) return;
+    seen.add(s.t.toLowerCase());
+    (main && g.songs.length < d.k ? g.songs : g.bench).push(s);
+  };
+  (Array.isArray(songs) ? songs : []).forEach(s => add(s, true));
+  (Array.isArray(alts) ? alts : []).forEach(s => add(s, false));
+  return g;
+}
+function mixFromClaude(data, o) {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.artists)) throw { code: data?.error ? 'unknown_artist' : 'bad_reply' };
+  const d = newMix({ ...o, title: String(data.title || '').trim().slice(0, 80) }, 'claude');
+  for (const a of data.artists) {
+    const name = String(a?.name || '').trim(); if (!name) continue;
+    fillGroup(d, addGroup(d, name, d.groups.length < d.m ? 'groups' : 'removed'), a.songs, a.alternates);
+  }
+  if (!d.groups.length) throw { code: 'bad_reply' };
+  return d;
+}
+function mixFromPaste(text, o) {
+  const d = newMix(o, 'manual'), rows = [];
+  for (const line of text.split(/\r?\n/)) {
+    const [artist, title, album] = line.replace(/^\s*\d+[.)]\s*/, '').split(/\s+[-–—|]\s+|\t/).map(x => x.trim());
+    if (artist && title) rows.push({ artist, title, album: album || '' });
+  }
+  // if every artist has the same number of songs and that makes a valid bracket, size it to fit
+  const per = new Map();
+  rows.forEach(r => per.set(r.artist.toLowerCase(), (per.get(r.artist.toLowerCase()) || 0) + 1));
+  const sizes = [...per.values()];
+  if (sizes.length && sizes.every(x => x === sizes[0]) && MIX_COUNTS.includes(sizes.length) && MIX_PER.includes(sizes[0]) && mixOk(sizes.length, sizes[0])) { d.m = sizes.length; d.k = sizes[0]; }
+  for (const r of rows) fillGroup(d, addGroup(d, r.artist, d.groups.length < d.m ? 'groups' : 'removed'), [r]);
+  return d;
+}
+function mixStatus(d) {
+  if (d.groups.length < d.m) return { ok: false, msg: `Add ${plural(d.m - d.groups.length, 'more artist')}` };
+  if (d.groups.length > d.m) return { ok: false, msg: `Remove ${plural(d.groups.length - d.m, 'artist')}` };
+  const bad = d.groups.find(g => g.songs.length !== d.k);
+  if (bad) return { ok: false, msg: bad.songs.length < d.k ? `${bad.name} needs ${plural(d.k - bad.songs.length, 'more song')}` : `${bad.name} has ${plural(bad.songs.length - d.k, 'song')} too many` };
+  return { ok: true, msg: 'Ready to go' };
+}
+// changing the lineup size moves songs and artists to and from the alternates, so going back and forth loses nothing
+function setMixK(d, k) {
+  d.k = k;
+  for (const g of d.groups) {
+    while (g.songs.length > k) g.bench.unshift(g.songs.pop());
+    while (g.songs.length < k && g.bench.length) g.songs.push(g.bench.shift());
+  }
+}
+function setMixM(d, m) {
+  d.m = m;
+  while (d.groups.length > m) d.removed.unshift(d.groups.pop());
+  while (d.groups.length < m && d.removed.length) d.groups.push(d.removed.shift());
+}
+function mixToDoc(d) {
+  const { m, k } = d, groups = d.groups.slice(0, m);
+  let slots;
+  if (d.seeding === 'grouped') {
+    // artists seeded so #1 and #2 can only meet in the final; inside each artist's block, their #1 and #2 song meet last
+    const songOrder = seedOrder(k);
+    slots = seedOrder(m).flatMap(ar => songOrder.map(sr => ({ ...groups[ar - 1].songs[sr - 1], a: ar - 1, seed: sr })));
+  } else {
+    slots = shuffle(groups.flatMap((g, gi) => g.songs.slice(0, k).map((s, si) => ({ ...s, a: gi, seed: si + 1 }))));
+  }
+  return {
+    kind: 'mix', artist: (d.artist || '').trim() || d.theme || 'Mixed bracket', theme: d.theme || '',
+    size: m * k, per: k, solo: !!d.solo,
+    albums: groups.map(g => ({ name: g.name, year: null, color: g.color })),
+    songs: slots.map(s => ({ t: s.t, a: s.a, seed: s.seed, al: s.al || '', y: s.y ?? null })),
+    seeding: d.seeding, source: d.source, createdBy: S.me.id || null, createdAt: Date.now(),
+  };
+}
+async function generateMix(o, fresh) {
+  const size = o.m * o.k, label = o.theme || 'Your lineup';
+  S.draft = null; S.view = 'draft';
+  if (!S.sample) {
+    S.gen = { status: 'manual', kind: 'mix', o, artist: label, size, prompt: mixPrompt(o), reply: '', show: false, err: null };
+    render(); window.scrollTo(0, 0); return;
+  }
+  const ctl = new AbortController();
+  S.gen = { status: 'thinking', kind: 'mix', o, artist: label, size, ctl };
+  render();
+  try {
+    const data = await S.sample.json(mixPrompt(o), {
+      signal: ctl.signal,
+      ...(fresh ? { cache: false } : {}),
+      onText: ({ text }) => {
+        const a = (text.match(/"name"\s*:/g) || []).length, n = (text.match(/"title"\s*:/g) || []).length;
+        const el = document.getElementById('gen-live');
+        if (el) el.textContent = a ? `${plural(Math.min(a, o.m), 'artist')}, ${plural(n, 'song')} so far…` : 'Choosing the artists…';
+      },
+    });
+    S.draft = mixFromClaude(data, o); S.gen = null;
+  } catch (e) {
+    const code = e?.code || 'upstream_error';
+    if (code === 'cancelled') { S.gen = null; S.view = 'create'; }
+    else S.gen = { status: 'error', kind: 'mix', o, code, artist: label, size };
+    if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) S.sample = null;
+  }
+  render();
+}
+// get songs for one artist in a lineup being reviewed (one that was just added, or is short on songs)
+async function fillArtist(g) {
+  const d = S.draft; if (!d) return;
+  const o = { k: d.k, solo: d.solo, theme: d.theme };
+  if (!S.sample) {
+    S.gen = { status: 'manual', kind: 'artist', group: g, artist: g.name, size: d.k, prompt: artistPrompt(g.name, o), reply: '', show: false, err: null };
+    render(); window.scrollTo(0, 0); return;
+  }
+  g.loading = true; g.err = null; render();
+  try { applyArtist(d, g, await S.sample.json(artistPrompt(g.name, o))); }
+  catch (e) { g.err = e?.code === 'unknown_artist' ? 'Claude didn’t recognize this artist. Check the spelling.' : 'Couldn’t get songs for this artist. Try again.'; }
+  g.loading = false; render();
+}
+function applyArtist(d, g, data) {
+  if (!data || typeof data !== 'object' || data.error) throw { code: data?.error ? 'unknown_artist' : 'bad_reply' };
+  if (!Array.isArray(data.songs)) throw { code: 'bad_reply' };
+  const name = String(data.name || '').trim();
+  if (name && !d.groups.some(x => x !== g && x.name.toLowerCase() === name.toLowerCase())) g.name = name;
+  fillGroup(d, g, data.songs, data.alternates);
 }
 
 /* ---------- people ---------- */
@@ -997,11 +1230,11 @@ function homeView() {
   const hero = `<section class="hero land">
     <div class="hero-main">
       <h1 class="hero-h">Who are we <em>ranking</em> tonight?</h1>
-      <p class="hint lead">${admin ? 'Build a bracket for an artist, then send the link to your friends.' : 'Pick a bracket below and fill it out song by song. Nobody sees anyone’s picks until they choose to look.'}</p>
+      <p class="hint lead">${admin ? 'Build a bracket for one artist or a whole lineup of them, then send the link to your friends.' : 'Pick a bracket below and fill it out song by song. Nobody sees anyone’s picks until they choose to look.'}</p>
       ${admin ? `<button class="btn primary lg" data-act="new">${ic('plus', 'sm')}New bracket</button>` : ''}
     </div>
     <ol class="steps">
-      <li><span class="no">01</span><span><b>${admin ? 'Build' : 'Choose a bracket'}</b><span>${admin ? 'Songs are seeded so #1 and #2 can only meet in the final.' : 'Each one is an artist’s songs, seeded so the biggest hits meet late.'}</span></span></li>
+      <li><span class="no">01</span><span><b>${admin ? 'Build' : 'Choose a bracket'}</b><span>${admin ? 'Songs are seeded so #1 and #2 can only meet in the final.' : 'Each one is an artist’s songs, or a lineup of artists, seeded so the biggest hits meet late.'}</span></span></li>
       <li><span class="no">02</span><span><b>Pick</b><span>One matchup at a time. Listen, then choose.</span></span></li>
       <li><span class="no">03</span><span><b>Compare</b><span>Reveal everyone’s picks when you’re ready.</span></span></li>
     </ol>
@@ -1018,14 +1251,60 @@ function homeView() {
   else grid = `<div class="grid">${list.map(([id, b]) => bracketCard(id, b, status.get(id))).join('')}</div>`;
   return hero + `<section class="home-list"><div class="sec-top"><h2 class="h2">${S.mode === 'shared' ? 'Brackets' : 'Your brackets'}</h2>${filters}</div>${grid}</section>`;
 }
+function mixCountNote() {
+  const f = S.form, n = splitArtists(f.artists).length;
+  if (n > f.m) return { err: true, text: `You listed ${n} artists, but this lineup has room for ${f.m}. Remove some or pick more artists below.` };
+  if (!n) return { err: false, text: `Leave it empty and Claude picks all ${f.m} from the theme.` };
+  if (n === f.m) return { err: false, text: `All ${f.m} spots filled.` };
+  return { err: false, text: `${n} of ${f.m} listed. Claude picks the other ${f.m - n} to fit the theme.` };
+}
+function mixSummary(m, k) {
+  const size = m * k, inside = Math.log2(k);
+  return `<b>${size}-song bracket.</b> The first ${inside === 1 ? 'round is' : plural(inside, 'round') + ' are'} inside each artist’s songs. From the ${roundName(size, inside)} on, it’s artist vs artist.`;
+}
+function createMixView(blocked) {
+  const f = S.form, pasteMode = f.showPaste, note = mixCountNote();
+  const seg = (list, cur, act, ok) => `<div class="seg" role="group">${list.map(n => `<button type="button" data-act="${act}" data-n="${n}" aria-pressed="${cur === n}" ${ok(n) ? '' : 'disabled'}>${n}</button>`).join('')}</div>`;
+  return `<form id="mix-form" class="mix-form card-box" autocomplete="off">
+      <div><label class="field-l" for="mix-theme">Theme</label>
+        <input type="text" id="mix-theme" maxlength="120" placeholder="${pasteMode ? 'Bracket name, like B-tier rappers' : 'Like “B-tier rappers who still drop music”'}" value="${esc(f.theme)}" ${blocked ? 'disabled' : ''}></div>
+      ${pasteMode
+        ? `<div><label class="field-l" for="paste">Songs</label><textarea id="paste" placeholder="Pusha T - If You Know You Know - Daytona&#10;Pusha T - Numbers on the Boards&#10;Denzel Curry - Ultimate">${esc(f.paste)}</textarea>
+            <p class="field-note">One song per line: Artist - Song, optionally followed by - Album. Give every artist the same number of songs.</p></div>`
+        : `<div><label class="field-l" for="mix-artists">Artists <span class="opt-l">optional</span></label>
+            <textarea id="mix-artists" placeholder="Pusha T, Denzel Curry, Lil Durk, Gucci Mane…" ${blocked ? 'disabled' : ''}>${esc(f.artists)}</textarea>
+            <p class="field-note${note.err ? ' err' : ''}" id="mix-note">${esc(note.text)}</p></div>`}
+      <div class="mf-grid">
+        <fieldset><legend class="field-l">Artists</legend>${seg(MIX_COUNTS, f.m, 'f-m', n => mixOk(n, f.k))}</fieldset>
+        <fieldset><legend class="field-l">Songs per artist</legend>${seg(MIX_PER, f.k, 'f-k', n => mixOk(f.m, n))}</fieldset>
+      </div>
+      <p class="mix-sum">${mixSummary(f.m, f.k)}</p>
+      ${pasteMode ? '' : `<label class="check"><input type="checkbox" id="mix-solo" ${f.solo ? 'checked' : ''}><span><b>Solo songs only</b><span>No features or collabs, even when the artist is the lead.</span></span></label>`}
+      ${f.mixErr ? `<p class="err" role="alert">${esc(f.mixErr)}</p>` : ''}
+      <button class="btn primary go" type="submit" ${blocked ? 'disabled' : ''}>${pasteMode ? 'Use my list' : 'Build bracket'}${ic('arrow')}</button>
+    </form>
+    <div class="hero-foot">
+      <p class="hint">${pasteMode ? 'Paste your own songs, grouped by artist.' : S.sample ? 'Claude picks each artist’s songs. You can swap songs or artists before it goes live.' : 'Claude picks each artist’s songs: you copy a prompt into Claude and paste its reply back. You can swap songs or artists before it goes live.'}</p>
+      <button class="linkbtn" type="button" data-act="toggle-paste">${pasteMode ? 'Let Claude pick the songs' : 'Paste my own list instead'}</button>
+    </div>`;
+}
 function createView() {
   const blocked = S.mode === 'shared' && (!S.canWrite || S.writeBlocked);
-  const f = S.form, pasteMode = f.showPaste;
+  const f = S.form, pasteMode = f.showPaste, mix = f.kind === 'mix';
+  const kindSeg = `<div class="seg words kind" role="group" aria-label="Bracket type"><button type="button" data-act="kind" data-v="artist" aria-pressed="${!mix}">One artist</button><button type="button" data-act="kind" data-v="mix" aria-pressed="${mix}">Many artists</button></div>`;
   const sizeSeg = `<div class="seg" role="group" aria-label="Number of songs">${SIZES.map(n => `<button type="button" data-act="size" data-n="${n}" aria-pressed="${f.size === n}"><b>${n}</b><small>${n - 1} matches</small></button>`).join('')}</div>`;
+  if (mix) return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}All brackets</button>${draftStepper(1)}</div>
+  <section class="create">
+    <p class="eyebrow">New bracket</p>
+    <h1 class="artist-h">Who’s in it?</h1>
+    ${kindSeg}
+    ${createMixView(blocked)}
+  </section>`;
   return `<div class="draft-top"><button class="back" data-act="home">${ic('back')}All brackets</button>${draftStepper(1)}</div>
   <section class="create">
     <p class="eyebrow">New bracket</p>
     <h1 class="artist-h">Who’s it for?</h1>
+    ${kindSeg}
     <form id="new-form" class="composer" autocomplete="off">
       <label class="field" for="artist">${ic('search', 'lg')}<span class="sr">Artist name</span>
         <input type="text" id="artist" placeholder="${pasteMode ? 'Bracket name, like Dua Lipa' : 'Artist, like Dua Lipa'}" value="${esc(f.artist)}" ${blocked ? 'disabled' : ''}></label>
@@ -1054,12 +1333,11 @@ function bracketCard(id, b, st) {
     cta = 'Continue';
   } else { status = `<span class="meta">Not started yet</span>`; cta = 'Start'; }
   const ppl = participants(id).filter(p => !p.me);
-  const seeding = b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw';
   return `<button class="card" data-act="open" data-id="${esc(id)}">
     <div class="strip" aria-hidden="true">${strip}</div>
     <div class="card-body">
       <h3 class="card-h">${esc(b.artist)}</h3>
-      <p class="meta">${b.size} songs · ${plural(b.albums.length, 'album')} · ${seeding}</p>
+      <p class="meta">${b.size} songs · ${plural(b.albums.length, isMix(b) ? 'artist' : 'album')} · ${drawLabel(b)}</p>
       <div class="card-status">${status}</div>
       <div class="card-foot"><span class="who">${ppl.length ? `<span class="avs">${ppl.slice(0, 4).map(p => avatar(p.uid)).join('')}</span>${plural(ppl.length, 'friend')}` : 'Just you so far'}</span><span class="cta">${cta}${ic('arrow', 'sm')}</span></div>
     </div></button>`;
@@ -1070,7 +1348,7 @@ function draftStepper(step = 2) {
   const li = (n, label) => n < step
     ? `<li class="done"><span class="dot">${ic('check', 'sm')}</span><span class="lbl">${label}</span></li>`
     : `<li class="${n === step ? 'now' : ''}"${n === step ? ' aria-current="step"' : ''}><span class="dot">${n}</span><span class="lbl">${label}</span></li>`;
-  return `<ol class="stepper" aria-label="Steps">${li(1, 'Artist')}<li class="bar" aria-hidden="true"></li>${li(2, 'Review lineup')}<li class="bar" aria-hidden="true"></li>${li(3, 'Go live')}</ol>`;
+  return `<ol class="stepper" aria-label="Steps">${li(1, S.form.kind === 'mix' ? 'Artists' : 'Artist')}<li class="bar" aria-hidden="true"></li>${li(2, 'Review lineup')}<li class="bar" aria-hidden="true"></li>${li(3, 'Go live')}</ol>`;
 }
 function draftView() {
   const g = S.gen;
@@ -1079,20 +1357,26 @@ function draftView() {
       <h1 class="artist-h">${esc(g.artist)}</h1>
       <p class="gen-live"><span class="pulse"></span><span id="gen-live">Thinking about their catalog…</span></p>
       <p class="hint">This usually takes 20 to 60 seconds.</p></section>`;
-  if (g && g.status === 'manual') return `<div class="draft-top"><button class="back" data-act="new">${ic('back')}Back</button>${draftStepper()}</div>
-    <section class="draft-head"><p class="eyebrow">Get the lineup from Claude</p><h1 class="artist-h">${esc(g.artist)}</h1>
-      <p class="hint">Claude picks and ranks ${g.size} songs. It takes three quick steps and works with a free Claude account.</p></section>
+  if (g && g.status === 'manual') {
+    const what = g.kind === 'mix' ? `Claude picks ${plural(g.o.m, 'artist')} and ranks ${plural(g.o.k, 'song')} from each`
+      : g.kind === 'artist' ? `Claude picks ${plural(g.size, 'song')} by ${esc(g.artist)}` : `Claude picks and ranks ${g.size} songs`;
+    const asks = g.kind === 'mix' ? `It asks for ${g.size} songs plus 2 alternates per artist` : g.kind === 'artist' ? 'It asks for the songs plus 2 alternates' : `It asks for ${g.size} songs and 8 alternates`;
+    const shape = g.kind === 'mix' ? '{"title": "…", "artists": […]}' : g.kind === 'artist' ? '{"name": "…", "songs": […]}' : '{"artist": "…", "albums": […], "songs": […]}';
+    return `<div class="draft-top"><button class="back" data-act="${g.kind === 'artist' ? 'gen-back' : 'new'}">${ic('back')}Back</button>${draftStepper()}</div>
+    <section class="draft-head"><p class="eyebrow">${g.kind === 'artist' ? 'Get their songs from Claude' : 'Get the lineup from Claude'}</p><h1 class="artist-h">${esc(g.artist)}</h1>
+      <p class="hint">${what}. It takes three quick steps and works with a free Claude account.</p></section>
     <ol class="ask">
-      <li><span class="no">1</span><div><b>Copy the prompt</b><p class="hint">It asks for ${g.size} songs and 8 alternates, in a format this page can read.</p>
+      <li><span class="no">1</span><div><b>Copy the prompt</b><p class="hint">${asks}, in a format this page can read.</p>
         <div class="row"><button class="btn primary" data-act="copy-prompt">${ic('copy', 'sm')}Copy prompt</button><button class="linkbtn" data-act="show-prompt" aria-expanded="${g.show}">${g.show ? 'Hide' : 'Show'} the prompt</button></div>
         ${g.show ? `<label class="sr" for="prompt-out">Prompt</label><textarea class="prompt-out" id="prompt-out" readonly>${esc(g.prompt)}</textarea>` : ''}</div></li>
       <li><span class="no">2</span><div><b>Send it to Claude</b><p class="hint">Start a new chat, paste the prompt and send it.</p>
         <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude${ic('arrow', 'sm')}</a></div></li>
       <li><span class="no">3</span><div><b>Paste Claude’s reply here</b><p class="hint">Copy the whole reply. Anything around the { } is ignored.</p>
-        <form id="reply-form" class="reply"><label class="sr" for="reply">Claude’s reply</label><textarea id="reply" placeholder='{"artist": "…", "albums": […], "songs": […]}'>${esc(g.reply)}</textarea>
-          ${g.err ? `<p class="err" role="alert">${esc(g.err)}</p>` : ''}<button class="btn primary lg" type="submit">Use this lineup</button></form></div></li>
+        <form id="reply-form" class="reply"><label class="sr" for="reply">Claude’s reply</label><textarea id="reply" placeholder='${shape}'>${esc(g.reply)}</textarea>
+          ${g.err ? `<p class="err" role="alert">${esc(g.err)}</p>` : ''}<button class="btn primary lg" type="submit">${g.kind === 'artist' ? 'Use these songs' : 'Use this lineup'}</button></form></div></li>
     </ol>
-    <p class="hint">Rather type the songs yourself? <button class="linkbtn" data-act="manual-paste">Paste my own list</button></p>`;
+    ${g.kind === 'artist' ? '' : `<p class="hint">Rather type the songs yourself? <button class="linkbtn" data-act="manual-paste">Paste my own list</button></p>`}`;
+  }
   if (g && g.status === 'error') return `<div class="draft-top"><button class="back" data-act="new">${ic('back')}Back</button>${draftStepper()}</div><section class="gen">
       <p class="eyebrow">Building the lineup</p>
       <h1 class="artist-h">${esc(g.artist)}</h1>
@@ -1101,6 +1385,7 @@ function draftView() {
         ${S.sample && g.code !== 'refused' ? `<button class="btn primary" data-act="retry-gen">Try again</button>` : ''}
         <button class="btn" data-act="new">Back</button></div></section>`;
   const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
+  if (d.kind === 'mix') return mixDraftView(d);
   const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded';
   const intro = d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
   const how = seeded ? 'Drag to reorder: seeds 1 and 2 start on opposite sides and can only meet in the final.' : 'Songs will be placed at random, so order doesn’t matter.';
@@ -1151,6 +1436,72 @@ function draftView() {
   </div>`;
 }
 
+function mixDraftView(d) {
+  const st = mixStatus(d), size = d.m * d.k, grouped = d.seeding === 'grouped';
+  const intro = d.source === 'claude' ? `Claude picked ${plural(d.groups.length, 'artist')} and ranked them, with ${plural(d.k, 'song')} each. ` : '';
+  const how = grouped
+    ? `Each artist’s songs face each other first, and from the ${roundName(size, Math.log2(d.k))} on it’s artist vs artist. Artist order matters: the top two can only meet in the final. Song order matters inside each artist too.`
+    : 'Songs are placed at random, so artists mix from the first round.';
+  const songAct = (gi, si, n, s) => `<span class="acts"><button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${si === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="1" aria-label="Move ${esc(s.t)} down" ${si === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="s-bench" data-g="${gi}" data-i="${si}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span>`;
+  const cards = d.groups.map((g, gi) => {
+    const n = g.songs.length, need = d.k - n;
+    const rows = g.songs.map((s, si) => `<li class="lu flat"><span class="rk ${si === 0 ? 'hi' : ''}">${si + 1}</span><span class="bar" style="${alStyle(g.color)}"></span>
+      <span class="tt"><b>${esc(s.t)}</b><small>${esc([s.al, s.y].filter(Boolean).join(' · ')) || '&nbsp;'}</small></span>${songAct(gi, si, n, s)}</li>`).join('');
+    const fill = g.loading ? `<p class="gen-live sm"><span class="pulse"></span>Getting songs…</p>`
+      : need > 0 ? `<button class="btn sm" data-act="g-fill" data-g="${gi}">${ic('refresh', 'sm')}Get ${plural(need, 'song')} from Claude</button>` : '';
+    const bench = g.bench.length ? `<div class="bench">${g.bench.map((s, bi) => `<button class="chip" data-act="s-unbench" data-g="${gi}" data-i="${bi}" title="Bring in ${esc(s.t)}"><span class="sw" style="${alStyle(g.color)}"></span>${esc(s.t)}${ic('plus', 'sm')}</button>`).join('')}</div>` : '';
+    return `<li class="grp-card${gi >= d.m ? ' over' : ''}">
+      <div class="grp-h"><span class="rk">${gi + 1}</span><span class="sw" style="${alStyle(g.color)}"></span><b>${esc(g.name)}</b><span class="count ${n === d.k ? 'ok' : 'off'}">${n}/${d.k}</span>
+        <span class="acts"><button class="icon" data-act="g-mv" data-g="${gi}" data-d="-1" aria-label="Move ${esc(g.name)} up" ${gi === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="g-mv" data-g="${gi}" data-d="1" aria-label="Move ${esc(g.name)} down" ${gi === d.groups.length - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="g-rm" data-g="${gi}" aria-label="Remove ${esc(g.name)}">${ic('x', 'sm')}</button></span></div>
+      ${g.err ? `<p class="err" style="font-size:13px">${esc(g.err)}</p>` : ''}
+      ${rows ? `<ol class="lineup grp-songs">${rows}</ol>` : `<p class="hint" style="font-size:13px">No songs yet.</p>`}
+      ${fill || bench ? `<div class="grp-foot">${fill}${bench}</div>` : ''}
+    </li>`;
+  }).join('');
+  const seg = (list, cur, act, ok) => `<div class="seg c${list.length}" role="group">${list.map(n => `<button type="button" data-act="${act}" data-n="${n}" aria-pressed="${cur === n}" ${ok(n) ? '' : 'disabled'}>${n}</button>`).join('')}</div>`;
+  const artistOpts = d.groups.map((g, i) => `<option value="${i}">${esc(g.name)}</option>`).join('');
+  return `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Cancel</button>${draftStepper()}</div>
+  <section class="draft-head">
+    <p class="eyebrow">Review the lineup</p>
+    <h1 class="artist-h" id="draft-title">${esc(d.artist)}</h1>
+    <p class="hint">${esc(intro + how)}</p>
+  </section>
+  <div class="draft-body">
+    <section class="draft-list" aria-label="Artists">
+      <div class="legend">${d.groups.map((g, i) => `<span class="chip${i >= d.m ? ' dim' : ''}"><span class="sw" style="${alStyle(g.color)}"></span>${esc(g.name)} <span class="n">${g.songs.length}</span></span>`).join('')}</div>
+      ${d.groups.length ? `<ol class="grp-list">${cards}</ol>` : `<div class="empty-state">No artists yet. Add one on the right.</div>`}
+    </section>
+    <aside class="draft-side">
+      <div class="side-card">
+        <div class="title"><span class="h3">${esc(st.msg)}</span><span class="count ${st.ok ? 'ok' : 'off'}">${st.ok ? ic('check', 'sm') : ''}${d.groups.length} / ${d.m}</span></div>
+        <div><label class="field-l" for="mix-title">Bracket name</label><input type="text" id="mix-title" maxlength="80" value="${esc(d.artist)}" style="width:100%"></div>
+        <fieldset><legend class="field-l">Artists</legend>${seg(MIX_COUNTS, d.m, 'mix-m', n => mixOk(n, d.k))}</fieldset>
+        <fieldset><legend class="field-l">Songs per artist</legend>${seg(MIX_PER, d.k, 'mix-k', n => mixOk(d.m, n))}</fieldset>
+        <p class="hint" style="font-size:13px;margin-top:-6px">${size}-song bracket${d.solo ? ' · solo songs only' : ''}</p>
+        <fieldset><legend class="field-l">Draw</legend>
+          <button type="button" class="opt" data-act="seeding" data-v="grouped" aria-pressed="${grouped}"><span class="radio"></span><span><b>Artist groups</b><span>Each artist’s songs play each other first. The winner reps them against the other artists.</span></span></button>
+          <button type="button" class="opt" data-act="seeding" data-v="shuffled" aria-pressed="${!grouped}"><span class="radio"></span><span><b>Random draw</b><span>Any song can meet any song.</span></span></button>
+        </fieldset>
+        ${S.createErr ? `<p class="err">${esc(S.createErr)}</p>` : ''}
+        <button class="btn primary lg" data-act="create" ${st.ok ? '' : 'disabled'}>Create bracket</button>
+        ${d.source === 'claude' ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
+      </div>
+      <div class="side-card">
+        <span class="h3">Swap artists</span>
+        ${d.removed.length
+          ? `<p class="hint" style="font-size:13px;margin-top:-8px">Removed artists. Click one to bring it back.</p><div class="bench">${d.removed.map((g, i) => `<button class="chip" data-act="g-back" data-i="${i}"><span class="sw" style="${alStyle(g.color)}"></span>${esc(g.name)}${ic('plus', 'sm')}</button>`).join('')}</div>`
+          : `<p class="hint" style="font-size:13px;margin-top:-8px">Removed artists show up here so you can bring them back.</p>`}
+        <form id="add-artist" class="inline-form" autocomplete="off"><label class="sr" for="add-artist-name">Artist</label><input type="text" id="add-artist-name" placeholder="Add an artist"><button class="btn" type="submit">Add</button></form>
+        ${d.groups.length ? `<form id="add-song" class="add-song" autocomplete="off">
+          <label class="sr" for="add-title">Song title</label><input type="text" id="add-title" placeholder="Add a song by name">
+          <label class="sr" for="add-album">Artist</label><select id="add-album">${artistOpts}</select>
+          <button class="btn" type="submit">Add</button>
+        </form>` : ''}
+      </div>
+    </aside>
+  </div>`;
+}
+
 /* bracket page */
 function bracketView() {
   const b = S.brackets.get(S.bid);
@@ -1161,10 +1512,9 @@ function bracketView() {
   if (S.tab === 'play') body = playTab(b);
   else if (S.tab === 'bracket') body = treeTab(b);
   else body = compareTab(b);
-  const seeding = b.seeding === 'seeded' ? 'Seeded' : b.seeding === 'shuffled' ? 'Random draw' : 'Custom draw';
   return `<div class="bk-head">
       <div class="bk-title"><button class="iconbtn" data-act="home" aria-label="All brackets">${ic('back')}</button>
-        <div style="min-width:0"><h1>${esc(b.artist)}</h1><p class="meta">${b.size} songs · ${seeding}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p></div></div>
+        <div style="min-width:0"><h1>${esc(b.artist)}</h1><p class="meta">${b.size} songs · ${isMix(b) ? plural(b.albums.length, 'artist') + ' · ' : ''}${drawLabel(b)}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p></div></div>
       <span class="save" id="save" role="status">${saveIcon()}<span id="save-label">${esc(saveLabel())}</span></span>
     </div>
     ${notices()}
@@ -1179,12 +1529,12 @@ function songCard(b, k, s, win, side) {
   const cls = win === null ? '' : win === s ? 'won' : 'lost';
   return `<div class="duel-card ${cls}" style="${alStyle(al.color)}">
     <button class="duel-pick" data-act="pick" data-k="${k}" data-s="${s}" aria-pressed="${win === s}" aria-label="${win === s ? 'Your pick: ' + esc(song.t) + '. Click again to clear it' : 'Pick ' + esc(song.t)}" title="${win === s ? 'Click again to clear this pick' : ''}">
-      <span class="duel-top"><span class="duel-seed">${song.seed ? `#${song.seed} seed` : `Slot ${s + 1}`}</span><span class="duel-key" aria-hidden="true">${side === 'L' ? '←' : '→'}</span></span>
+      <span class="duel-top"><span class="duel-seed">${song.seed ? seedText(b, song) : `Slot ${s + 1}`}</span><span class="duel-key" aria-hidden="true">${side === 'L' ? '←' : '→'}</span></span>
       <span class="duel-title">${esc(song.t)}</span>
-      <span class="duel-album">${albumLine(al)}</span>
+      <span class="duel-album">${songLine(b, s)}</span>
       <span class="duel-cta">${win === s ? `${ic('check', 'sm')}Your pick` : 'Pick this song'}</span>
     </button>
-    <div class="listen">${listenLinks(b.artist, song.t)}</div>
+    <div class="listen">${listenLinks(songArtist(b, s), song.t)}</div>
   </div>`;
 }
 function currentPlayK(b, w) {
@@ -1233,9 +1583,12 @@ function playTab(b) {
     return `<div class="note"><label class="note-h" for="note-${x}"><span class="sw" style="${alStyle(al.color)}"></span><span>Your notes on ${esc(song.t)}</span></label>
       <textarea id="note-${x}" data-note="${x}" rows="2" maxlength="500" placeholder="What stood out? Only you can see this.">${esc(noteOf(S.bid, x))}</textarea></div>`;
   };
+  const matchup = isMix(b) ? (albumOf(b, a).name === albumOf(b, c).name
+    ? `<p class="eyebrow mu">Inside ${esc(albumOf(b, a).name)}’s songs</p>`
+    : `<p class="eyebrow mu"><span class="sw" style="${alStyle(albumOf(b, a).color)}"></span>${esc(albumOf(b, a).name)} <span>vs</span> <span class="sw" style="${alStyle(albumOf(b, c).color)}"></span>${esc(albumOf(b, c).name)}</p>`) : '';
   return `<section class="play">
     <ol class="rounds" aria-label="Progress by round" style="--n:${R}">${rounds}</ol>
-    <div class="play-meta"><h2 class="round-name">${roundName(n, r)} <span>· Match ${i + 1} of ${mCount(n, r)}</span></h2><span class="next-line">${nextLine(b, w, r, i)}</span></div>
+    ${matchup}<div class="play-meta"><h2 class="round-name">${roundName(n, r)} <span>· Match ${i + 1} of ${mCount(n, r)}</span></h2><span class="next-line">${nextLine(b, w, r, i)}</span></div>
     <div class="duel">${songCard(b, k, a, w[k], 'L')}<div class="vs" aria-hidden="true">VS</div>${songCard(b, k, c, w[k], 'R')}</div>
     <div class="play-nav">
       <button class="btn" data-act="prev" ${ks.indexOf(k) <= 0 ? 'disabled' : ''}>${ic('back', 'sm')}Previous</button>
@@ -1268,7 +1621,7 @@ function championView(b, w) {
     <div class="champ-hero" style="${alStyle(al.color)}">
       <p class="eyebrow">${ic('trophy')}Your champion</p>
       <h2 class="champ-title">${esc(song.t)}</h2>
-      <p>${albumLine(al)}${song.seed ? ` · #${song.seed} seed` : ''}</p>
+      <p>${songLine(b, c)}${song.seed ? ` · ${seedText(b, song)}` : ''}</p>
     </div>
     <div class="champ-body">
       <div><h3 class="h3" style="font-size:20px">Road to the title</h3><ol class="route">${route.join('')}</ol></div>
@@ -1426,6 +1779,26 @@ function compareTab(b) {
   }).join('');
   const standCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Group standings</h2><span class="hint">1 point per match won, in anyone’s bracket</span></div><ol class="stand">${stand}</ol></section>`;
 
+  // artist standings: only wins over a different artist count, since every artist's own songs knock each other out equally
+  let artistCol = '';
+  if (isMix(b)) {
+    const apts = new Array(b.albums.length).fill(0), achamp = new Array(b.albums.length).fill(0);
+    for (const p of ppl) {
+      for (let k = 0; k < n - 1; k++) {
+        const v = p.w[k]; if (v === null) continue;
+        const [r, i] = locate(n, k), [x, y] = entrants(n, p.w, r, i);
+        if (x !== null && y !== null && b.songs[x].a !== b.songs[y].a) apts[b.songs[v].a]++;
+      }
+      if (p.champ !== null && p.champ !== undefined) achamp[b.songs[p.champ].a]++;
+    }
+    const amax = Math.max(1, ...apts);
+    const rows = [...apts.keys()].sort((x, y) => apts[y] - apts[x] || achamp[y] - achamp[x]).map((a, i) => {
+      const al = b.albums[a], pct = apts[a] / amax * 100;
+      return `<li><span class="rk">${i + 1}</span><span class="sbar" style="${alStyle(al.color)}"><i style="width:${pct}%"></i><span class="${pct > 60 ? 'on' : ''}">${esc(al.name)}</span></span><span class="pts">${apts[a]}${achamp[a] ? ` <small>· ${achamp[a]}× champ</small>` : ''}</span></li>`;
+    }).join('');
+    artistCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Artist standings</h2><span class="hint">1 point per win over another artist, in anyone’s bracket</span></div><ol class="stand">${rows}</ol></section>`;
+  }
+
   // first-round splits: the only round where everyone faced the same matchups
   const splits = [];
   for (let i = 0; i < mCount(n, 0); i++) {
@@ -1443,7 +1816,7 @@ function compareTab(b) {
   const debates = `<section><div class="sec-top" style="margin-bottom:12px"><h2 class="h3">Biggest debates</h2><span class="hint">First-round matchups where the group split</span></div>
     ${splitHtml ? `<div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'Everyone agrees on the first round so far.' : 'Splits appear once two people have picked.'}</p>`}</section>`;
 
-  return `<section class="cmp">${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${debates}</section>`;
+  return `<section class="cmp">${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${artistCol}${debates}</section>`;
 }
 
 /* share card */
@@ -1514,7 +1887,7 @@ async function shareCardBlob(b, w) {
   let ty = blockTop + 50;
   for (const l of title.lines) { ty += title.size * .86; x.fillText(l, P + 50, ty); }
   x.font = `500 34px ${B}`; x.globalAlpha = .9;
-  x.fillText(ellipsize(x, `${al.name}${al.year ? ' · ' + al.year : ''}${song.seed ? ' · #' + song.seed + ' seed' : ''}`, W - 2 * P - 100), P + 50, blockTop + blockH - 50);
+  x.fillText(ellipsize(x, `${songLineText(b, c)}${song.seed ? ' · ' + seedText(b, song) : ''}`, W - 2 * P - 100), P + 50, blockTop + blockH - 50);
   x.globalAlpha = 1;
   // road to the title
   y = blockTop + blockH + 96;
@@ -1547,7 +1920,8 @@ async function openShare() {
     const file = new File([blob], `${slug}-champion.png`, { type: 'image/png' });
     let canFile = false; try { canFile = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch {}
     if (!S.share) return;
-    S.share = { status: 'ready', url: URL.createObjectURL(blob), file, canFile, alt: `My ${b.artist} champion: ${b.songs[w[b.size - 2]].t}`, text: `My ${b.artist} champion: ${b.songs[w[b.size - 2]].t}. Fill out yours: ${inviteUrl(S.bid)}` };
+    const champ = b.songs[w[b.size - 2]].t + (isMix(b) ? ' by ' + songArtist(b, w[b.size - 2]) : '');
+    S.share = { status: 'ready', url: URL.createObjectURL(blob), file, canFile, alt: `My ${b.artist} champion: ${champ}`, text: `My ${b.artist} champion: ${champ}. Fill out yours: ${inviteUrl(S.bid)}` };
   } catch { if (S.share) S.share = { status: 'error' }; }
   render();
   document.getElementById('share-go')?.focus();
@@ -1626,6 +2000,27 @@ document.addEventListener('click', async e => {
     case 'manual-paste': S.gen = null; S.view = 'create'; S.form.showPaste = true; render(); document.getElementById('paste')?.focus(); break;
     case 'home': setHash(''); if (S.share) closeShare(); S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
     case 'size': S.form.size = +t.dataset.n; render(); break;
+    case 'kind': S.form.kind = t.dataset.v; S.form.mixErr = null; render(); break;
+    case 'f-m': { const f = S.form; f.m = +t.dataset.n; if (!mixOk(f.m, f.k)) f.k = MIX_PER.find(k => mixOk(f.m, k)); f.mixErr = null; render(); break; }
+    case 'f-k': { const f = S.form; f.k = +t.dataset.n; if (!mixOk(f.m, f.k)) f.m = MIX_COUNTS.find(m => mixOk(m, f.k)); render(); break; }
+    case 'gen-back': S.gen = null; render(); window.scrollTo(0, 0); break;
+    case 'mix-m': setMixM(d, +t.dataset.n); render(); break;
+    case 'mix-k': setMixK(d, +t.dataset.n); render(); break;
+    case 'g-mv': { const i = +t.dataset.g, j = i + +t.dataset.d, gs = d.groups; if (j >= 0 && j < gs.length) [gs[i], gs[j]] = [gs[j], gs[i]]; render(); document.querySelector(`[data-act="g-mv"][data-g="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
+    case 'g-rm': d.removed.unshift(d.groups.splice(+t.dataset.g, 1)[0]); render(); break;
+    case 'g-back': {
+      const g = d.removed.splice(+t.dataset.i, 1)[0];
+      if (d.groups.length >= d.m) d.removed.unshift(d.groups.pop()); // swaps out the lowest-ranked artist
+      d.groups.push(g); render(); break;
+    }
+    case 'g-fill': fillArtist(d.groups[+t.dataset.g]); break;
+    case 's-mv': { const ss = d.groups[+t.dataset.g].songs, i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < ss.length) [ss[i], ss[j]] = [ss[j], ss[i]]; render(); document.querySelector(`[data-act="s-mv"][data-g="${t.dataset.g}"][data-i="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
+    case 's-bench': { const g = d.groups[+t.dataset.g]; g.bench.unshift(g.songs.splice(+t.dataset.i, 1)[0]); render(); break; }
+    case 's-unbench': {
+      const g = d.groups[+t.dataset.g], s = g.bench.splice(+t.dataset.i, 1)[0];
+      if (g.songs.length >= d.k) g.bench.unshift(g.songs.pop()); // swaps out that artist's lowest-ranked song
+      g.songs.push(s); render(); break;
+    }
     case 'filter': S.filter = t.dataset.v; render(); break;
     case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
     case 'open': openBracket(t.dataset.id); break;
@@ -1673,8 +2068,8 @@ document.addEventListener('click', async e => {
       break;
     }
     case 'stop-gen': S.gen?.ctl?.abort(); break;
-    case 'retry-gen': generate(S.gen.artist, S.gen.size, true); break;
-    case 'regen': generate(d.artist, d.size, true); break;
+    case 'retry-gen': if (S.gen.kind === 'mix') generateMix(S.gen.o, true); else generate(S.gen.artist, S.gen.size, true); break;
+    case 'regen': if (d.kind === 'mix') generateMix({ ...d.o, m: d.m, k: d.k }, true); else generate(d.artist, d.size, true); break;
     case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'create'; S.createErr = null; render(); break;
     case 'draft-size': d.size = +t.dataset.n; while (d.songs.length > d.size) d.bench.unshift(d.songs.pop()); render(); break;
     case 'seeding': d.seeding = t.dataset.v; render(); break;
@@ -1686,9 +2081,9 @@ document.addEventListener('click', async e => {
       d.songs.push(s); render(); break;
     }
     case 'create': {
-      if (d.songs.length !== d.size) return;
+      if (d.kind === 'mix' ? !mixStatus(d).ok : d.songs.length !== d.size) return;
       t.disabled = true; S.createErr = null;
-      try { const id = await createBracket(draftToDoc(d)); S.draft = null; openBracket(id); }
+      try { const id = await createBracket(d.kind === 'mix' ? mixToDoc(d) : draftToDoc(d)); S.draft = null; openBracket(id); }
       catch (err) {
         S.createErr = ['invalid_argument', 'not_granted'].includes(err?.code) ? 'You don’t have permission to add brackets here. Ask the page owner for edit access.'
           : err?.code === 'quota_exceeded' ? 'This page is out of storage. Delete an old bracket and try again.'
@@ -1703,6 +2098,7 @@ document.addEventListener('click', async e => {
 document.addEventListener('toggle', e => { if (e.target.id === 'jump') S.jumpOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   if (e.target.id === 'whose') { S.viewing = e.target.value || null; render(); }
+  if (e.target.id === 'mix-solo') S.form.solo = e.target.checked;
 });
 
 /* lineup drag and drop (the arrow buttons do the same thing from a keyboard or touch screen) */
@@ -1746,12 +2142,42 @@ document.addEventListener('submit', async e => {
       if (!artist) { document.getElementById('artist')?.focus(); return; }
       generate(artist, f.size, false); window.scrollTo(0, 0);
     }
+  } else if (e.target.id === 'mix-form') {
+    const f = S.form;
+    f.theme = (document.getElementById('mix-theme')?.value || '').trim();
+    const o = { theme: f.theme, m: f.m, k: f.k, solo: f.solo, artists: splitArtists(f.artists) };
+    f.mixErr = null;
+    if (f.showPaste) {
+      const text = document.getElementById('paste')?.value || f.paste;
+      if (!text.trim()) { document.getElementById('paste')?.focus(); return; }
+      const d = mixFromPaste(text, o);
+      if (!d.groups.length) { f.mixErr = 'Couldn’t read that list. Put one song per line as Artist - Song.'; render(); return; }
+      S.draft = d; S.gen = null; S.view = 'draft'; render(); window.scrollTo(0, 0);
+    } else {
+      if (!o.theme && !o.artists.length) { f.mixErr = 'Add a theme, some artists, or both.'; render(); document.getElementById('mix-theme')?.focus(); return; }
+      if (o.artists.length > o.m) { f.mixErr = mixCountNote().text; render(); return; }
+      generateMix(o, false); window.scrollTo(0, 0);
+    }
   } else if (e.target.id === 'reply-form') {
     const g = S.gen, text = document.getElementById('reply')?.value || '';
     g.reply = text;
     if (!text.trim()) { document.getElementById('reply')?.focus(); return; }
-    try { S.draft = draftFromClaude(parseReply(text), g.artist, g.size); S.gen = null; render(); window.scrollTo(0, 0); }
+    try {
+      const data = parseReply(text);
+      if (g.kind === 'artist') applyArtist(S.draft, g.group, data);
+      else S.draft = g.kind === 'mix' ? mixFromClaude(data, g.o) : draftFromClaude(data, g.artist, g.size);
+      S.gen = null; render(); window.scrollTo(0, 0);
+    }
     catch (err) { g.err = genError(err?.code); render(); }
+  } else if (e.target.id === 'add-artist') {
+    const d = S.draft, name = (document.getElementById('add-artist-name')?.value || '').trim().slice(0, 80);
+    if (!d || !name) return;
+    const ri = d.removed.findIndex(g => g.name.toLowerCase() === name.toLowerCase());
+    const g = ri >= 0 ? d.removed.splice(ri, 1)[0] : addGroup(d, name, 'removed');
+    d.removed = d.removed.filter(x => x !== g);
+    if (!d.groups.includes(g)) d.groups.push(g);
+    render(); document.getElementById('add-artist-name')?.focus();
+    if (g.songs.length < d.k && S.sample) fillArtist(g);
   } else if (e.target.id === 'guest-form') {
     const name = (document.getElementById('guest-name')?.value || '').trim().slice(0, 40);
     if (!name) { document.getElementById('guest-name')?.focus(); return; }
@@ -1766,6 +2192,7 @@ document.addEventListener('submit', async e => {
     const d = S.draft, t = document.getElementById('add-title').value.trim();
     if (!t) return;
     const v = document.getElementById('add-album').value;
+    if (d.kind === 'mix') { const g = d.groups[+v]; if (g) fillGroup(d, g, [{ title: t }]); render(); document.getElementById('add-title')?.focus(); return; }
     const a = v === 'new' ? addAlbum(d, 'Singles') : +v;
     d.songs.push({ t, a }); tidyAlbums(d); render();
     document.getElementById('add-title')?.focus();
@@ -1775,6 +2202,13 @@ document.addEventListener('submit', async e => {
 document.addEventListener('input', e => {
   if (e.target.id === 'artist') S.form.artist = e.target.value;
   if (e.target.id === 'paste') S.form.paste = e.target.value;
+  if (e.target.id === 'mix-theme') S.form.theme = e.target.value;
+  if (e.target.id === 'mix-artists') {
+    S.form.artists = e.target.value;
+    const el = document.getElementById('mix-note'), note = mixCountNote();
+    if (el) { el.textContent = note.text; el.classList.toggle('err', note.err); }
+  }
+  if (e.target.id === 'mix-title' && S.draft) { S.draft.artist = e.target.value; const h = document.getElementById('draft-title'); if (h) h.textContent = e.target.value || ' '; }
   if (e.target.id === 'reply' && S.gen) S.gen.reply = e.target.value;
   if (e.target.dataset?.note !== undefined && S.bid) setNote(S.bid, e.target.dataset.note, e.target.value);
 });

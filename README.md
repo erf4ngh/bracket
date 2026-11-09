@@ -1,12 +1,13 @@
 # Bracket
 
-Pick an artist, get a seeded song bracket, fill it out song vs song, then compare everyone's picks on the call.
+Pick an artist (or a whole lineup of them), get a seeded song bracket, fill it out song vs song, then compare everyone's picks on the call.
 
 Live site: https://erf4ngh.github.io/bracket/ (once the setup below is done). Anyone with the link can sign in with Google, or join with just a name, and play.
 
 ## What it does
 
 - **Build** (admins only, from *New bracket*) – type an artist and choose 16, 32 or 64 songs. Claude picks songs (you copy a prompt into Claude and paste its reply back, so it's free) from across their albums and singles, ranks them, and seeds the bracket so #1 and #2 can only meet in the final. You can remove, swap, add or drag to reorder songs before it goes live, or paste your own list (`Song - Album`, one per line).
+- **Many artists** – switch *New bracket* to *Many artists* for a lineup bracket, like "B-tier rappers who still drop music". Give a theme, list any artists you want (Claude fills the empty spots to fit the theme), and choose how many artists (2, 4, 8 or 16) and songs per artist (2, 4 or 8), up to 64 songs. *Solo songs only* keeps out features and collabs. With the default *Artist groups* draw, each artist's songs knock each other out first, so the best one reps that artist once it's artist vs artist (from the Round of 16 in a 16 × 4 bracket). Artists are seeded too, so the top two can only meet in the final. In review you can reorder, remove or add artists and their songs, or paste your own list as `Artist - Song - Album`. Compare adds artist standings, counting only wins over other artists.
 - **Pick** – one matchup at a time, with Spotify / YouTube / Apple Music links on each song, progress by round and who the winner plays next. Click your pick again (or press ⌫) to clear it and leave the match undecided. Private notes on each song, also shown on the Bracket tab. A list of every match by song name shows which are still undecided. Use ← / → to pick and S to skip.
 - **Champion** – your winner and the songs it beat, plus a story-sized share card (1080×1920) for Messages, Instagram Stories and so on.
 - **Bracket** – the full two-sided bracket, fit to the screen or at full size, with a switcher for friends' brackets. Changing an early pick clears later picks that depended on it.
@@ -75,6 +76,20 @@ Serve the folder with any static server (for example `python3 -m http.server`) a
   "source": "claude" | "manual" | "import",
   "createdBy": "<user id>",
   "createdAt": 1759600000000
+}
+```
+
+A many-artist bracket uses the same shape. The color groups in `albums` are the artists, and each song carries its own album and year:
+
+```jsonc
+{
+  "kind": "mix",
+  "artist": "B-Tier Rappers",          // the bracket's name
+  "theme": "B-tier rappers who still drop music",
+  "size": 64, "per": 4, "solo": true,  // per = songs per artist
+  "albums": [{ "name": "Pusha T", "year": null, "color": "#2F54EB" }],
+  "songs": [{ "t": "If You Know You Know", "a": 0, "seed": 1, "al": "Daytona", "y": 2018 }], // seed = rank among that artist's songs
+  "seeding": "grouped" | "shuffled"    // grouped: each artist's songs fill one block of `per` slots
 }
 ```
 
