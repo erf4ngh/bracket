@@ -532,6 +532,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .gen-live.sm{font-size:13px}
 .mu{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;color:var(--ink)}
 .mu > span:not(.sw){color:var(--muted)}
+/* editing a live bracket */
+.bk-acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.edit-note{font-size:13px;line-height:1.45;color:var(--muted);margin:0}
+.edit-note.warn{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -544,7 +548,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
 const PALETTE = ['#E5383B','#2F54EB','#E33FA8','#23A55A','#E0C33A','#1F2026','#F2751A','#13A4A8','#8B55E8','#9A6B45','#6E7C8C','#B8124F','#FF8FA3','#3D5A80','#A7C957','#6D597A'];
 const SIZES = [16, 32, 64];
-const LS_PICKS = 'tb.v1.picks', LS_BRACKETS = 'tb.v1.brackets';
+const LS_PICKS = 'tb.v1.picks', LS_PICKS_REV = 'tb.v1.picksrev', LS_BRACKETS = 'tb.v1.brackets';
 
 const S = {
   mode: 'connecting',            // 'shared' | 'local'
@@ -552,7 +556,7 @@ const S = {
   me: { id: null, name: '', avatarUrl: '', isOwner: false },
   canWrite: true, writeBlocked: false, saveState: '',
   brackets: new Map(), picks: new Map(), loadedB: false,
-  mine: {}, edited: new Set(),
+  mine: {}, mineRev: {}, edited: new Set(),
   prof: {}, ids: new Set(),
   view: 'home', bid: null, tab: 'play', viewing: null, playK: null,
   form: { artist: '', size: 32, paste: '', showPaste: false, kind: 'artist', theme: '', artists: '', m: 16, k: 4, solo: true, mixErr: null },
@@ -618,14 +622,41 @@ function playable(n, w) {
   return ks;
 }
 
-/* ---------- picks ---------- */
-function remotePicks(uid, bid) { return S.picks.get(uid)?.b?.[bid]?.w; }
+/* ---------- picks ----------
+   Brackets can be edited after people start picking. Each edit bumps the bracket's
+   rev, and every song slot that changed records that rev in .r. Saved picks carry the
+   rev they were made against, so any pick from a match that involves a changed slot
+   is dropped when the picks are read. Picks in untouched matches stay. */
+function fresh(b, w, rev) {
+  if (!Array.isArray(w)) return [];
+  rev = rev || 0;
+  if (!b.rev || rev >= b.rev) return w;
+  if (rev < (b.reset || 0)) return []; // the size changed, so the old picks don't line up with anything
+  const n = b.size, ch = new Set();
+  b.songs.forEach((s, i) => { if ((s.r || 0) > rev) ch.add(i); });
+  if (!ch.size) return w;
+  const cur = normalize(n, w), out = cur.slice();
+  for (let k = 0; k < n - 1; k++) {
+    if (cur[k] === null) continue;
+    const [r, i] = locate(n, k), [x, y] = entrants(n, cur, r, i);
+    if (ch.has(x) || ch.has(y)) out[k] = null;
+  }
+  return normalize(n, out);
+}
+function remotePicks(uid, bid) {
+  const e = S.picks.get(uid)?.b?.[bid], b = S.brackets.get(bid);
+  return e?.w && b ? fresh(b, e.w, e.rev) : e?.w;
+}
 function getMine(bid) {
   const b = S.brackets.get(bid); if (!b) return [];
-  if (S.edited.has(bid)) return S.mine[bid];
-  const remote = S.me.id ? remotePicks(S.me.id, bid) : null;
-  const local = lsGet(LS_PICKS, {})[bid];
-  return normalize(b.size, remote || local || []);
+  if (S.edited.has(bid)) {
+    const have = S.mineRev[bid] || 0;
+    if (have < (b.rev || 0)) setMine(bid, normalize(b.size, fresh(b, S.mine[bid], have)));
+    return S.mine[bid];
+  }
+  const e = S.me.id ? S.picks.get(S.me.id)?.b?.[bid] : null;
+  if (e?.w) return normalize(b.size, fresh(b, e.w, e.rev));
+  return normalize(b.size, fresh(b, lsGet(LS_PICKS, {})[bid] || [], lsGet(LS_PICKS_REV, {})[bid]));
 }
 function picksOf(uid, bid) {
   const b = S.brackets.get(bid);
@@ -634,7 +665,9 @@ function picksOf(uid, bid) {
 }
 function setMine(bid, w) {
   S.mine[bid] = w; S.edited.add(bid);
+  S.mineRev[bid] = S.brackets.get(bid)?.rev || 0;
   const all = lsGet(LS_PICKS, {}); all[bid] = w; lsSet(LS_PICKS, all);
+  const revs = lsGet(LS_PICKS_REV, {}); revs[bid] = S.mineRev[bid]; lsSet(LS_PICKS_REV, revs);
   queueSave(bid);
 }
 
@@ -649,7 +682,7 @@ function flush() {
     if (!dirty.size) return;
     const ids = [...dirty]; dirty.clear();
     const patch = {};
-    for (const bid of ids) { const w = S.mine[bid]; if (w) patch[bid] = { w, done: isDone(w), updatedAt: Date.now() }; }
+    for (const bid of ids) { const w = S.mine[bid]; if (w) patch[bid] = { w, done: isDone(w), updatedAt: Date.now(), rev: S.mineRev[bid] || 0 }; }
     const ref = S.db.doc('picks/' + S.me.id);
     try {
       if (myDocKnown === null) myDocKnown = S.picks.has(S.me.id) || (await ref.get()).exists;
@@ -677,11 +710,13 @@ function updateSaveLabel() { const el = document.getElementById('save'); if (el)
 /* notes: per person, per bracket, per song slot. Kept on this device and, with accounts, in notes/<userId> */
 const LS_NOTES = 'tb.v1.notes';
 const notesKey = () => LS_NOTES + '.' + (S.me.id || 'local');
-const noteOf = (bid, slot) => S.notes?.[bid]?.[slot] || '';
+// a slot that got a new song in an edit gets a new key, so a note never lands on the wrong song
+const noteKey = (bid, slot) => { const r = S.brackets.get(bid)?.songs?.[slot]?.r; return r ? slot + '@' + r : String(slot); };
+const noteOf = (bid, slot) => S.notes?.[bid]?.[noteKey(bid, slot)] || '';
 const noteDirty = new Map(); let noteTimer = null;
 function loadNotesLocal() { S.notes = lsGet(notesKey(), {}); }
 function setNote(bid, slot, text) {
-  text = String(text).slice(0, 500);
+  text = String(text).slice(0, 500); slot = noteKey(bid, slot);
   (S.notes[bid] ||= {})[slot] = text;
   lsSet(notesKey(), S.notes);
   if (S.backend !== 'firebase' || !S.fb || !S.me.id) return;
@@ -753,6 +788,11 @@ async function createBracket(doc) {
   const all = lsGet(LS_BRACKETS, {}); all[id] = doc; lsSet(LS_BRACKETS, all);
   S.brackets.set(id, doc);
   return id;
+}
+async function updateBracket(id, doc) {
+  if (S.mode === 'shared') await S.db.doc('brackets/' + id).set(doc);
+  else { const all = lsGet(LS_BRACKETS, {}); all[id] = doc; lsSet(LS_BRACKETS, all); }
+  S.brackets.set(id, doc);
 }
 async function deleteBracket(id) {
   if (S.mode === 'shared') await S.db.doc('brackets/' + id).delete();
@@ -1084,12 +1124,100 @@ async function fillArtist(g) {
   g.loading = false; render();
 }
 function applyArtist(d, g, data) {
+  try { return applyArtist0(d, g, data); } finally { snap(d); }
+}
+function applyArtist0(d, g, data) {
   if (!data || typeof data !== 'object' || data.error) throw { code: data?.error ? 'unknown_artist' : 'bad_reply' };
   if (!Array.isArray(data.songs)) throw { code: 'bad_reply' };
   const name = String(data.name || '').trim();
   if (name && !d.groups.some(x => x !== g && x.name.toLowerCase() === name.toLowerCase())) g.name = name;
   fillGroup(d, g, data.songs, data.alternates);
 }
+
+/* ---------- editing a live bracket ----------
+   The editor reuses the lineup review screens. Whatever you swap in takes the
+   place of what it replaces, so the rest of the bracket keeps its matchups and
+   everyone's picks in those matches survive. */
+function docToDraft(id, b) {
+  const bySeed = (x, y) => (x.seed || 0) - (y.seed || 0), lc = s => String(s).toLowerCase();
+  const edit = { id, base: b };
+  if (isMix(b)) {
+    const groups = b.albums.map((al, ai) => ({ name: al.name, color: al.color, bench: [],
+      songs: b.songs.filter(s => s.a === ai).sort(bySeed).map(s => ({ t: s.t, al: s.al || '', y: s.y ?? null })) }));
+    edit.groups = groups.map(g => lc(g.name));
+    edit.songs = Object.fromEntries(groups.map(g => [lc(g.name), g.songs.map(s => lc(s.t))]));
+    const o = { theme: b.theme || '', artists: groups.map(g => g.name), m: groups.length, k: b.per, solo: !!b.solo };
+    return { kind: 'mix', artist: b.artist, theme: o.theme, m: o.m, k: o.k, solo: o.solo, groups, removed: [], seeding: b.seeding || 'grouped', source: b.source, o, edit };
+  }
+  const songs = b.songs.slice().sort(bySeed).map(s => ({ t: s.t, a: s.a }));
+  edit.songs = songs.map(s => lc(s.t));
+  return { artist: b.artist, size: b.size, albums: b.albums.map(a => ({ ...a })), songs, bench: [], seeding: b.seeding || 'seeded', source: b.source, edit };
+}
+// if the list only lost and gained items (no reordering of the ones that stayed), put the new ones where the old ones were
+function stableOrder(old, list, key) {
+  if (!old || list.length !== old.length) return list;
+  const have = new Map(list.map(x => [key(x), x]));
+  const kept = old.filter(k => have.has(k)).join('\u0001');
+  if (kept !== list.map(key).filter(k => old.includes(k)).join('\u0001')) return list;
+  const added = list.filter(x => !old.includes(key(x)));
+  let j = 0;
+  return old.map(k => have.get(k) ?? added[j++]);
+}
+function snap(d) {
+  const e = d?.edit; if (!e) return;
+  const lc = s => String(s).toLowerCase();
+  if (d.kind === 'mix') {
+    d.groups = stableOrder(e.groups, d.groups, g => lc(g.name));
+    for (const g of d.groups) { const old = e.songs[lc(g.name)]; if (old) g.songs = stableOrder(old, g.songs, s => lc(s.t)); }
+  } else d.songs = stableOrder(e.songs, d.songs, s => lc(s.t));
+}
+function editedDoc(d) {
+  const ob = d.edit.base, base = ob.rev || 0, rev = base + 1;
+  const nb = d.kind === 'mix' ? mixToDoc(d) : draftToDoc(d);
+  const key = (b, s) => (isMix(b) ? String(b.albums[s.a]?.name).toLowerCase() + '\u0001' : '') + s.t.toLowerCase();
+  if (nb.size !== ob.size) { nb.songs.forEach(s => s.r = rev); nb.reset = rev; }
+  else {
+    if (nb.seeding === 'shuffled' && ob.seeding === 'shuffled') {
+      // random draws: songs that stayed keep their spot, new ones fill the gaps
+      const byKey = new Map(nb.songs.map(s => [key(nb, s), s]));
+      const slots = ob.songs.map(s => byKey.get(key(ob, s)) || null), used = new Set(slots);
+      const added = nb.songs.filter(s => !used.has(s));
+      let j = 0; nb.songs = slots.map(s => s || added[j++]);
+    }
+    nb.songs.forEach((s, i) => { const o = ob.songs[i]; const r = key(nb, s) === key(ob, o) ? (o.r || 0) : rev; if (r) s.r = r; });
+    if (ob.reset) nb.reset = ob.reset;
+  }
+  const changed = nb.songs.some(s => s.r === rev);
+  if (changed) nb.rev = rev; else if (base) nb.rev = base;
+  if (!changed) nb.songs.forEach(s => { if (s.r === rev) delete s.r; });
+  return JSON.parse(JSON.stringify({ ...nb, source: ob.source ?? nb.source ?? null, createdBy: ob.createdBy ?? null, createdAt: ob.createdAt ?? Date.now(), updatedAt: Date.now(), updatedBy: S.me.id || null }));
+}
+function editImpact(d) {
+  const ob = d.edit.base, base = ob.rev || 0, nb = editedDoc(d), reset = (nb.reset || 0) > base;
+  const changed = reset ? nb.size : nb.songs.filter(s => (s.r || 0) > base).length;
+  let picks = 0, people = 0;
+  for (const p of participants(d.edit.id)) {
+    const lost = p.n - picked(fresh(nb, p.w, base));
+    if (lost > 0) { picks += lost; people++; }
+  }
+  return { changed, picks, people, reset, size: nb.size };
+}
+function editNote(d, ok) {
+  if (!ok) return '';
+  const x = editImpact(d);
+  const who = `${plural(x.picks, 'pick')} for ${plural(x.people, 'person', 'people')}`;
+  const msg = x.reset ? `A new size starts the bracket over.${x.picks ? ` Saving clears ${who}.` : ''}`
+    : !x.changed ? 'No songs change, so everyone keeps their picks.'
+    : `${x.changed} of ${x.size} songs change. ` + (x.picks ? `Saving clears ${who}: matches with a changed song, and later rounds that depended on them. Everything else stays.` : 'Nobody has picked those matches yet, so no picks are lost.');
+  return `<p class="edit-note${x.picks ? ' warn' : ''}">${esc(msg)}</p>`;
+}
+const draftTop = d => d.edit
+  ? `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Back to bracket</button></div>`
+  : `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Cancel</button>${draftStepper(2)}</div>`;
+const saveBtn = (d, ok) => d.edit
+  ? `${editNote(d, ok)}<button class="btn primary lg" data-act="create" ${ok ? '' : 'disabled'}>Save changes</button>`
+  : `<button class="btn primary lg" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>`;
+const EDIT_HOW = 'Swap songs or artists, then save. Whatever you add takes the spot of what it replaces, so the rest of the bracket and everyone’s picks there stay put. ';
 
 /* ---------- people ---------- */
 function avatar(uid, cls = '') {
@@ -1119,7 +1247,7 @@ async function refreshProfiles() {
 function participants(bid) {
   const b = S.brackets.get(bid);
   const ids = new Set();
-  for (const [uid, doc] of S.picks) { const w = doc?.b?.[bid]?.w; if (Array.isArray(w) && w.some(x => x !== null)) ids.add(uid); }
+  for (const uid of S.picks.keys()) { const w = remotePicks(uid, bid); if (Array.isArray(w) && w.some(x => x !== null)) ids.add(uid); }
   const mine = getMine(bid);
   const meKey = S.me.id || '__me';
   if (mine.some(x => x !== null)) ids.add(meKey);
@@ -1137,6 +1265,7 @@ const ICONS = {
   check: '<path d="M5 12l5 5 9-10"/>',
   trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  pencil: '<path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/>',
   up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
   down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -1387,14 +1516,14 @@ function draftView() {
   const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
   if (d.kind === 'mix') return mixDraftView(d);
   const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded';
-  const intro = d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
+  const intro = d.edit ? EDIT_HOW : d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
   const how = seeded ? 'Drag to reorder: seeds 1 and 2 start on opposite sides and can only meet in the final.' : 'Songs will be placed at random, so order doesn’t matter.';
   const countMsg = ok ? 'Ready to go' : n < d.size ? `Add ${d.size - n} more` : `Remove ${n - d.size}`;
   const counts = d.albums.map((_, i) => d.songs.filter(s => s.a === i).length);
   const albumOpts = d.albums.map((a, i) => `<option value="${i}">${esc(a.name)}</option>`).join('') + `<option value="new">Other / single</option>`;
-  return `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Cancel</button>${draftStepper()}</div>
+  return `${draftTop(d)}
   <section class="draft-head">
-    <p class="eyebrow">Review the lineup</p>
+    <p class="eyebrow">${d.edit ? 'Edit the lineup' : 'Review the lineup'}</p>
     <h1 class="artist-h">${esc(d.artist)}</h1>
     <p class="hint">${esc(intro + how)}</p>
   </section>
@@ -1418,8 +1547,8 @@ function draftView() {
           <button type="button" class="opt" data-act="seeding" data-v="shuffled" aria-pressed="${!seeded}"><span class="radio"></span><span><b>Random draw</b><span>Anything can meet anything.</span></span></button>
         </fieldset>
         ${S.createErr ? `<p class="err">${esc(S.createErr)}</p>` : ''}
-        <button class="btn primary lg" data-act="create" ${ok ? '' : 'disabled'}>Create bracket</button>
-        ${d.source === 'claude' ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
+        ${saveBtn(d, ok)}
+        ${d.source === 'claude' && !d.edit ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
       </div>
       <div class="side-card">
         <span class="h3">Alternates</span>
@@ -1438,7 +1567,7 @@ function draftView() {
 
 function mixDraftView(d) {
   const st = mixStatus(d), size = d.m * d.k, grouped = d.seeding === 'grouped';
-  const intro = d.source === 'claude' ? `Claude picked ${plural(d.groups.length, 'artist')} and ranked them, with ${plural(d.k, 'song')} each. ` : '';
+  const intro = d.edit ? EDIT_HOW : d.source === 'claude' ? `Claude picked ${plural(d.groups.length, 'artist')} and ranked them, with ${plural(d.k, 'song')} each. ` : '';
   const how = grouped
     ? `Each artist’s songs face each other first, and from the ${roundName(size, Math.log2(d.k))} on it’s artist vs artist. Artist order matters: the top two can only meet in the final. Song order matters inside each artist too.`
     : 'Songs are placed at random, so artists mix from the first round.';
@@ -1460,9 +1589,9 @@ function mixDraftView(d) {
   }).join('');
   const seg = (list, cur, act, ok) => `<div class="seg c${list.length}" role="group">${list.map(n => `<button type="button" data-act="${act}" data-n="${n}" aria-pressed="${cur === n}" ${ok(n) ? '' : 'disabled'}>${n}</button>`).join('')}</div>`;
   const artistOpts = d.groups.map((g, i) => `<option value="${i}">${esc(g.name)}</option>`).join('');
-  return `<div class="draft-top"><button class="back" data-act="cancel-draft">${ic('back')}Cancel</button>${draftStepper()}</div>
+  return `${draftTop(d)}
   <section class="draft-head">
-    <p class="eyebrow">Review the lineup</p>
+    <p class="eyebrow">${d.edit ? 'Edit the lineup' : 'Review the lineup'}</p>
     <h1 class="artist-h" id="draft-title">${esc(d.artist)}</h1>
     <p class="hint">${esc(intro + how)}</p>
   </section>
@@ -1483,8 +1612,8 @@ function mixDraftView(d) {
           <button type="button" class="opt" data-act="seeding" data-v="shuffled" aria-pressed="${!grouped}"><span class="radio"></span><span><b>Random draw</b><span>Any song can meet any song.</span></span></button>
         </fieldset>
         ${S.createErr ? `<p class="err">${esc(S.createErr)}</p>` : ''}
-        <button class="btn primary lg" data-act="create" ${st.ok ? '' : 'disabled'}>Create bracket</button>
-        ${d.source === 'claude' ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
+        ${saveBtn(d, st.ok)}
+        ${d.source === 'claude' && !d.edit ? `<button class="btn" data-act="regen">${ic('refresh', 'sm')}Ask Claude for a new lineup</button>` : ''}
       </div>
       <div class="side-card">
         <span class="h3">Swap artists</span>
@@ -1515,7 +1644,7 @@ function bracketView() {
   return `<div class="bk-head">
       <div class="bk-title"><button class="iconbtn" data-act="home" aria-label="All brackets">${ic('back')}</button>
         <div style="min-width:0"><h1>${esc(b.artist)}</h1><p class="meta">${b.size} songs · ${isMix(b) ? plural(b.albums.length, 'artist') + ' · ' : ''}${drawLabel(b)}${creator ? ` · Made by ${esc(creator)}` : b.source === 'import' ? ' · From your template' : ''}</p></div></div>
-      <span class="save" id="save" role="status">${saveIcon()}<span id="save-label">${esc(saveLabel())}</span></span>
+      <div class="bk-acts">${canManage(b) ? `<button class="btn sm" data-act="edit">${ic('pencil', 'sm')}Edit lineup</button>` : ''}<span class="save" id="save" role="status">${saveIcon()}<span id="save-label">${esc(saveLabel())}</span></span></div>
     </div>
     ${notices()}
     <nav class="tabs" role="tablist" aria-label="Bracket sections">${tabs.map(([k, l, icon]) => `<button role="tab" data-act="tab" data-tab="${k}" aria-selected="${S.tab === k}">${ic(icon, 'lg')}${l}${k === 'compare' && others ? `<span class="badge">${others}</span>` : ''}</button>`).join('')}</nav>
@@ -2011,7 +2140,7 @@ document.addEventListener('click', async e => {
     case 'g-back': {
       const g = d.removed.splice(+t.dataset.i, 1)[0];
       if (d.groups.length >= d.m) d.removed.unshift(d.groups.pop()); // swaps out the lowest-ranked artist
-      d.groups.push(g); render(); break;
+      d.groups.push(g); snap(d); render(); break;
     }
     case 'g-fill': fillArtist(d.groups[+t.dataset.g]); break;
     case 's-mv': { const ss = d.groups[+t.dataset.g].songs, i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < ss.length) [ss[i], ss[j]] = [ss[j], ss[i]]; render(); document.querySelector(`[data-act="s-mv"][data-g="${t.dataset.g}"][data-i="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
@@ -2019,7 +2148,7 @@ document.addEventListener('click', async e => {
     case 's-unbench': {
       const g = d.groups[+t.dataset.g], s = g.bench.splice(+t.dataset.i, 1)[0];
       if (g.songs.length >= d.k) g.bench.unshift(g.songs.pop()); // swaps out that artist's lowest-ranked song
-      g.songs.push(s); render(); break;
+      g.songs.push(s); snap(d); render(); break;
     }
     case 'filter': S.filter = t.dataset.v; render(); break;
     case 'toggle-paste': S.form.showPaste = !S.form.showPaste; render(); break;
@@ -2070,7 +2199,13 @@ document.addEventListener('click', async e => {
     case 'stop-gen': S.gen?.ctl?.abort(); break;
     case 'retry-gen': if (S.gen.kind === 'mix') generateMix(S.gen.o, true); else generate(S.gen.artist, S.gen.size, true); break;
     case 'regen': if (d.kind === 'mix') generateMix({ ...d.o, m: d.m, k: d.k }, true); else generate(d.artist, d.size, true); break;
-    case 'cancel-draft': S.draft = null; S.gen = null; S.view = 'create'; S.createErr = null; render(); break;
+    case 'edit': {
+      const b = S.brackets.get(S.bid); if (!b || !canManage(b)) break;
+      S.draft = docToDraft(S.bid, b); S.gen = null; S.createErr = null; S.confirm = null; S.view = 'draft';
+      setHash(''); clearTimeout(advance.t); render(); window.scrollTo(0, 0); break;
+    }
+    case 'cancel-draft': if (d?.edit) { const id = d.edit.id; S.draft = null; S.gen = null; S.createErr = null; openBracket(id); break; }
+      S.draft = null; S.gen = null; S.view = 'create'; S.createErr = null; render(); break;
     case 'draft-size': d.size = +t.dataset.n; while (d.songs.length > d.size) d.bench.unshift(d.songs.pop()); render(); break;
     case 'seeding': d.seeding = t.dataset.v; render(); break;
     case 'mv': { const i = +t.dataset.i, j = i + +t.dataset.d; if (j >= 0 && j < d.songs.length) [d.songs[i], d.songs[j]] = [d.songs[j], d.songs[i]]; render(); document.querySelector(`[data-act="mv"][data-i="${j}"][data-d="${t.dataset.d}"]`)?.focus(); break; }
@@ -2078,11 +2213,21 @@ document.addEventListener('click', async e => {
     case 'unbench': {
       const s = d.bench.splice(+t.dataset.i, 1)[0];
       if (d.songs.length >= d.size) d.bench.unshift(d.songs.pop());
-      d.songs.push(s); render(); break;
+      d.songs.push(s); snap(d); render(); break;
     }
     case 'create': {
       if (d.kind === 'mix' ? !mixStatus(d).ok : d.songs.length !== d.size) return;
       t.disabled = true; S.createErr = null;
+      if (d.edit) {
+        const id = d.edit.id;
+        try { await updateBracket(id, editedDoc(d)); S.draft = null; openBracket(id); toast('Lineup saved'); }
+        catch (err) {
+          S.createErr = err?.code === 'not_granted' ? 'The database didn’t allow the edit. Publish the latest firestore.rules (see the README), then try again.'
+            : 'Couldn’t save the changes. Check your connection and try again.';
+          render();
+        }
+        break;
+      }
       try { const id = await createBracket(d.kind === 'mix' ? mixToDoc(d) : draftToDoc(d)); S.draft = null; openBracket(id); }
       catch (err) {
         S.createErr = ['invalid_argument', 'not_granted'].includes(err?.code) ? 'You don’t have permission to add brackets here. Ask the page owner for edit access.'
@@ -2176,7 +2321,7 @@ document.addEventListener('submit', async e => {
     const g = ri >= 0 ? d.removed.splice(ri, 1)[0] : addGroup(d, name, 'removed');
     d.removed = d.removed.filter(x => x !== g);
     if (!d.groups.includes(g)) d.groups.push(g);
-    render(); document.getElementById('add-artist-name')?.focus();
+    snap(d); render(); document.getElementById('add-artist-name')?.focus();
     if (g.songs.length < d.k && S.sample) fillArtist(g);
   } else if (e.target.id === 'guest-form') {
     const name = (document.getElementById('guest-name')?.value || '').trim().slice(0, 40);
@@ -2192,9 +2337,9 @@ document.addEventListener('submit', async e => {
     const d = S.draft, t = document.getElementById('add-title').value.trim();
     if (!t) return;
     const v = document.getElementById('add-album').value;
-    if (d.kind === 'mix') { const g = d.groups[+v]; if (g) fillGroup(d, g, [{ title: t }]); render(); document.getElementById('add-title')?.focus(); return; }
+    if (d.kind === 'mix') { const g = d.groups[+v]; if (g) fillGroup(d, g, [{ title: t }]); snap(d); render(); document.getElementById('add-title')?.focus(); return; }
     const a = v === 'new' ? addAlbum(d, 'Singles') : +v;
-    d.songs.push({ t, a }); tidyAlbums(d); render();
+    d.songs.push({ t, a }); tidyAlbums(d); snap(d); render();
     document.getElementById('add-title')?.focus();
   }
 });
@@ -2302,7 +2447,7 @@ async function bootFirebase(cfg) {
   S.fb = fb;
   fb.onAuth(async u => {
     stopListening();
-    S.brackets = new Map(); S.picks = new Map(); S.prof = {}; S.mine = {}; S.edited = new Set(); S.loadedB = false;
+    S.brackets = new Map(); S.picks = new Map(); S.prof = {}; S.mine = {}; S.mineRev = {}; S.edited = new Set(); S.loadedB = false;
     myDocKnown = null;
     if (!u) {
       S.notes = {};

@@ -1,7 +1,8 @@
 rules_version = '2';
 
 // Everyone signed in (Google or name-only) can see all brackets, picks and names.
-// People can only change their own picks, notes and name. Only admins make brackets.
+// People can only change their own picks, notes and name. Only admins make brackets;
+// whoever made a bracket (or an admin) can edit or delete it.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
@@ -19,19 +20,27 @@ service cloud.firestore {
         ];
     }
 
+    function validBracket(d) {
+      return d.artist is string
+        && d.artist.size() > 0
+        && d.artist.size() <= 100
+        && d.size in [16, 32, 64]
+        && d.songs is list
+        && d.songs.size() == d.size
+        && d.albums is list
+        && d.albums.size() <= 64;
+    }
+
     match /brackets/{id} {
       allow read: if signedIn();
       allow create: if isAdmin()
         && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.artist is string
-        && request.resource.data.artist.size() > 0
-        && request.resource.data.artist.size() <= 100
-        && request.resource.data.size in [16, 32, 64]
-        && request.resource.data.songs is list
-        && request.resource.data.songs.size() == request.resource.data.size
-        && request.resource.data.albums is list
-        && request.resource.data.albums.size() <= 64;
-      allow update: if false;
+        && validBracket(request.resource.data);
+      // editing the lineup: whoever made it, or an admin. The creator can't be changed.
+      allow update: if signedIn()
+        && (resource.data.createdBy == request.auth.uid || isAdmin())
+        && request.resource.data.createdBy == resource.data.createdBy
+        && validBracket(request.resource.data);
       allow delete: if signedIn() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
