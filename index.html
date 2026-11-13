@@ -263,7 +263,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .duel-card.lost{opacity:.35}
 .duel-card.won{box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--accent)}
 .duel-pick{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:none;border:0;color:inherit;padding:26px 26px 18px;cursor:pointer;min-height:300px}
-.duel-top{display:flex;width:100%;justify-content:space-between;align-items:center}
+.duel-top{display:flex;width:100%;gap:10px;align-items:flex-start;min-height:108px;padding-right:120px}
 .duel-seed{font:600 13px var(--mono);opacity:.85}
 .duel-key{font:600 13px var(--mono);border:1.5px solid currentColor;border-radius:6px;padding:0 7px;opacity:.75}
 .duel-title{flex:1;display:flex;align-items:flex-end;font:900 clamp(40px,5vw,72px)/.9 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
@@ -297,8 +297,36 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   .jump{margin-top:24px}
 }
 
+/* cover art + preview button */
+.duel-card{position:relative}
+.pv{position:absolute;top:22px;right:22px;width:108px;height:108px;border-radius:14px;overflow:hidden;border:0;padding:0;cursor:pointer;display:block;background:color-mix(in srgb,var(--al-ink,#fff) 16%,transparent);box-shadow:0 10px 26px rgba(0,0,0,.32),0 0 0 1px var(--ring);z-index:1;flex:none}
+.pv img{width:100%;height:100%;object-fit:cover;display:block}
+.pv-ic{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.26);color:#fff;transition:background .15s}
+.pv:hover .pv-ic,.pv.on .pv-ic{background:rgba(0,0,0,.46)}
+.pv-ic svg{width:36px;height:36px;filter:drop-shadow(0 1px 5px rgba(0,0,0,.55))}
+.pv .i-pause,.pv.on .i-play{display:none}
+.pv.on .i-pause{display:block}
+.pv-bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(0,0,0,.45)}
+.pv-bar i{display:block;height:100%;width:0;background:#C6F432}
+.pv.wait{cursor:default;box-shadow:none;animation:shim 1.3s ease-in-out infinite}
+@keyframes shim{50%{opacity:.35}}
+@media (max-width:640px){
+  /* phones: cover on the right, text beside it, so both songs fit on one screen */
+  .pv{top:14px;right:14px;width:76px;height:76px;border-radius:10px}
+  .pv-ic svg{width:26px;height:26px}
+  .duel-top{min-height:0;padding-right:0}
+  .duel-pick{min-height:112px;padding:16px 104px 8px 18px}
+  .duel-title{font-size:38px}
+  .listen{gap:5px;padding:0 18px 12px}
+  .listen a{min-height:32px;padding:0 9px;font-size:12px}
+}
+.pv.big{position:relative;top:auto;right:auto;width:clamp(120px,24vw,230px);height:auto;aspect-ratio:1;border-radius:18px}
+.pv.big .pv-ic svg{width:56px;height:56px}
+
 /* champion */
-.champ-hero{border-radius:20px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);padding:clamp(22px,4vw,40px);display:grid;gap:10px}
+.champ-hero{border-radius:20px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);padding:clamp(22px,4vw,40px);display:flex;flex-wrap:wrap;gap:20px 28px;align-items:flex-end;justify-content:space-between}
+.champ-txt{display:grid;gap:10px;flex:1 1 300px;min-width:0}
+.champ-hero .listen{padding:6px 0 0}
 .champ-hero .eyebrow{color:inherit;display:flex;align-items:center;gap:8px;margin:0}
 .champ-title{font:900 clamp(64px,11vw,140px)/.84 var(--display);text-transform:uppercase;margin:0;overflow-wrap:anywhere}
 .champ-hero p{margin:0;font-weight:500}
@@ -532,6 +560,72 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .gen-live.sm{font-size:13px}
 .mu{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;color:var(--ink)}
 .mu > span:not(.sw){color:var(--muted)}
+/* lineup check */
+.warn{color:var(--warn)}
+.lu .tt small .warn{font-weight:600}
+.pvi svg{width:15px;height:15px}
+.pvi .i-pause,.pvi.on .i-play{display:none}
+.pvi.on .i-pause{display:block}
+.pvi.on{color:var(--accent-fg)}
+/* compare extras */
+.nowrap{white-space:nowrap}
+.alike{font-size:13px;line-height:1.7}
+.alike b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.reveal-cta{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between}
+.reveal-cta > div:first-child{display:grid;gap:6px;flex:1 1 320px;min-width:0}
+.reveal-cta .acts{display:flex;gap:8px;flex-wrap:wrap}
+.split-r{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.mb.diff::after{content:"";position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;background:var(--fill);box-shadow:0 0 0 2px var(--tree);z-index:2}
+.diff-key{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.diff-key i{width:9px;height:9px;border-radius:50%;background:var(--fill);display:inline-block}
+.nums{display:flex;gap:10px;margin-top:20px}
+.nums div{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.nums b{font:800 32px/1 var(--display)}
+.nums span{font-size:13px;color:var(--muted)}
+.hint b{color:var(--ink);font-weight:600}
+.modal.wide{width:min(960px,100%)}
+.modal .seg{justify-self:start}
+
+/* the reveal */
+.show{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;overflow:auto}
+.show-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line)}
+.show-top .brand{cursor:default}
+.show-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px 24px;text-align:center;width:100%;max-width:1100px;margin:0 auto}
+.show-body > .eyebrow{margin:0}
+.show-h{font:900 clamp(40px,7vw,88px)/.9 var(--display);text-transform:uppercase;margin:0;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;overflow-wrap:anywhere}
+.av.xl{width:64px;height:64px;font-size:26px}
+.show-lead{font-size:clamp(17px,2.2vw,22px);margin:0;color:var(--muted);max-width:44ch}
+.show-duel{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px;align-items:stretch;width:100%}
+.show-duel.one{grid-template-columns:minmax(0,680px);justify-content:center}
+.show-duel.one .show-card{display:flex;align-items:flex-end;gap:22px;padding:22px}
+.show-duel.one .pv{position:relative;top:auto;right:auto;width:clamp(120px,24vw,210px);height:auto;aspect-ratio:1;border-radius:16px}
+.show-duel.one .pv-ic svg{width:52px;height:52px}
+.show-vs{align-self:center;font:900 22px var(--display);color:var(--muted)}
+.show-song{display:grid;grid-template-rows:1fr;grid-auto-rows:auto;gap:12px;min-width:0}
+.show-card{position:relative;border-radius:20px;background:var(--al);color:var(--al-ink);box-shadow:inset 0 0 0 1px var(--ring);padding:146px 24px 22px;display:grid;align-content:end;text-align:left}
+.show-txt{display:grid;gap:6px;min-width:0;flex:1}
+.show-card b{font:900 clamp(32px,4.6vw,60px)/.9 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.show-card span{font-size:14px;font-weight:500;opacity:.88}
+.show-who{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.show-who span{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 14px 5px 6px;font-weight:600;font-size:15px}
+.show-q{font:900 clamp(120px,22vw,220px)/1 var(--display);color:var(--track)}
+.show-pairs{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;width:100%}
+.show-pair{flex:1 1 280px;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;display:grid;gap:10px;justify-items:center}
+.show-pair > b{font:900 72px/1 var(--display)}
+.show-pair .eyebrow{margin:0}
+.show-pair .hint{font-size:13px}
+.show-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 24px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--bg)}
+.show-foot .btn.primary{min-width:170px}
+@media (max-width:640px){
+  .show-duel{grid-template-columns:minmax(0,1fr);gap:10px}
+  .show-vs{justify-self:center}
+  .show-card{padding:98px 16px 16px}
+  .show-duel.one .show-card{padding:16px;gap:14px}
+  .show-top,.show-foot{padding-inline:16px}
+  .show-body{padding:20px 16px;justify-content:flex-start}
+  .show-foot .btn.primary{min-width:0;flex:1}
+}
+
 /* editing a live bracket */
 .bk-acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .edit-note{font-size:13px;line-height:1.45;color:var(--muted);margin:0}
@@ -548,6 +642,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
 const PALETTE = ['#E5383B','#2F54EB','#E33FA8','#23A55A','#E0C33A','#1F2026','#F2751A','#13A4A8','#8B55E8','#9A6B45','#6E7C8C','#B8124F','#FF8FA3','#3D5A80','#A7C957','#6D597A'];
 const SIZES = [16, 32, 64];
+const GROUP = '__group'; // stands in for a person when showing the group's combined bracket
 const LS_PICKS = 'tb.v1.picks', LS_PICKS_REV = 'tb.v1.picksrev', LS_BRACKETS = 'tb.v1.brackets';
 
 const S = {
@@ -563,7 +658,7 @@ const S = {
   draft: null, gen: null, confirm: null, toast: null,
   backend: null,                 // 'firebase' | 'artifact' | null (this device only)
   authState: null, authErr: null, meMenu: false, fb: null, unsubs: [],
-  notes: {}, share: null, jumpOpen: null, jumpRound: null,
+  notes: {}, share: null, show: null, jumpOpen: null, jumpRound: null,
 };
 
 /* ---------- small helpers ---------- */
@@ -661,6 +756,7 @@ function getMine(bid) {
 function picksOf(uid, bid) {
   const b = S.brackets.get(bid);
   if (uid === S.me.id || uid === '__me') return getMine(bid);
+  if (uid === GROUP) return groupPicks(b, participants(bid));
   return normalize(b.size, remotePicks(uid, bid) || []);
 }
 function setMine(bid, w) {
@@ -1230,6 +1326,7 @@ function avatar(uid, cls = '') {
 }
 function nameOf(uid) {
   if (uid === '__me' || (uid && uid === S.me.id)) return 'You';
+  if (uid === GROUP) return 'The group';
   if (uid) S.ids.add(uid);
   return S.prof[uid]?.name || 'Someone';
 }
@@ -1256,6 +1353,256 @@ function participants(bid) {
     return { uid, me: uid === meKey, w, n: picked(w), done: isDone(w), champ: w[b.size - 2] };
   }).sort((x, y) => (y.me - x.me) || (y.done - x.done) || (y.n - x.n));
 }
+
+/* ---------- listening ----------
+   Cover art and 30-second previews come from the iTunes Search API (free, no key).
+   One search per artist covers most of a bracket. Apple's search leaves out songs that
+   only exist in an explicit version, so whatever it misses is looked up on Deezer.
+   Results are cached in this browser, and nothing about the person is sent. */
+const LS_MEDIA = 'tb.v1.media';
+const M = { map: lsGet(LS_MEDIA, {}), art: {}, dzp: {}, jobs: [], seen: new Set(), shown: new Set(), busy: false, times: [], hold: 0, fails: 0, dzFails: 0, itOff: false, dzOff: false, off: false };
+const mNorm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+// the title without "(feat. …)", "[Remastered]" or " - Single Version", for matching
+const mBase = t => mNorm(String(t || '').replace(/\s*[(\[][^)\]]*[)\]]/g, '').replace(/\s+-\s+.*$/, '')) || mNorm(t);
+// clean versions censor titles ("My S**t"): turn the stars into a pattern so they still match
+const mStar = t => { t = String(t || '').replace(/\s*[(\[][^)\]]*[)\]]/g, ''); return t.includes('*') ? new RegExp('^' + t.toLowerCase().replace(/[^a-z0-9*]+/g, ' ').trim().replace(/\*+/g, '[a-z]*') + '$') : null; };
+const mKey = (artist, t) => mNorm(artist) + '|' + mNorm(t);
+const mKnown = key => { const e = M.map[key]; return !!e && !(e.x && Date.now() - e.t > 3 * 864e5); };
+const mediaOf = (b, s) => { const e = M.map[mKey(songArtist(b, s), b.songs[s].t)]; return e && !e.x ? e : null; };
+const artUrl = (e, px) => e.d ? String(e.a).replace(/\/\d+x\d+-/, `/${px <= 250 ? 250 : px <= 500 ? 500 : 1000}x${px <= 250 ? 250 : px <= 500 ? 500 : 1000}-`)
+  : String(e.a).replace(/\/\d+x\d+bb\.(jpg|png|webp)$/, `/${px}x${px}bb.$1`);
+const mSlim = r => ({ an: mNorm(r.artistName), tn: mNorm(r.trackName), tb: mBase(r.trackName), rx: mStar(r.trackName), p: r.previewUrl, a: r.artworkUrl100, u: String(r.trackViewUrl || '').replace(/[?&]uo=\d+$/, ''), clean: r.trackExplicitness === 'cleaned' });
+// a wrong preview is worse than none, so the title has to match and the artist has to be credited
+function mPick(rows, artist, title) {
+  const an = mNorm(artist), tn = mNorm(title), tb = mBase(title);
+  let best = null, top = 0;
+  for (const r of rows) {
+    if (!r.p || !r.a) continue;
+    let sc = r.tn === tn ? 6 : r.tb === tb ? 4 : r.rx && (r.rx.test(tn) || r.rx.test(tb)) ? 3 : 0;
+    if (!sc) continue;
+    if (r.an === an) sc += 3; else if ((' ' + r.an + ' ').includes(' ' + an + ' ')) sc += 1; else continue;
+    if (!r.clean) sc += .5;
+    if (sc > top) { top = sc; best = r; }
+  }
+  return best;
+}
+function mStore(key, r, retrySoon) {
+  // from Apple: a preview link that lasts. From Deezer: the track id, since its preview links expire.
+  M.map[key] = !r ? { x: 1, t: Date.now() - (retrySoon ? 2 * 864e5 : 0) } : r.d ? { a: r.a, d: r.d, t: Date.now() } : { p: r.p, a: r.a, u: r.u, t: Date.now() };
+  clearTimeout(mStore.t);
+  mStore.t = setTimeout(() => {
+    const ks = Object.keys(M.map);
+    if (ks.length > 1500) ks.sort((x, y) => M.map[x].t - M.map[y].t).slice(0, ks.length - 1200).forEach(k => delete M.map[k]);
+    lsSet(LS_MEDIA, M.map);
+  }, 400);
+  if (M.shown.has(key)) { clearTimeout(mStore.r); mStore.r = setTimeout(render, 60); }
+}
+function mJob(j) { if (M.seen.has(j.id)) return; M.seen.add(j.id); M.jobs.push(j); }
+const mHot = j => j.ref ? true : j.title ? M.shown.has(mKey(j.artist, j.title)) : [...M.shown].some(k => k.startsWith(mNorm(j.artist) + '|'));
+// where a song goes after one source comes up empty: Apple's artist search, then Deezer, then Apple's song search
+function mMiss(artist, title, from, soon) {
+  const key = mKey(artist, title);
+  if (from === 'A' && !M.dzOff) return mJob({ id: 'D:' + key, dz: true, artist, title });
+  if (from !== 'S' && !M.itOff && M.art[mNorm(artist)]?.length !== 0) return mJob({ id: 'S:' + key, artist, title });
+  mStore(key, null, soon);
+}
+// Deezer's API has no CORS headers, so it's read the way its docs say to from a browser: JSONP
+function jsonp(url, ms = 8000) {
+  return new Promise((res, rej) => {
+    const cb = '__tb' + Math.random().toString(36).slice(2), sc = document.createElement('script');
+    const done = (fn, v) => { clearTimeout(t); sc.remove(); window[cb] = () => { delete window[cb]; }; fn(v); };
+    const t = setTimeout(() => done(rej, new Error('timeout')), ms);
+    window[cb] = d => { done(res, d); delete window[cb]; };
+    sc.onerror = () => done(rej, new Error('load'));
+    sc.src = url + (url.includes('?') ? '&' : '?') + 'output=jsonp&callback=' + cb;
+    document.head.appendChild(sc);
+  });
+}
+// makes sure this bracket's songs are being looked up, with the songs on screen first
+function mediaWant(b, slots = []) {
+  if (M.off) return;
+  for (const s of slots) {
+    if (s === null || s === undefined) continue;
+    const key = mKey(songArtist(b, s), b.songs[s].t), e = M.map[key];
+    M.shown.add(key);
+    // Deezer preview links expire after a few minutes, so the ones on screen get a fresh one
+    if (e?.d && !M.dzOff && !(M.dzp[e.d] && Date.now() - M.dzp[e.d].at < 9 * 60000)) mJob({ id: 'R:' + e.d + ':' + Math.floor(Date.now() / 3e5), dz: true, ref: e.d, artist: '', title: '' });
+  }
+  const by = new Map();
+  b.songs.forEach((song, s) => {
+    const artist = songArtist(b, s);
+    if (mKnown(mKey(artist, song.t))) return;
+    if (!by.has(artist)) by.set(artist, []);
+    by.get(artist).push(song.t);
+  });
+  for (const [artist, titles] of by) {
+    const an = mNorm(artist); if (!an) continue;
+    const rows = M.art[an];
+    if (!rows && !M.itOff) { mJob({ id: 'A:' + an, artist, titles }); continue; }
+    for (const t of titles) {
+      const hit = rows && mPick(rows, artist, t);
+      if (hit) mStore(mKey(artist, t), hit); else mMiss(artist, t, 'A');
+    }
+  }
+  M.jobs.sort((x, y) => mHot(y) - mHot(x));
+  mPump();
+}
+async function mPump() {
+  if (M.busy || M.off || !M.jobs.length) return;
+  const now = Date.now();
+  M.times = M.times.filter(t => now - t < 60000);
+  // Apple allows roughly 20 searches a minute: keep some of that back for whatever is on screen. Deezer isn't that tight.
+  let idx = 0, j = M.jobs[0];
+  const cap = mHot(j) ? 17 : 11;
+  const wait = j.dz ? 0 : Math.max(M.hold - now, M.times.length >= cap ? 60000 - (now - M.times[M.times.length - cap]) : 0);
+  if (wait > 0) {
+    idx = M.jobs.findIndex(x => x.dz);
+    if (idx < 0) { clearTimeout(mPump.t); mPump.t = setTimeout(mPump, wait + 100); return; }
+    j = M.jobs[idx];
+  }
+  M.busy = true; M.jobs.splice(idx, 1);
+  if (j.dz) await mDeezer(j); else { M.times.push(now); await mApple(j); }
+  if (M.itOff && M.dzOff && !M.off) { M.off = true; M.jobs = []; setTimeout(render); } // offline or blocked: carry on without previews
+  M.busy = false;
+  setTimeout(mPump, j.dz ? 120 : 250);
+}
+async function mApple(j) {
+  try {
+    const q = new URLSearchParams(j.title ? { term: `${j.artist} ${j.title}`, entity: 'song', country: 'US', limit: '15' } : { term: j.artist, entity: 'song', attribute: 'artistTerm', country: 'US', limit: '200' });
+    const res = await fetch('https://itunes.apple.com/search?' + q);
+    if (!res.ok) throw new Error(String(res.status));
+    const rows = ((await res.json()).results || []).filter(r => r.kind === 'song').map(mSlim);
+    M.fails = 0;
+    if (j.title) { const hit = mPick(rows, j.artist, j.title); if (hit) mStore(mKey(j.artist, j.title), hit); else mMiss(j.artist, j.title, 'S'); }
+    else {
+      M.art[mNorm(j.artist)] = rows;
+      for (const t of j.titles) {
+        const key = mKey(j.artist, t); if (mKnown(key)) continue;
+        const hit = mPick(rows, j.artist, t);
+        if (hit) mStore(key, hit); else mMiss(j.artist, t, 'A');
+      }
+      M.jobs.sort((x, y) => mHot(y) - mHot(x));
+    }
+  } catch {
+    M.fails++; j.tries = (j.tries || 0) + 1;
+    const giveUp = x => x.title ? mMiss(x.artist, x.title, 'S', true) : x.titles.forEach(t => mMiss(x.artist, t, 'A', true));
+    if (M.fails >= 4) { // Apple's search is unreachable: hand everything to Deezer
+      M.itOff = true;
+      const mine = [j, ...M.jobs.filter(x => !x.dz)];
+      M.jobs = M.jobs.filter(x => x.dz);
+      mine.forEach(giveUp);
+    } else {
+      M.hold = Date.now() + 8000 * M.fails;
+      if (j.tries < 3) M.jobs.push(j); else giveUp(j);
+    }
+  }
+}
+async function mDeezer(j) {
+  try {
+    if (j.ref) {
+      const d = await jsonp('https://api.deezer.com/track/' + j.ref);
+      if (!d || d.error) throw new Error('deezer');
+      if (d.preview) M.dzp[j.ref] = { p: d.preview, at: Date.now() };
+    } else {
+      const d = await jsonp('https://api.deezer.com/search?limit=15&q=' + encodeURIComponent(`${j.artist} ${j.title}`));
+      if (!d || d.error) throw new Error('deezer');
+      const rows = (d.data || []).map(r => ({ an: mNorm(r.artist?.name), tn: mNorm(r.title), tb: mBase(r.title_short || r.title), p: r.preview, a: r.album?.cover_big || r.album?.cover_medium, d: r.id }));
+      const hit = mPick(rows, j.artist, j.title);
+      if (hit) { M.dzp[hit.d] = { p: hit.p, at: Date.now() }; mStore(mKey(j.artist, j.title), hit); }
+      else mMiss(j.artist, j.title, 'D');
+    }
+    M.dzFails = 0;
+  } catch {
+    M.dzFails++; j.tries = (j.tries || 0) + 1;
+    if (M.dzFails >= 4) {
+      M.dzOff = true;
+      const mine = [j, ...M.jobs.filter(x => x.dz)].filter(x => x.title);
+      M.jobs = M.jobs.filter(x => !x.dz);
+      mine.forEach(x => mMiss(x.artist, x.title, 'D', true));
+    } else if (j.tries < 3) M.jobs.push(j);
+    else if (j.title) mMiss(j.artist, j.title, 'D', true);
+  }
+}
+// plays a song's preview, fetching a fresh link first when it came from Deezer
+async function mediaPlay(key, force) {
+  const e = M.map[key]; if (!e || e.x) return;
+  const a = pvAudio();
+  if (!force && P.key === key && !a.paused) { a.pause(); return; }
+  if (e.p) return pvPlay(key, e.p);
+  let f = M.dzp[e.d];
+  if (!f || Date.now() - f.at > 10 * 60000) {
+    f = null;
+    try { const d = await jsonp('https://api.deezer.com/track/' + e.d); if (d?.preview) f = M.dzp[e.d] = { p: d.preview, at: Date.now() }; } catch {}
+  }
+  if (f) pvPlay(key, f.p); else toast('Couldn’t load that preview. Try again in a moment.');
+}
+
+/* one audio player for the whole page: starting a preview stops the other one */
+const P = { audio: null, key: null };
+function pvAudio() {
+  if (!P.audio) {
+    P.audio = new Audio(); P.audio.preload = 'none'; P.audio.volume = .85;
+    ['timeupdate', 'ended', 'pause', 'play', 'playing'].forEach(ev => P.audio.addEventListener(ev, pvPaint));
+    P.audio.addEventListener('playing', () => { P.retried = false; });
+    P.audio.addEventListener('error', () => {
+      const key = P.key, e = M.map[key]; if (!key) return;
+      P.key = null; pvPaint();
+      if (e?.d && !P.retried) { P.retried = true; delete M.dzp[e.d]; mediaPlay(key, true); }
+      else toast('Couldn’t play that preview.');
+    });
+  }
+  return P.audio;
+}
+function pvPlay(key, url) {
+  const a = pvAudio();
+  if (P.key !== key || P.url !== url) { a.src = url; P.key = key; P.url = url; }
+  else if (a.ended) a.currentTime = 0;
+  a.play().catch(() => {});
+}
+function pvPaint() {
+  const a = P.audio;
+  document.querySelectorAll('[data-act="preview"]').forEach(el => {
+    const mine = !!a && el.dataset.key === P.key, on = mine && !a.paused && !a.ended;
+    el.classList.toggle('on', on);
+    el.setAttribute('aria-pressed', String(on));
+    const bar = el.querySelector('.pv-bar i');
+    if (bar) bar.style.width = mine && a.duration && !a.ended ? (a.currentTime / a.duration * 100) + '%' : '0%';
+  });
+}
+// after every render: stop a preview whose song is no longer on screen, and repaint the play buttons
+function pvSync() {
+  if (P.audio && P.key && !P.audio.paused && ![...document.querySelectorAll('[data-act="preview"]')].some(el => el.dataset.key === P.key)) P.audio.pause();
+  pvPaint();
+}
+const PV_ICONS = `<svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
+// cover art that plays the preview when clicked; a soft placeholder while it's being looked up
+function pvBtn(b, s, cls = '', hint = '') {
+  const key = mKey(songArtist(b, s), b.songs[s].t), e = M.map[key];
+  M.shown.add(key);
+  if (e?.x || (!e && M.off)) return '';
+  if (!e) return `<span class="pv wait ${cls}" aria-hidden="true"></span>`;
+  return `<button type="button" class="pv ${cls}" data-act="preview" data-key="${esc(key)}" aria-pressed="false" aria-label="Play a 30 second preview of ${esc(b.songs[s].t)}" title="Play a 30 second preview${hint ? ` (press ${hint})` : ''}"><img src="${esc(artUrl(e, cls.includes('big') ? 600 : 300))}" alt="" width="300" height="300"><span class="pv-ic">${PV_ICONS}</span><span class="pv-bar"><i></i></span></button>`;
+}
+
+/* lineup review: every song is looked up, so a misspelled or made-up title stands out before the bracket goes live */
+function draftCheck(d) {
+  const pb = d.kind === 'mix'
+    ? { kind: 'mix', albums: d.groups.map(g => ({ name: g.name })), songs: d.groups.flatMap((g, gi) => g.songs.map(s => ({ t: s.t, a: gi }))) }
+    : { artist: d.artist, albums: d.albums, songs: d.songs };
+  mediaWant(pb, pb.songs.map((_, i) => i));
+  const st = pb.songs.map((s, i) => M.map[mKey(songArtist(pb, i), s.t)]);
+  const found = st.filter(e => e && !e.x).length, missing = st.filter(e => e && e.x).length;
+  // if nothing at all matches, the bracket's name probably isn't an artist: say nothing
+  return { found, missing, pending: st.length - found - missing, on: !M.off && found > 0 };
+}
+const draftFlag = (chk, artist, t) => chk.on && M.map[mKey(artist, t)]?.x ? `<span class="warn">Couldn’t find this song. Check the title.</span>` : '';
+function draftPlay(artist, t) {
+  const key = mKey(artist, t), e = M.map[key];
+  return e && !e.x ? `<button class="icon pvi" data-act="preview" data-key="${esc(key)}" aria-pressed="false" aria-label="Play a preview of ${esc(t)}" title="Play a 30 second preview">${PV_ICONS}</button>` : '';
+}
+const checkNote = chk => !chk.on || (chk.pending && !chk.missing) ? ''
+  : chk.missing ? `<p class="edit-note warn">${plural(chk.missing, 'song')} ${chk.missing === 1 ? 'wasn’t' : 'weren’t'} found on Apple Music or Deezer${chk.pending ? ' so far' : ''}. ${chk.missing === 1 ? 'It’s' : 'They’re'} marked in the list: the title may be misspelled, or not a real song. You can still use ${chk.missing === 1 ? 'it' : 'them'}, just without cover art or a preview.</p>`
+  : `<p class="edit-note">All ${chk.found} songs were found, so each one gets cover art and a preview.</p>`;
 
 /* ---------- views ---------- */
 const ICONS = {
@@ -1291,12 +1638,12 @@ function listNames(uids, max = 3) {
   const names = uids.map(nameOf);
   return names.length > max ? names.slice(0, max).join(', ') + ` +${names.length - max}` : names.join(', ');
 }
-function listenLinks(artist, t) {
-  return `<a href="${spotifyUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}Spotify</a><a href="${ytUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}YouTube</a><a href="${appleUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}Apple Music</a>`;
+function listenLinks(artist, t, apple) {
+  return `<a href="${spotifyUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}Spotify</a><a href="${ytUrl(artist, t)}" target="_blank" rel="noopener">${PLAY}YouTube</a><a href="${esc(apple || appleUrl(artist, t))}" target="_blank" rel="noopener">${PLAY}Apple Music</a>`;
 }
 
 function shell() {
-  S.ids = new Set();
+  S.ids = new Set(); M.shown = new Set();
   let main = '', wide = false;
   if (S.backend === 'firebase' && S.authState !== 'in') {
     main = S.authState === 'out' ? signInView() : `<p class="loading">Signing you in…</p>`;
@@ -1307,7 +1654,7 @@ function shell() {
   else if (S.view === 'draft') main = draftView();
   else if (S.view === 'bracket' && S.brackets.get(S.bid)) { main = bracketView(); wide = S.tab === 'bracket'; }
   else { S.view = 'home'; main = homeView(); }
-  return `<div class="wrap${wide ? ' wide' : ''}">${topBar()}${S.view === 'bracket' ? '' : notices()}${main}</div>${S.share ? shareModal() : ''}${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+  return `<div class="wrap${wide ? ' wide' : ''}">${topBar()}${S.view === 'bracket' ? '' : notices()}${main}</div>${S.show && S.view === 'bracket' ? showView(S.brackets.get(S.bid)) : ''}${S.share ? shareModal() : ''}${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
 }
 
 const MARK = `<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M2 4h6v8h5M2 20h6v-8"/><path d="M24 4h-6v8h-5M24 20h-6v-8"/></g><rect x="10" y="9.5" width="6" height="5" fill="var(--accent)"/></svg>`;
@@ -1364,8 +1711,8 @@ function homeView() {
     </div>
     <ol class="steps">
       <li><span class="no">01</span><span><b>${admin ? 'Build' : 'Choose a bracket'}</b><span>${admin ? 'Songs are seeded so #1 and #2 can only meet in the final.' : 'Each one is an artist’s songs, or a lineup of artists, seeded so the biggest hits meet late.'}</span></span></li>
-      <li><span class="no">02</span><span><b>Pick</b><span>One matchup at a time. Listen, then choose.</span></span></li>
-      <li><span class="no">03</span><span><b>Compare</b><span>Reveal everyone’s picks when you’re ready.</span></span></li>
+      <li><span class="no">02</span><span><b>Pick</b><span>One matchup at a time. Tap a cover to hear 30 seconds, then choose.</span></span></li>
+      <li><span class="no">03</span><span><b>Compare</b><span>Run the reveal on the call: the debates, then everyone’s champion.</span></span></li>
     </ol>
   </section>`;
   const status = new Map(all.map(([id, b]) => [id, bracketStatus(id, b)]));
@@ -1515,7 +1862,7 @@ function draftView() {
         <button class="btn" data-act="new">Back</button></div></section>`;
   const d = S.draft; if (!d) { S.view = 'home'; return homeView(); }
   if (d.kind === 'mix') return mixDraftView(d);
-  const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded';
+  const n = d.songs.length, ok = n === d.size, seeded = d.seeding === 'seeded', chk = draftCheck(d);
   const intro = d.edit ? EDIT_HOW : d.source === 'claude' ? `Claude picked ${plural(n, 'song')} and ranked them. ` : '';
   const how = seeded ? 'Drag to reorder: seeds 1 and 2 start on opposite sides and can only meet in the final.' : 'Songs will be placed at random, so order doesn’t matter.';
   const countMsg = ok ? 'Ready to go' : n < d.size ? `Add ${d.size - n} more` : `Remove ${n - d.size}`;
@@ -1533,13 +1880,14 @@ function draftView() {
       <ol class="lineup">${d.songs.map((s, i) => {
         const a = d.albums[s.a];
         return `<li class="lu" draggable="true" data-i="${i}"><span class="grip" aria-hidden="true">${GRIP}</span><span class="rk ${seeded && i < 4 ? 'hi' : ''}">${i + 1}</span><span class="bar" style="${alStyle(a.color)}"></span>
-          <span class="tt"><b>${esc(s.t)}</b><small>${albumLine(a)}</small></span>
-          <span class="acts"><button class="icon" data-act="mv" data-i="${i}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${i === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="mv" data-i="${i}" data-d="1" aria-label="Move ${esc(s.t)} down" ${i === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="bench" data-i="${i}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span></li>`;
+          <span class="tt"><b>${esc(s.t)}</b><small>${draftFlag(chk, d.artist, s.t) || albumLine(a)}</small></span>
+          <span class="acts">${draftPlay(d.artist, s.t)}<button class="icon" data-act="mv" data-i="${i}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${i === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="mv" data-i="${i}" data-d="1" aria-label="Move ${esc(s.t)} down" ${i === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="bench" data-i="${i}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span></li>`;
       }).join('')}</ol>
     </section>
     <aside class="draft-side">
       <div class="side-card">
         <div class="title"><span class="h3">${countMsg}</span><span class="count ${ok ? 'ok' : 'off'}">${ok ? ic('check', 'sm') : ''}${n} / ${d.size}</span></div>
+        ${checkNote(chk)}
         ${n ? `<div><p class="field-l">Songs per album</p><div class="dist">${d.albums.map((a, i) => counts[i] ? `<i style="--f:${counts[i]};--al:${esc(a.color)}" title="${esc(a.name)}: ${counts[i]}"></i>` : '').join('')}</div></div>` : ''}
         <fieldset><legend class="field-l">Size</legend><div class="seg" role="group" aria-label="Bracket size">${SIZES.map(s => `<button type="button" data-act="draft-size" data-n="${s}" aria-pressed="${d.size === s}">${s}</button>`).join('')}</div></fieldset>
         <fieldset><legend class="field-l">Draw</legend>
@@ -1566,16 +1914,16 @@ function draftView() {
 }
 
 function mixDraftView(d) {
-  const st = mixStatus(d), size = d.m * d.k, grouped = d.seeding === 'grouped';
+  const st = mixStatus(d), size = d.m * d.k, grouped = d.seeding === 'grouped', chk = draftCheck(d);
   const intro = d.edit ? EDIT_HOW : d.source === 'claude' ? `Claude picked ${plural(d.groups.length, 'artist')} and ranked them, with ${plural(d.k, 'song')} each. ` : '';
   const how = grouped
     ? `Each artist’s songs face each other first, and from the ${roundName(size, Math.log2(d.k))} on it’s artist vs artist. Artist order matters: the top two can only meet in the final. Song order matters inside each artist too.`
     : 'Songs are placed at random, so artists mix from the first round.';
-  const songAct = (gi, si, n, s) => `<span class="acts"><button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${si === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="1" aria-label="Move ${esc(s.t)} down" ${si === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="s-bench" data-g="${gi}" data-i="${si}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span>`;
+  const songAct = (gi, si, n, s) => `<span class="acts">${draftPlay(d.groups[gi].name, s.t)}<button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="-1" aria-label="Move ${esc(s.t)} up" ${si === 0 ? 'disabled' : ''}>${ic('up', 'sm')}</button><button class="icon" data-act="s-mv" data-g="${gi}" data-i="${si}" data-d="1" aria-label="Move ${esc(s.t)} down" ${si === n - 1 ? 'disabled' : ''}>${ic('down', 'sm')}</button><button class="icon" data-act="s-bench" data-g="${gi}" data-i="${si}" aria-label="Remove ${esc(s.t)}">${ic('x', 'sm')}</button></span>`;
   const cards = d.groups.map((g, gi) => {
     const n = g.songs.length, need = d.k - n;
     const rows = g.songs.map((s, si) => `<li class="lu flat"><span class="rk ${si === 0 ? 'hi' : ''}">${si + 1}</span><span class="bar" style="${alStyle(g.color)}"></span>
-      <span class="tt"><b>${esc(s.t)}</b><small>${esc([s.al, s.y].filter(Boolean).join(' · ')) || '&nbsp;'}</small></span>${songAct(gi, si, n, s)}</li>`).join('');
+      <span class="tt"><b>${esc(s.t)}</b><small>${draftFlag(chk, g.name, s.t) || esc([s.al, s.y].filter(Boolean).join(' · ')) || '&nbsp;'}</small></span>${songAct(gi, si, n, s)}</li>`).join('');
     const fill = g.loading ? `<p class="gen-live sm"><span class="pulse"></span>Getting songs…</p>`
       : need > 0 ? `<button class="btn sm" data-act="g-fill" data-g="${gi}">${ic('refresh', 'sm')}Get ${plural(need, 'song')} from Claude</button>` : '';
     const bench = g.bench.length ? `<div class="bench">${g.bench.map((s, bi) => `<button class="chip" data-act="s-unbench" data-g="${gi}" data-i="${bi}" title="Bring in ${esc(s.t)}"><span class="sw" style="${alStyle(g.color)}"></span>${esc(s.t)}${ic('plus', 'sm')}</button>`).join('')}</div>` : '';
@@ -1603,6 +1951,7 @@ function mixDraftView(d) {
     <aside class="draft-side">
       <div class="side-card">
         <div class="title"><span class="h3">${esc(st.msg)}</span><span class="count ${st.ok ? 'ok' : 'off'}">${st.ok ? ic('check', 'sm') : ''}${d.groups.length} / ${d.m}</span></div>
+        ${checkNote(chk)}
         <div><label class="field-l" for="mix-title">Bracket name</label><input type="text" id="mix-title" maxlength="80" value="${esc(d.artist)}" style="width:100%"></div>
         <fieldset><legend class="field-l">Artists</legend>${seg(MIX_COUNTS, d.m, 'mix-m', n => mixOk(n, d.k))}</fieldset>
         <fieldset><legend class="field-l">Songs per artist</legend>${seg(MIX_PER, d.k, 'mix-k', n => mixOk(d.m, n))}</fieldset>
@@ -1663,7 +2012,8 @@ function songCard(b, k, s, win, side) {
       <span class="duel-album">${songLine(b, s)}</span>
       <span class="duel-cta">${win === s ? `${ic('check', 'sm')}Your pick` : 'Pick this song'}</span>
     </button>
-    <div class="listen">${listenLinks(songArtist(b, s), song.t)}</div>
+    ${pvBtn(b, s, '', side === 'L' ? '1' : '2')}
+    <div class="listen">${listenLinks(songArtist(b, s), song.t, mediaOf(b, s)?.u)}</div>
   </div>`;
 }
 function currentPlayK(b, w) {
@@ -1688,6 +2038,7 @@ function playTab(b) {
   const [r, i] = locate(n, k);
   const [a, c] = entrants(n, w, r, i);
   const ks = playable(n, w);
+  mediaWant(b, [a, c]);
   const rounds = Array.from({ length: R }, (_, rr) => {
     const m = mCount(n, rr), o = off(n, rr);
     let d = 0; for (let x = 0; x < m; x++) if (w[o + x] !== null) d++;
@@ -1722,7 +2073,7 @@ function playTab(b) {
     <div class="play-nav">
       <button class="btn" data-act="prev" ${ks.indexOf(k) <= 0 ? 'disabled' : ''}>${ic('back', 'sm')}Previous</button>
       <span class="mid">${w[k] !== null ? `<button class="btn sm" data-act="clear-pick" data-k="${k}">${ic('undo', 'sm')}Clear pick</button>` : ''}
-        <span class="keys">Use <span class="kbd">←</span><span class="kbd">→</span> to pick, <span class="kbd">S</span> to skip${w[k] !== null ? ', <span class="kbd">⌫</span> to clear' : ''}</span></span>
+        <span class="keys">Use <span class="kbd">←</span><span class="kbd">→</span> to pick, <span class="kbd">1</span><span class="kbd">2</span> to listen, <span class="kbd">S</span> to skip${w[k] !== null ? ', <span class="kbd">⌫</span> to clear' : ''}</span></span>
       <button class="btn" data-act="next">${w[k] === null ? 'Skip' : 'Next'}${ic('arrow', 'sm')}</button>
     </div>
     <div class="notes">${noteBox(a)}${noteBox(c)}</div>
@@ -1738,22 +2089,28 @@ function championView(b, w) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="first-open">Go to the first one</button><button class="btn" data-act="tab" data-tab="bracket">Open the bracket</button></div></section>`;
   }
   const c = w[n - 2], song = b.songs[c], al = albumOf(b, c);
+  mediaWant(b, [c]);
   const route = [];
   for (let k = 0; k < n - 1; k++) if (w[k] === c) {
     const [r, i] = locate(n, k); const [x, y] = entrants(n, w, r, i);
     const lost = x === c ? y : x, la = albumOf(b, lost);
     route.push(`<li><span>${roundName(n, r)}</span><span class="who"><span class="sw" style="${alStyle(la.color)}"></span><span>${esc(b.songs[lost].t)}</span></span><span class="mono">${b.songs[lost].seed ? '#' + b.songs[lost].seed : ''}</span></li>`);
   }
+  const st = upsetStats(b, w);
+  const nums = st ? `<div class="nums"><div><b>${st.ups}</b><span>${st.ups === 1 ? 'upset' : 'upsets'} in ${st.tot} matches</span></div><div><b>${Math.round((1 - st.ups / st.tot) * 100)}%</b><span>of your picks went with the favorite</span></div></div>
+    ${st.big ? `<p class="hint" style="margin-top:12px">Your biggest upset: <b>${esc(b.songs[st.big.v].t)}</b> over <b>${esc(b.songs[st.big.l].t)}</b> in the ${roundName(n, st.big.r).toLowerCase().replace(/^round/, 'Round')}.</p>` : ''}` : '';
   const done = participants(S.bid).filter(p => !p.me && p.done).map(p => p.uid);
   const friends = done.length ? `<p class="friends-line"><span class="avs">${done.slice(0, 4).map(u => avatar(u)).join('')}</span>${esc(listNames(done))} ${done.length === 1 ? 'is' : 'are'} done too.</p>` : '';
   return `<section class="champ">
     <div class="champ-hero" style="${alStyle(al.color)}">
-      <p class="eyebrow">${ic('trophy')}Your champion</p>
-      <h2 class="champ-title">${esc(song.t)}</h2>
-      <p>${songLine(b, c)}${song.seed ? ` · ${seedText(b, song)}` : ''}</p>
+      <div class="champ-txt"><p class="eyebrow">${ic('trophy')}Your champion</p>
+        <h2 class="champ-title">${esc(song.t)}</h2>
+        <p>${songLine(b, c)}${song.seed ? ` · ${seedText(b, song)}` : ''}</p>
+        <div class="listen">${listenLinks(songArtist(b, c), song.t, mediaOf(b, c)?.u)}</div></div>
+      ${pvBtn(b, c, 'big')}
     </div>
     <div class="champ-body">
-      <div><h3 class="h3" style="font-size:20px">Road to the title</h3><ol class="route">${route.join('')}</ol></div>
+      <div><h3 class="h3" style="font-size:20px">Road to the title</h3><ol class="route">${route.join('')}</ol>${nums}</div>
       <div class="champ-acts">
         ${friends}
         <div class="row"><button class="btn primary lg" data-act="tab" data-tab="compare">Compare with friends</button><button class="btn lg" data-act="share-card">${ic('share', 'sm')}Share card</button></div>
@@ -1770,11 +2127,12 @@ function slotBtn(b, s, k, win, editable) {
   const note = editable ? noteOf(S.bid, s) : '';
   return `<button class="slot ${cls}" style="${alStyle(al.color)}" data-act="pick" data-k="${k}" data-s="${s}" title="${esc(song.t)} · ${esc(al.name)}${note ? ' · Your note: ' + esc(note) : ''}" ${editable ? '' : 'disabled'}><span class="sd">${song.seed ?? ''}</span><span class="st">${esc(song.t)}</span>${note ? '<i class="nd" aria-hidden="true"></i>' : ''}</button>`;
 }
-function matchBox(b, w, r, i, editable) {
+function matchBox(b, w, r, i, editable, cmp) {
   const k = off(b.size, r) + i, [a, c] = entrants(b.size, w, r, i);
-  return `<div class="mb">${slotBtn(b, a, k, w[k], editable)}${slotBtn(b, c, k, w[k], editable)}</div>`;
+  const diff = cmp && w[k] !== null && cmp[k] !== null && cmp[k] !== w[k];
+  return `<div class="mb${diff ? ' diff' : ''}">${slotBtn(b, a, k, w[k], editable)}${slotBtn(b, c, k, w[k], editable)}</div>`;
 }
-function tree(b, w, editable) {
+function tree(b, w, editable, cmp) {
   const n = b.size, R = nRounds(n);
   const short = r => { const left = n >> r; return left === 8 ? 'Quarters' : left === 4 ? 'Semis' : 'Round of ' + left; };
   const side = s => {
@@ -1782,7 +2140,7 @@ function tree(b, w, editable) {
     for (let r = 0; r < R - 1; r++) {
       const half = mCount(n, r) / 2, start = s === 'L' ? 0 : half;
       const ms = [];
-      for (let i = start; i < start + half; i++) ms.push(`<div class="m ${r > 0 ? 'in' : ''}">${matchBox(b, w, r, i, editable)}</div>`);
+      for (let i = start; i < start + half; i++) ms.push(`<div class="m ${r > 0 ? 'in' : ''}">${matchBox(b, w, r, i, editable, cmp)}</div>`);
       const head = `<div class="col-h">${short(r)}</div>`;
       if (half === 1) cols.push(`<div class="col">${head}<div class="pair solo">${ms[0]}</div></div>`);
       else { const pairs = []; for (let p = 0; p < ms.length; p += 2) pairs.push(`<div class="pair">${ms[p]}${ms[p + 1]}</div>`); cols.push(`<div class="col">${head}${pairs.join('')}</div>`); }
@@ -1796,7 +2154,7 @@ function tree(b, w, editable) {
   return `<div class="bk-frame" id="bk-frame"><div class="bk ${n >= 64 ? 'big' : ''}" id="bk" style="--rows:${n / 4}">
     ${side('L')}
     <div class="center"><div class="col-h">Final</div><div class="center-body"><div class="plate">${ic('trophy', 'lg')}<span class="plate-l">Champion</span>${plate}</div>
-      <div class="m">${matchBox(b, w, R - 1, 0, editable)}</div>
+      <div class="m">${matchBox(b, w, R - 1, 0, editable, cmp)}</div>
       ${editable && left ? `<div class="left-l"><button data-act="tab" data-tab="play">${plural(left, 'pick')} left${ic('arrow', 'sm')}</button></div>` : ''}</div></div>
     ${side('R')}
   </div></div>`;
@@ -1805,23 +2163,28 @@ function revealed(bid) {
   return !participants(bid).some(p => !p.me) || !!lsGet(LS_REVEAL, {})[revealKey(bid)];
 }
 function treeTab(b) {
-  const uid = S.viewing;
-  const w = uid ? picksOf(uid, S.bid) : getMine(S.bid);
+  const uid = S.viewing, grp = uid === GROUP;
   const mine = getMine(S.bid);
+  const w = uid ? picksOf(uid, S.bid) : mine;
   const others = revealed(S.bid) ? participants(S.bid).filter(p => !p.me) : [];
-  const opts = [`<option value="">My picks (${picked(mine)} of ${b.size - 1})</option>`, ...others.map(p => `<option value="${esc(p.uid)}" ${p.uid === uid ? 'selected' : ''}>${esc(nameOf(p.uid))}’s picks${p.done ? '' : ` (${p.n} of ${b.size - 1})`}</option>`)].join('');
+  const opts = [`<option value="">My picks (${picked(mine)} of ${b.size - 1})</option>`, ...others.map(p => `<option value="${esc(p.uid)}" ${p.uid === uid ? 'selected' : ''}>${esc(nameOf(p.uid))}’s picks${p.done ? '' : ` (${p.n} of ${b.size - 1})`}</option>`),
+    others.length ? `<option value="${GROUP}" ${grp ? 'selected' : ''}>The group’s bracket</option>` : ''].join('');
   const confirming = S.confirm === 'reset';
-  const right = uid ? '' : (picked(w) ? (confirming
+  const right = `<button class="btn sm" data-act="share-bracket">${ic('download', 'sm')}Save as image</button>` + (uid ? '' : (picked(w) ? (confirming
     ? `<span class="confirm">Clear all ${picked(w)} picks?<button class="btn sm danger" data-act="reset-yes">Clear picks</button><button class="btn sm" data-act="confirm-no">Keep</button></span>`
-    : `<button class="btn sm" data-act="reset">Clear my picks</button>`) : '') + deleteControls(b);
+    : `<button class="btn sm" data-act="reset">Clear my picks</button>`) : '') + deleteControls(b));
   const zoom = zoomMode();
+  const diffs = uid ? w.filter((v, k) => v !== null && mine[k] !== null && v !== mine[k]).length : 0;
+  const hint = !uid ? 'Click a song to send it through. Changing an early pick clears the picks after it.'
+    : (grp ? 'Read only. Each match goes to the song more of you sent through.' : `Read only. These are ${esc(nameOf(uid))}’s picks.`)
+      + (picked(mine) ? ` <span class="diff-key"><i></i>${diffs ? `${plural(diffs, 'match', 'matches')} where you picked differently` : 'You picked the same everywhere'}</span>` : '');
   const top = `<div class="toolbar">
       <div class="grp">${others.length ? `<label for="whose">Showing</label><select id="whose">${opts}</select>` : ''}
-        <span class="hint" style="font-size:13px">${uid ? `Read only. These are ${esc(nameOf(uid))}’s picks.` : 'Click a song to send it through. Changing an early pick clears the picks after it.'}</span></div>
+        <span class="hint" style="font-size:13px">${hint}</span></div>
       <div class="grp"><div class="seg words" role="group" aria-label="Zoom"><button type="button" data-act="zoom" data-v="fit" aria-pressed="${zoom === 'fit'}">Fit</button><button type="button" data-act="zoom" data-v="full" aria-pressed="${zoom === 'full'}">100%</button></div>${right}</div>
     </div>`;
   const legend = `<div class="legend below">${b.albums.map(a => `<span><span class="sw" style="${alStyle(a.color)}"></span>${albumLine(a)}</span>`).join('')}</div>`;
-  return top + tree(b, w, !uid) + legend;
+  return top + tree(b, w, !uid, uid ? mine : null) + legend;
 }
 function deleteControls(b) {
   if (!canManage(b)) return '';
@@ -1836,6 +2199,61 @@ function fitTree() {
   if (zoomMode() !== 'fit') return;
   const scale = Math.min(1, (frame.clientWidth - 2) / bk.offsetWidth);
   if (scale < 1) bk.style.zoom = String(Math.max(.55, scale));
+}
+
+/* group maths */
+// the bracket the group would fill out together: each match goes to the song more people sent through that round
+function groupPicks(b, ppl) {
+  const n = b.size, R = nRounds(n);
+  const reach = Array.from({ length: n }, () => new Array(R).fill(0)), tot = new Array(n).fill(0);
+  for (const p of ppl) for (let k = 0; k < n - 1; k++) { const s = p.w[k]; if (s !== null) { reach[s][locate(n, k)[0]]++; tot[s]++; } }
+  const w = new Array(n - 1).fill(null);
+  for (let r = 0; r < R; r++) for (let i = 0; i < mCount(n, r); i++) {
+    const k = off(n, r) + i, [x, y] = entrants(n, w, r, i);
+    if (x === null || y === null || !ppl.some(p => p.w[k] !== null)) continue;
+    // ties go to the song with more wins overall, then the better seed
+    const d = (reach[x][r] - reach[y][r]) || (tot[x] - tot[y]) || ((b.songs[y].seed || 0) - (b.songs[x].seed || 0)) || (y - x);
+    w[k] = d >= 0 ? x : y;
+  }
+  return w;
+}
+// matchups (in any round) that at least two people faced and split on, closest first
+function debates(b, ppl) {
+  const n = b.size, map = new Map();
+  for (const p of ppl) for (let k = 0; k < n - 1; k++) {
+    const v = p.w[k]; if (v === null) continue;
+    const [r, i] = locate(n, k), [x, y] = entrants(n, p.w, r, i), key = k + ':' + x + ':' + y;
+    let e = map.get(key); if (!e) map.set(key, e = { r, x, y, A: [], B: [] });
+    (v === x ? e.A : e.B).push(p.uid);
+  }
+  const close = e => Math.min(e.A.length, e.B.length) / (e.A.length + e.B.length);
+  return [...map.values()].filter(e => e.A.length && e.B.length)
+    .sort((p, q) => close(q) - close(p) || (q.A.length + q.B.length) - (p.A.length + p.B.length) || q.r - p.r);
+}
+// every pair of people and how often they made the same pick, most alike first
+function alikePairs(b, ppl) {
+  const out = [];
+  for (let i = 0; i < ppl.length; i++) for (let j = i + 1; j < ppl.length; j++) {
+    const pct = agreement(b, ppl[i].w, ppl[j].w);
+    if (pct !== null) out.push({ a: ppl[i].uid, b: ppl[j].uid, pct });
+  }
+  return out.sort((x, y) => y.pct - x.pct);
+}
+// an upset is a pick against the ranking: a lower-ranked song, or in lineups a lower-ranked artist
+function upsetStats(b, w) {
+  const n = b.size; if (!b.songs.every(s => s.seed)) return null;
+  const mix = isMix(b);
+  let ups = 0, tot = 0, big = null;
+  for (let k = 0; k < n - 1; k++) {
+    const v = w[k]; if (v === null) continue;
+    const [r, i] = locate(n, k), [x, y] = entrants(n, w, r, i), l = v === x ? y : x;
+    const sv = b.songs[v], sl = b.songs[l], cross = mix && sv.a !== sl.a;
+    const gap = cross ? sv.a - sl.a : sv.seed - sl.seed, scale = cross ? b.albums.length : mix ? (b.per || n) : n;
+    if (!gap) continue;
+    tot++;
+    if (gap > 0) { ups++; const g = gap / scale; if (!big || g > big.g || (g === big.g && r > big.r)) big = { g, r, v, l }; }
+  }
+  return tot ? { ups, tot, big } : null;
 }
 
 /* compare */
@@ -1858,6 +2276,7 @@ function compareTab(b) {
   if (!ppl.length) return `<section class="cmp"><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2>${invite}</div>${inviteBox}<div class="empty-state">Nobody has picked yet. Start in the Pick tab, then send this page to your friends.</div></section>`;
   const hasOthers = ppl.some(p => !p.me);
   const eye = hasOthers ? `<button class="btn sm" data-act="${isRevealed ? 'hide-results' : 'peek'}" aria-pressed="${isRevealed}">${ic(isRevealed ? 'eyeOff' : 'eye', 'sm')}${isRevealed ? 'Hide results' : 'Show results'}</button>` : '';
+  const showBtn = `<button class="btn primary" data-act="show-start">${PLAY}Start the reveal</button>`;
 
   const scores = new Map();
   if (mine) for (const p of ppl) if (!p.me && (isRevealed)) { const a = agreement(b, mine.w, p.w); if (a !== null) scores.set(p.uid, a); }
@@ -1865,25 +2284,32 @@ function compareTab(b) {
   const people = ppl.map(p => {
     const champ = p.champ !== null && p.champ !== undefined ? b.songs[p.champ] : null;
     const show = isRevealed || p.me;
+    const ups = show && p.done ? upsetStats(b, p.w) : null;
     const sub = !show ? (p.done ? 'Finished' : `${p.n} of ${n - 1} picked`)
-      : champ ? `<span class="sw" style="${alStyle(albumOf(b, p.champ).color)}"></span>Champion <b>${esc(champ.t)}</b>`
+      : champ ? `<span class="sw" style="${alStyle(albumOf(b, p.champ).color)}"></span>Champion <b>${esc(champ.t)}</b>${ups ? `<span class="nowrap">· ${plural(ups.ups, 'upset')}</span>` : ''}`
       : `${p.n} of ${n - 1} picked`;
     const sc = scores.get(p.uid);
     const pill = sc !== undefined ? `<span class="pill ${sc === best && scores.size > 1 ? 'hi' : ''}">${sc}% match${p.done && mine.done ? '' : ' so far'}</span>` : '';
     const act = p.me ? `<button class="btn sm" data-act="tab" data-tab="bracket">My bracket</button>` : show ? `<button class="btn sm" data-act="view" data-uid="${esc(p.uid)}">View bracket</button>` : '<span></span>';
     return `<div class="person">${avatar(p.uid)}<div style="min-width:0"><div class="nmrow"><span class="nm">${esc(nameOf(p.uid))}</span>${pill}</div><div class="sub">${sub}</div>${p.done ? '' : `<div class="meter"><i style="width:${p.n / (n - 1) * 100}%"></i></div>`}</div>${act}</div>`;
   }).join('');
+  const pairs = isRevealed && ppl.length > 2 ? alikePairs(b, ppl) : [];
+  const pairLine = pr => `${esc(nameOf(pr.a))} and ${esc(nameOf(pr.b))} <b>${pr.pct}%</b>`;
+  const alike = pairs.length > 1 ? `<p class="hint alike">Most alike: ${pairLine(pairs[0])}<br>Least alike: ${pairLine(pairs[pairs.length - 1])}</p>` : '';
   const whoCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Who’s in</h2><span style="display:flex;gap:8px;flex-wrap:wrap">${eye}${invite}</span></div>${inviteBox}${people}
-    ${scores.size ? `<p class="hint" style="font-size:13px">Match % is how often you made the same pick in matchups you both faced.</p>` : ''}</section>`;
+    ${scores.size ? `<p class="hint" style="font-size:13px">Match % is how often you made the same pick in matchups you both faced.</p>` : ''}${alike}</section>`;
 
   if (!isRevealed) {
     const box = mine && mine.done
-      ? `<b>Results are hidden so nothing gets spoiled.</b><span>Everyone’s champions, the standings and the debates are behind the eye. Show them when you’re ready, like on the call.</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="peek">${ic('eye', 'sm')}Show results</button></div>`
+      ? `<b>Results are hidden so nothing gets spoiled.</b><span>On the call? The reveal walks everyone through the biggest debates, then each person’s champion, one at a time. Or just show everything.</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${showBtn}<button class="btn" data-act="peek">${ic('eye', 'sm')}Show results</button></div>`
       : `<b>Results are hidden.</b><span>Finish your bracket first so nobody sways your picks. You can still look if you want to.</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="tab" data-tab="play">Finish my bracket</button><button class="btn" data-act="peek">${ic('eye', 'sm')}Show anyway</button></div>`;
     return `<section class="cmp"><div class="cmp-cols">${whoCol}<section><div class="hidden-box">${box}</div></section></div></section>`;
   }
+
+  const cta = hasOthers ? `<section class="card-box reveal-cta"><div><h2 class="h3">On the call?</h2><p class="hint">Run the reveal: the biggest debates first, then everyone’s champion, one at a time.</p></div>
+    <div class="acts">${showBtn}<button class="btn" data-act="view" data-uid="${GROUP}">${ic('bracket', 'sm')}The group’s bracket</button></div></section>` : '';
 
   // champion vote
   const votes = new Map();
@@ -1928,24 +2354,89 @@ function compareTab(b) {
     artistCol = `<section><div class="sec-top" style="margin:0"><h2 class="h3">Artist standings</h2><span class="hint">1 point per win over another artist, in anyone’s bracket</span></div><ol class="stand">${rows}</ol></section>`;
   }
 
-  // first-round splits: the only round where everyone faced the same matchups
-  const splits = [];
-  for (let i = 0; i < mCount(n, 0); i++) {
-    const A = [], B = [];
-    for (const p of ppl) { if (p.w[i] === 2 * i) A.push(p.uid); else if (p.w[i] === 2 * i + 1) B.push(p.uid); }
-    if (A.length && B.length) splits.push({ i, A, B });
-  }
-  splits.sort((x, y) => (Math.min(y.A.length, y.B.length) / (y.A.length + y.B.length)) - (Math.min(x.A.length, x.B.length) / (x.A.length + x.B.length)) || (y.A.length + y.B.length) - (x.A.length + x.B.length));
-  const splitHtml = splits.slice(0, 10).map(({ i, A, B }) => {
-    const a1 = albumOf(b, 2 * i), a2 = albumOf(b, 2 * i + 1);
-    return `<div class="split"><div class="teams"><b>${esc(b.songs[2 * i].t)}</b><span class="score">${A.length}–${B.length}</span><b>${esc(b.songs[2 * i + 1].t)}</b></div>
+  // debates: any matchup at least two people faced and split on. Everyone shares the first round; later rounds depend on earlier picks.
+  const splitHtml = debates(b, ppl).slice(0, 12).map(({ r, x, y, A, B }) => {
+    const a1 = albumOf(b, x), a2 = albumOf(b, y);
+    return `<div class="split"><span class="split-r">${roundName(n, r)}</span><div class="teams"><b>${esc(b.songs[x].t)}</b><span class="score">${A.length}–${B.length}</span><b>${esc(b.songs[y].t)}</b></div>
       <div class="tug" aria-hidden="true"><i style="${alStyle(a1.color)};--f:${A.length}"></i><i style="${alStyle(a2.color)};--f:${B.length}"></i></div>
       <div class="names"><span>${esc(listNames(A))}</span><span>${esc(listNames(B))}</span></div></div>`;
   }).join('');
-  const debates = `<section><div class="sec-top" style="margin-bottom:12px"><h2 class="h3">Biggest debates</h2><span class="hint">First-round matchups where the group split</span></div>
-    ${splitHtml ? `<div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'Everyone agrees on the first round so far.' : 'Splits appear once two people have picked.'}</p>`}</section>`;
+  const debatesSec = `<section><div class="sec-top" style="margin-bottom:12px"><h2 class="h3">Biggest debates</h2><span class="hint">Matchups where the group split, in any round</span></div>
+    ${splitHtml ? `<div class="splits">${splitHtml}</div>` : `<p class="hint">${ppl.length > 1 ? 'No split decisions so far.' : 'Splits appear once two people have picked.'}</p>`}</section>`;
 
-  return `<section class="cmp">${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${artistCol}${debates}</section>`;
+  return `<section class="cmp">${cta}${votes.size ? vote : ''}<div class="cmp-cols">${whoCol}${standCol}</div>${artistCol}${debatesSec}</section>`;
+}
+
+/* the reveal: a slideshow for the call. Debates build up to everyone's champion, then the group's. */
+function showSlides(b, ppl) {
+  const done = ppl.filter(p => p.done), slides = [{ t: 'intro' }];
+  debates(b, ppl).slice(0, 5).reverse().forEach(e => slides.push({ t: 'debate', e }));
+  const pairs = alikePairs(b, ppl);
+  if (pairs.length) slides.push({ t: 'alike', pairs });
+  const cnt = new Map();
+  done.forEach(p => cnt.set(p.champ, (cnt.get(p.champ) || 0) + 1));
+  done.slice().sort((x, y) => cnt.get(x.champ) - cnt.get(y.champ) || x.champ - y.champ).forEach(p => slides.push({ t: 'champ', p }));
+  const gc = groupPicks(b, ppl)[b.size - 2];
+  if (gc !== null && done.length > 1) slides.push({ t: 'final', c: gc, votes: cnt.get(gc) || 0, done: done.length });
+  return slides;
+}
+const showSongs = sl => sl.t === 'debate' ? [sl.e.x, sl.e.y] : sl.t === 'champ' ? [sl.p.champ] : sl.t === 'final' ? [sl.c] : [];
+function showView(b) {
+  const n = b.size, ppl = participants(S.bid), slides = showSlides(b, ppl), sh = S.show;
+  sh.i = Math.max(0, Math.min(sh.i, slides.length - 1));
+  const sl = slides[sh.i], open = sh.open || sl.t === 'intro', last = sh.i === slides.length - 1;
+  mediaWant(b, [...showSongs(sl), ...(slides[sh.i + 1] ? showSongs(slides[sh.i + 1]) : [])]);
+  const card = (s, under = '') => `<div class="show-song"><div class="show-card" style="${alStyle(albumOf(b, s).color)}">${pvBtn(b, s)}<div class="show-txt"><b>${esc(b.songs[s].t)}</b><span>${songLine(b, s)}</span></div></div>${under}</div>`;
+  const who = (uids, cls = '') => `<div class="show-who ${cls}">${uids.map(u => `<span>${avatar(u)}${esc(nameOf(u))}</span>`).join('')}</div>`;
+  const kinds = t => slides.filter(x => x.t === t);
+  let eyebrow = 'The reveal', h = '', body = '';
+  if (sl.t === 'intro') {
+    const nd = kinds('debate').length, nc = kinds('champ').length;
+    h = esc(b.artist);
+    body = `<p class="show-lead">${plural(ppl.length, 'bracket')} in. ${nd ? plural(nd, 'debate') + ', then ' : ''}${nc ? plural(nc, 'champion') : 'nobody has finished yet'}${kinds('final').length ? ' and the group’s winner' : ''}.</p>
+      <p class="hint">Share your screen. Every slide waits for you: press <span class="kbd">Space</span> or tap the button to reveal it.</p>`;
+  } else if (sl.t === 'debate') {
+    const e = sl.e;
+    eyebrow = `Debate ${kinds('debate').indexOf(sl) + 1} of ${kinds('debate').length} · ${roundName(n, e.r)}`;
+    h = open ? `${e.A.length} – ${e.B.length}` : 'Who picked which?';
+    body = `<div class="show-duel">${card(e.x, open ? who(e.A) : '')}<span class="show-vs" aria-hidden="true">VS</span>${card(e.y, open ? who(e.B) : '')}</div>`;
+  } else if (sl.t === 'alike') {
+    const two = sl.pairs.length === 1, top = sl.pairs[0], low = sl.pairs[sl.pairs.length - 1], meIn = ppl.some(p => p.me);
+    const row = (label, pr) => `<div class="show-pair"><span class="eyebrow">${label}</span>${who([pr.a, pr.b])}<b>${pr.pct}%</b><span class="hint">the same pick whenever they faced the same matchup</span></div>`;
+    eyebrow = 'Same brain?';
+    h = two ? `How alike are ${meIn ? 'you' : 'these'} two?` : 'Who thinks most alike?';
+    body = open ? `<div class="show-pairs">${row(two ? 'Same picks' : 'Most alike', top)}${two ? '' : row('Least alike', low)}</div>`
+      : `<div class="show-q" aria-hidden="true">?</div>`;
+  } else if (sl.t === 'champ') {
+    const p = sl.p;
+    eyebrow = `Champion ${kinds('champ').indexOf(sl) + 1} of ${kinds('champ').length}`;
+    h = `${avatar(p.uid, 'xl')}<span>${p.me ? 'Your' : esc(nameOf(p.uid)) + '’s'} champion${open ? '' : ' is…'}</span>`;
+    body = open ? `<div class="show-duel one">${card(p.champ)}</div>` : `<div class="show-q" aria-hidden="true">?</div>`;
+  } else {
+    eyebrow = 'All together now';
+    h = open ? 'The group’s champion' : 'And the group’s champion is…';
+    body = open ? `<div class="show-duel one">${card(sl.c, `<p class="hint">${sl.votes} of ${sl.done} had it winning the whole thing. Every match went to the song more of you sent through.</p>
+        <div style="display:flex;justify-content:center"><button class="btn" data-act="show-group">${ic('bracket', 'sm')}See the group’s bracket</button></div>`)}</div>`
+      : `<div class="show-q" aria-hidden="true">?</div>`;
+  }
+  return `<div class="show" role="dialog" aria-modal="true" aria-label="The reveal">
+    <div class="show-top"><span class="brand">${MARK}Bracket</span><span class="mono">${sh.i + 1} / ${slides.length}</span><button class="iconbtn" data-act="show-close" aria-label="Close the reveal">${ic('x', 'sm')}</button></div>
+    <div class="show-body" aria-live="polite"><p class="eyebrow">${esc(eyebrow)}</p><h2 class="show-h">${h}</h2>${body}</div>
+    <div class="show-foot"><button class="btn" data-act="show-back" ${sh.i === 0 ? 'disabled' : ''}>${ic('back', 'sm')}Back</button>
+      <button class="btn primary lg" id="show-next" data-act="show-next">${!open ? 'Reveal' : last ? 'Finish' : 'Next'}${open && !last ? ic('arrow', 'sm') : ''}</button></div></div>`;
+}
+function showStep(dir) {
+  const b = S.brackets.get(S.bid), sh = S.show; if (!b || !sh) return;
+  const slides = showSlides(b, participants(S.bid)), sl = slides[Math.min(sh.i, slides.length - 1)];
+  if (dir < 0) { if (sh.i > 0) { sh.i--; sh.open = true; render(); } return; }
+  if (!sh.open && sl.t !== 'intro') {
+    sh.open = true; render();
+    // a champion gets its preview played as it's revealed
+    if (sl.t === 'champ' || sl.t === 'final') { const s = showSongs(sl)[0]; mediaPlay(mKey(songArtist(b, s), b.songs[s].t), true); }
+    return;
+  }
+  if (sh.i >= slides.length - 1) S.show = null; else { sh.i++; sh.open = false; }
+  render();
 }
 
 /* share card */
@@ -1976,6 +2467,13 @@ function ellipsize(x, text, maxW) {
   return t.trimEnd() + '…';
 }
 function spaced(x, text, px, y, gap) { let cx = px; for (const ch of text) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + gap; } }
+const loadImg = (url, ms = 3500) => new Promise(res => {
+  const im = new Image(); im.crossOrigin = 'anonymous';
+  const t = setTimeout(() => res(null), ms);
+  im.onload = () => { clearTimeout(t); res(im); };
+  im.onerror = () => { clearTimeout(t); res(null); };
+  im.src = url;
+});
 async function shareCardBlob(b, w) {
   const n = b.size, c = w[n - 2], song = b.songs[c], al = albumOf(b, c);
   const D = '"Big Shoulders Display","Arial Narrow",Impact,sans-serif', B = 'Onest,system-ui,sans-serif';
@@ -1996,11 +2494,19 @@ async function shareCardBlob(b, w) {
   for (let k = 0; k < n - 1; k++) if (w[k] === c) { const [r, i] = locate(n, k), [p, q] = entrants(n, w, r, i); route.push({ r, lost: p === c ? q : p }); }
   const rowH = 76, footTop = H - 170, top = 200;
   const artist = fitText(x, b.artist.toUpperCase(), sz => `900 ${sz}px ${D}`, W - 2 * P, 2, 128, 72);
-  const title = fitText(x, song.t.toUpperCase(), sz => `900 ${sz}px ${D}`, W - 2 * P - 100, 4, 260, 84);
+  const fitTitle = from => fitText(x, song.t.toUpperCase(), sz => `900 ${sz}px ${D}`, W - 2 * P - 100, 4, from, 84);
+  let title = fitTitle(260);
   const artistH = 24 + artist.lines.length * artist.size * .9;
   const routeH = 96 + 24 + route.length * rowH;
   const room = footTop - 70 - top - (62 + artistH + 44) - routeH;
-  const blockH = Math.max(380, Math.min(room, 50 + title.lines.length * title.size * .86 + 160));
+  // cover art goes above the title when there's room for both
+  const cover = mediaOf(b, c); let A = 236;
+  let art = cover ? await loadImg(artUrl(cover, 600)) : null;
+  const need = t => 50 + (art ? A + 20 : 0) + t.lines.length * t.size * .86 + 160;
+  if (art && need(title) > room) title = fitTitle(180);
+  if (art && need(title) > room) { art = null; title = fitTitle(260); }
+  if (art) A = Math.max(236, Math.min(420, Math.floor(room - need(title) + A)));
+  const blockH = Math.max(380, Math.min(room, need(title)));
   let y = top + Math.max(0, (room - blockH) / 2) + 62;
   // eyebrow + artist
   x.fillStyle = '#A2A8B3'; x.font = `600 28px ${B}`; spaced(x, 'MY CHAMPION', P, y, 5);
@@ -2012,8 +2518,13 @@ async function shareCardBlob(b, w) {
   const ink = inkFor(al.color);
   x.fillStyle = al.color; x.beginPath(); x.roundRect(P, blockTop, W - 2 * P, blockH, 36); x.fill();
   x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 2; x.stroke();
+  if (art) {
+    x.save(); x.beginPath(); x.roundRect(P + 50, blockTop + 50, A, A, 22); x.clip();
+    x.drawImage(art, P + 50, blockTop + 50, A, A); x.restore();
+    x.strokeStyle = 'rgba(0,0,0,.25)'; x.lineWidth = 2; x.beginPath(); x.roundRect(P + 50, blockTop + 50, A, A, 22); x.stroke();
+  }
   x.fillStyle = ink; x.font = `900 ${title.size}px ${D}`;
-  let ty = blockTop + 50;
+  let ty = blockTop + 50 + (art ? A + 20 : 0);
   for (const l of title.lines) { ty += title.size * .86; x.fillText(l, P + 50, ty); }
   x.font = `500 34px ${B}`; x.globalAlpha = .9;
   x.fillText(ellipsize(x, `${songLineText(b, c)}${song.seed ? ' · ' + seedText(b, song) : ''}`, W - 2 * P - 100), P + 50, blockTop + blockH - 50);
@@ -2040,35 +2551,143 @@ async function shareCardBlob(b, w) {
   x.textBaseline = 'alphabetic';
   return new Promise((res, rej) => cv.toBlob(bl => bl ? res(bl) : rej(new Error('no image')), 'image/png'));
 }
-async function openShare() {
-  const b = S.brackets.get(S.bid), w = getMine(S.bid); if (!b || !isDone(w)) return;
-  S.share = { status: 'making' }; render();
+/* the whole bracket as one picture */
+async function bracketImageBlob(b, w, who) {
+  const n = b.size, R = nRounds(n);
+  const D = '"Big Shoulders Display","Arial Narrow",Impact,sans-serif', B = 'Onest,system-ui,sans-serif', MONO = '"IBM Plex Mono",ui-monospace,Menlo,monospace';
+  try { await Promise.race([Promise.all(['900 76px "Big Shoulders Display"', '600 15px Onest', '700 15px Onest', '500 22px Onest', '500 12px "IBM Plex Mono"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 2500))]); } catch {}
+  const colW = 236, gap = 28, slotH = 34, pg = 4, pad = 64, centerW = 300, top = 236;
+  const sideH = Math.max(500, (n / 4) * (2 * slotH + pg + 18));
+  const W = 2 * pad + 2 * (R - 1) * (colW + gap) + centerW;
+  const cv = document.createElement('canvas'), x = cv.getContext('2d');
+  // legend layout first, since its height sets the picture's height
+  x.font = `600 16px ${B}`;
+  const legend = []; let lx = 0, row = 0;
+  for (const al of b.albums) {
+    const text = al.name + (al.year ? ' · ' + al.year : ''), wd = 26 + x.measureText(text).width + 28;
+    if (lx && lx + wd > W - 2 * pad) { row++; lx = 0; }
+    legend.push({ al, text, x: lx, row }); lx += wd;
+  }
+  const H = top + sideH + 56 + (row + 1) * 32 + 40;
+  const sc = Math.min(2, Math.max(1, 2400 / W));
+  cv.width = Math.round(W * sc); cv.height = Math.round(H * sc);
+  x.scale(sc, sc);
+  x.fillStyle = '#0D0E11'; x.fillRect(0, 0, W, H);
+  // brand, title, whose picks
+  x.save(); x.translate(pad, 40); x.scale(1.3, 1.3);
+  x.strokeStyle = '#F2F0EA'; x.lineWidth = 2.4; x.lineCap = 'square';
+  x.beginPath(); x.moveTo(2, 4); x.lineTo(8, 4); x.lineTo(8, 12); x.lineTo(13, 12); x.moveTo(2, 20); x.lineTo(8, 20); x.lineTo(8, 12);
+  x.moveTo(24, 4); x.lineTo(18, 4); x.lineTo(18, 12); x.lineTo(13, 12); x.moveTo(24, 20); x.lineTo(18, 20); x.lineTo(18, 12); x.stroke();
+  x.fillStyle = '#C6F432'; x.fillRect(10, 9.5, 6, 5); x.restore();
+  x.textBaseline = 'middle'; x.fillStyle = '#F2F0EA'; x.font = `800 28px ${D}`; x.fillText('BRACKET', pad + 46, 57);
+  const site = (location.host + location.pathname).replace(/\/$/, '');
+  x.fillStyle = '#A2A8B3'; x.font = `500 18px ${B}`; x.textAlign = 'right'; if (site) x.fillText(site, W - pad, 57); x.textAlign = 'left';
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = '#F2F0EA'; x.font = `900 76px ${D}`; x.fillText(ellipsize(x, b.artist.toUpperCase(), W - 2 * pad), pad, 150);
+  const left = n - 1 - picked(w);
+  x.fillStyle = '#A2A8B3'; x.font = `500 22px ${B}`; x.fillText(`${who} · ${n} songs${left ? ` · ${plural(left, 'pick')} to go` : ''}`, pad, 186);
+
+  const slot = (s, k, sx, sy, wd) => {
+    if (s === null) { x.save(); x.setLineDash([5, 5]); x.strokeStyle = '#3A3F49'; x.lineWidth = 1.5; x.beginPath(); x.roundRect(sx + .75, sy + .75, wd - 1.5, slotH - 1.5, 6); x.stroke(); x.restore(); return; }
+    const al = albumOf(b, s), win = w[k], ink = inkFor(al.color), fade = win !== null && win !== s ? .3 : 1;
+    x.save();
+    x.globalAlpha = fade;
+    x.fillStyle = al.color; x.beginPath(); x.roundRect(sx, sy, wd, slotH, 6); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1; x.stroke();
+    if (win === s) { x.strokeStyle = ink; x.lineWidth = 2.5; x.beginPath(); x.roundRect(sx + 1.25, sy + 1.25, wd - 2.5, slotH - 2.5, 5); x.stroke(); }
+    x.fillStyle = ink; x.textBaseline = 'middle';
+    let tx = sx + 10;
+    if (b.songs[s].seed) { x.globalAlpha = fade * .75; x.font = `500 12px ${MONO}`; x.fillText(String(b.songs[s].seed), tx, sy + slotH / 2 + 1); x.globalAlpha = fade; tx += 24; }
+    x.font = `${win === s ? 700 : 600} 15px ${B}`;
+    x.fillText(ellipsize(x, b.songs[s].t, sx + wd - 10 - tx), tx, sy + slotH / 2 + 1);
+    x.restore();
+  };
+  const match = (r, i, sx, yc, wd) => { const k = off(n, r) + i, [a, c] = entrants(n, w, r, i); slot(a, k, sx, yc - slotH - pg / 2, wd); slot(c, k, sx, yc + pg / 2, wd); };
+  const line = (x1, y1, x2, y2) => { x.beginPath(); x.moveTo(x1, y1); x.lineTo(x2, y2); x.stroke(); };
+  const head = (text, cx) => { x.fillStyle = '#A2A8B3'; x.font = `600 12px ${B}`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillText(text.toUpperCase(), cx, top - 18); x.textAlign = 'left'; };
+  const short = r => { const l = n >> r; return l === 2 ? 'Final' : l === 4 ? 'Semis' : l === 8 ? 'Quarters' : 'Round of ' + l; };
+  for (const side of ['L', 'R']) for (let r = 0; r < R - 1; r++) {
+    const half = mCount(n, r) / 2, band = sideH / half;
+    const sx = side === 'L' ? pad + r * (colW + gap) : W - pad - colW - r * (colW + gap);
+    const inner = side === 'L' ? sx + colW : sx, dir = side === 'L' ? 1 : -1;
+    head(short(r), sx + colW / 2);
+    x.strokeStyle = '#3A3F49'; x.lineWidth = 2;
+    for (let j = 0; j < half; j++) {
+      const yc = top + (j + .5) * band;
+      if (half === 1) line(inner, yc, inner + dir * gap, yc);
+      else {
+        line(inner, yc, inner + dir * gap / 2, yc);
+        if (j % 2 === 0) { const y2 = top + (j + 1.5) * band, xm = inner + dir * gap / 2; line(xm, yc, xm, y2); line(xm, (yc + y2) / 2, xm + dir * gap / 2, (yc + y2) / 2); }
+      }
+    }
+    for (let j = 0; j < half; j++) match(r, (side === 'L' ? 0 : half) + j, sx, top + (j + .5) * band, colW);
+  }
+  // the final in the middle, with the champion above it
+  const cx = pad + (R - 1) * (colW + gap), yc = top + sideH / 2, c = w[n - 2];
+  head('Final', cx + centerW / 2);
+  match(R - 1, 0, cx, yc, centerW);
+  x.fillStyle = '#A2A8B3'; x.font = `600 12px ${B}`; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  x.fillText('CHAMPION', cx + centerW / 2, yc - 178);
+  const pw = centerW + 24, px = cx - 12, ph = 104, py = yc - 164;
+  if (c !== null) {
+    const al = albumOf(b, c);
+    x.fillStyle = al.color; x.beginPath(); x.roundRect(px, py, pw, ph, 12); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1; x.stroke();
+    const t = fitText(x, b.songs[c].t.toUpperCase(), sz => `900 ${sz}px ${D}`, pw - 28, 2, 44, 20);
+    x.fillStyle = inkFor(al.color); x.font = `900 ${t.size}px ${D}`; x.textBaseline = 'middle';
+    t.lines.forEach((l, i) => x.fillText(ellipsize(x, l, pw - 28), px + pw / 2, py + ph / 2 + (i - (t.lines.length - 1) / 2) * t.size * .95 + 2));
+  } else {
+    x.save(); x.setLineDash([6, 6]); x.strokeStyle = '#3A3F49'; x.lineWidth = 2; x.beginPath(); x.roundRect(px, py, pw, ph, 12); x.stroke(); x.restore();
+    x.fillStyle = '#A2A8B3'; x.font = `900 30px ${D}`; x.textBaseline = 'middle'; x.fillText('TO BE PICKED', px + pw / 2, py + ph / 2 + 2);
+  }
+  x.textAlign = 'left';
+  // legend
+  x.font = `600 16px ${B}`; x.textBaseline = 'middle';
+  for (const it of legend) {
+    const ly = top + sideH + 56 + it.row * 32;
+    x.fillStyle = it.al.color; x.beginPath(); x.roundRect(pad + it.x, ly - 8, 16, 16, 4); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.2)'; x.lineWidth = 1; x.stroke();
+    x.fillStyle = '#A2A8B3'; x.fillText(it.text, pad + it.x + 26, ly + 1);
+  }
+  return new Promise((res, rej) => cv.toBlob(bl => bl ? res(bl) : rej(new Error('no image')), 'image/png'));
+}
+async function openShare(kind = 'champ') {
+  const b = S.brackets.get(S.bid); if (!b) return;
+  const uid = kind === 'bracket' ? S.viewing : null, mine = getMine(S.bid);
+  const w = uid ? picksOf(uid, S.bid) : mine;
+  if (kind === 'champ' && !isDone(w)) return;
+  if (S.share?.url) URL.revokeObjectURL(S.share.url);
+  const both = !uid && isDone(mine); // your own finished bracket can go out as either picture
+  S.share = { status: 'making', kind, both }; render();
   try {
-    const blob = await shareCardBlob(b, w);
+    const who = uid === GROUP ? 'The group’s bracket' : uid ? `${nameOf(uid)}’s picks` : S.me.name ? `${S.me.name}’s picks` : 'My picks';
+    const blob = kind === 'bracket' ? await bracketImageBlob(b, w, who) : await shareCardBlob(b, w);
     const slug = b.artist.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bracket';
-    const file = new File([blob], `${slug}-champion.png`, { type: 'image/png' });
+    const file = new File([blob], `${slug}-${kind === 'bracket' ? 'bracket' : 'champion'}.png`, { type: 'image/png' });
     let canFile = false; try { canFile = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch {}
-    if (!S.share) return;
-    const champ = b.songs[w[b.size - 2]].t + (isMix(b) ? ' by ' + songArtist(b, w[b.size - 2]) : '');
-    S.share = { status: 'ready', url: URL.createObjectURL(blob), file, canFile, alt: `My ${b.artist} champion: ${champ}`, text: `My ${b.artist} champion: ${champ}. Fill out yours: ${inviteUrl(S.bid)}` };
-  } catch { if (S.share) S.share = { status: 'error' }; }
+    if (!S.share || S.share.kind !== kind || S.share.status !== 'making') return;
+    const c = w[b.size - 2], champ = c === null ? '' : b.songs[c].t + (isMix(b) ? ' by ' + songArtist(b, c) : '');
+    const line = kind === 'bracket' ? `${b.artist} bracket, ${who}${champ ? `. Champion: ${champ}` : ''}` : `My ${b.artist} champion: ${champ}`;
+    S.share = { status: 'ready', kind, both, url: URL.createObjectURL(blob), file, canFile, alt: line, text: `${line}. Fill out yours: ${inviteUrl(S.bid)}` };
+  } catch { if (S.share && S.share.kind === kind) S.share = { status: 'error', kind, both }; }
   render();
   document.getElementById('share-go')?.focus();
 }
 function closeShare() { if (S.share?.url) URL.revokeObjectURL(S.share.url); S.share = null; render(); }
 function shareModal() {
-  const sh = S.share;
-  const body = sh.status === 'making' ? `<p class="loading" style="padding:40px 0;text-align:center">Making your card…</p>`
+  const sh = S.share, wide = sh.kind === 'bracket';
+  const body = sh.status === 'making' ? `<p class="loading" style="padding:40px 0;text-align:center">Making your ${wide ? 'picture' : 'card'}…</p>`
     : sh.status === 'error' ? `<p class="err">Couldn’t make the image on this device. You can still copy the link.</p><button class="btn" data-act="copy-link">${ic('link', 'sm')}Copy link</button>`
     : `<img src="${sh.url}" alt="${esc(sh.alt)}">
       <div class="acts">
         ${sh.canFile ? `<button class="btn primary lg" id="share-go" data-act="share-native">${ic('share', 'sm')}Share…</button>` : ''}
         <div class="row"><a class="btn${sh.canFile ? '' : ' primary'}" ${sh.canFile ? '' : 'id="share-go" '}href="${sh.url}" download="${esc(sh.file.name)}">${ic('download', 'sm')}Save image</a><button class="btn" data-act="copy-link">${ic('link', 'sm')}Copy link</button></div>
       </div>
-      <p class="hint">${sh.canFile ? 'Share opens your phone’s share sheet: Messages, Instagram Stories and more.' : 'Save the image, then post it to your story or drop it in the group chat.'}</p>`;
-  return `<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="share-h">
-    <div class="modal-top"><h2 class="h3" id="share-h">Share your champion</h2><button class="iconbtn" id="share-close" data-act="share-close" aria-label="Close">${ic('x', 'sm')}</button></div>
-    ${body}</div></div>`;
+      <p class="hint">${sh.canFile ? 'Share opens your phone’s share sheet: Messages, Instagram Stories and more.' : wide ? 'Save the image, then drop it in the group chat.' : 'Save the image, then post it to your story or drop it in the group chat.'}</p>`;
+  const kinds = sh.both ? `<div class="seg words" role="group" aria-label="Picture"><button type="button" data-act="share-kind" data-v="champ" aria-pressed="${!wide}">Champion card</button><button type="button" data-act="share-kind" data-v="bracket" aria-pressed="${wide}">Full bracket</button></div>` : '';
+  return `<div class="modal-bg"><div class="modal${wide ? ' wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="share-h">
+    <div class="modal-top"><h2 class="h3" id="share-h">${wide ? 'Share the bracket' : 'Share your champion'}</h2><button class="iconbtn" id="share-close" data-act="share-close" aria-label="Close">${ic('x', 'sm')}</button></div>
+    ${kinds}${body}</div></div>`;
 }
 
 /* ---------- render ---------- */
@@ -2081,7 +2700,9 @@ function render() {
     const el = document.getElementById(focus.id);
     if (el) { el.focus({ preventScroll: true }); try { if (focus.s != null) el.setSelectionRange(focus.s, focus.e); } catch {} }
   }
+  document.body.style.overflow = S.show && S.view === 'bracket' ? 'hidden' : '';
   fitTree();
+  pvSync();
   refreshProfiles();
 }
 window.addEventListener('resize', () => { clearTimeout(fitTree.t); fitTree.t = setTimeout(fitTree, 100); });
@@ -2096,7 +2717,7 @@ function openLinkedBracket() {
   return false;
 }
 const inviteUrl = bid => location.href.split('#')[0] + '#b=' + bid;
-function openBracket(id) { setHash('b=' + id); S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.invite = false; S.jumpRound = null; S.tab = 'play'; window.scrollTo(0, 0); render(); }
+function openBracket(id) { setHash('b=' + id); S.show = null; S.view = 'bracket'; S.bid = id; S.viewing = null; S.playK = null; S.confirm = null; S.invite = false; S.jumpRound = null; S.tab = 'play'; window.scrollTo(0, 0); render(); }
 function playStep(dir) {
   const b = S.brackets.get(S.bid), w = getMine(S.bid), ks = playable(b.size, w), cur = currentPlayK(b, w);
   const idx = ks.indexOf(cur);
@@ -2127,7 +2748,7 @@ document.addEventListener('click', async e => {
     }
     case 'show-prompt': S.gen.show = !S.gen.show; render(); break;
     case 'manual-paste': S.gen = null; S.view = 'create'; S.form.showPaste = true; render(); document.getElementById('paste')?.focus(); break;
-    case 'home': setHash(''); if (S.share) closeShare(); S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
+    case 'home': setHash(''); if (S.share) closeShare(); S.show = null; S.view = 'home'; S.bid = null; S.gen?.ctl?.abort(); S.gen = null; S.confirm = null; render(); break;
     case 'size': S.form.size = +t.dataset.n; render(); break;
     case 'kind': S.form.kind = t.dataset.v; S.form.mixErr = null; render(); break;
     case 'f-m': { const f = S.form; f.m = +t.dataset.n; if (!mixOk(f.m, f.k)) f.k = MIX_PER.find(k => mixOk(f.m, k)); f.mixErr = null; render(); break; }
@@ -2159,7 +2780,15 @@ document.addEventListener('click', async e => {
     case 'new': S.gen?.ctl?.abort(); S.gen = null; S.draft = null; S.createErr = null; setHash(''); S.view = 'create'; render(); window.scrollTo(0, 0); document.getElementById('artist')?.focus(); break;
     case 'hide-results': setReveal(S.bid, false); S.viewing = null; render(); break;
     case 'jump-round': S.jumpRound = +t.dataset.r; render(); break;
-    case 'share-card': openShare(); break;
+    case 'share-card': openShare('champ'); break;
+    case 'share-bracket': openShare('bracket'); break;
+    case 'share-kind': if (S.share?.kind !== t.dataset.v) openShare(t.dataset.v); break;
+    case 'show-start': setReveal(S.bid, true); S.show = { i: 0, open: false }; render(); document.getElementById('show-next')?.focus(); break;
+    case 'show-close': S.show = null; render(); break;
+    case 'show-next': showStep(1); break;
+    case 'show-back': showStep(-1); break;
+    case 'show-group': S.show = null; S.viewing = GROUP; S.tab = 'bracket'; render(); window.scrollTo(0, 0); break;
+    case 'preview': mediaPlay(t.dataset.key); break;
     case 'share-close': closeShare(); break;
     case 'share-native': {
       const sh = S.share; if (!sh?.file) break;
@@ -2360,12 +2989,19 @@ document.addEventListener('input', e => {
 
 document.addEventListener('keydown', e => {
   if (S.share) { if (e.key === 'Escape') closeShare(); return; }
+  if (S.show) {
+    if (e.key === 'Escape') { S.show = null; render(); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); showStep(e.key === 'ArrowRight' ? 1 : -1); }
+    else if ((e.key === ' ' || e.key === 'Enter') && !e.target.closest?.('button,a')) { e.preventDefault(); showStep(1); }
+    return;
+  }
   if (S.view !== 'bracket' || S.tab !== 'play' || S.viewing) return;
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) return;
   const b = S.brackets.get(S.bid); if (!b) return;
   const w = getMine(S.bid), k = currentPlayK(b, w); if (k === null) return;
   if (e.key === 's' || e.key === 'S') { e.preventDefault(); playStep(1); return; }
+  if (e.key === '1' || e.key === '2') { document.querySelectorAll('.duel button.pv')[+e.key - 1]?.click(); return; }
   if ((e.key === 'Backspace' || e.key === 'Delete') && w[k] !== null) { e.preventDefault(); clearPick(k); return; }
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   const [r, i] = locate(b.size, k), [a, c] = entrants(b.size, w, r, i);
